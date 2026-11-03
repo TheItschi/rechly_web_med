@@ -303,7 +303,7 @@ export async function POST(request: NextRequest) {
             userMessage = appwriteError.response?.message || appwriteError.message || "Ungültige Daten – bitte alle Pflichtfelder prüfen";
             statusCode = 400;
         } else if (appwriteError.code === 404) {
-            userMessage = "Kunde oder Datenbank nicht gefunden – bitte Firmendaten unter Einstellungen prüfen";
+            userMessage = "Patient oder Datenbank nicht gefunden – bitte Firmendaten unter Einstellungen prüfen";
             statusCode = 404;
         } else if (appwriteError.message) {
             userMessage = appwriteError.message;

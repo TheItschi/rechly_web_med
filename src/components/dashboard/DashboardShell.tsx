@@ -256,7 +256,7 @@ export default function DashboardLayout({
                         }}
                     >
                         <a
-                            href="mailto:admin@rechly.de"
+                            href="mailto:rechly-med@icsezer.de"
                             style={{
                                 color: "rgba(255,255,255,0.45)",
                                 fontSize: 12,
@@ -332,7 +332,7 @@ export default function DashboardLayout({
                     )}
                     <div style={{ marginTop: 16, textAlign: "center" }}>
                         <a
-                            href="mailto:admin@rechly.de"
+                            href="mailto:rechly-med@icsezer.de"
                             style={{
                                 color: "#64748b",
                                 fontSize: 13,

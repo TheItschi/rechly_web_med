@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
             message?: string;
             response?: { message?: string };
         };
-        let userMessage = "Fehler beim Speichern des Kunden";
+        let userMessage = "Fehler beim Speichern des Patienten";
         let statusCode = 500;
         if (appwriteError.code === 401 || appwriteError.code === 403) {
             userMessage = "Sitzung abgelaufen – bitte erneut anmelden";

@@ -224,7 +224,7 @@ function buildPrompt(
             "Die Antwort soll direkt einsetzbar sein, ohne Einleitung, ohne Aufzählung, in einem Satz oder kurzen Absatz.",
             `Kurze Leistungszusammenfassung: ${body.serviceSummary || ""}`,
             `Unternehmen: ${body.companyName || "Unbekannt"}`,
-            `Kunde: ${body.clientName || "Unbekannt"}`,
+            `Patient: ${body.clientName || "Unbekannt"}`,
             typeof body.totalGross === "number"
                 ? `Gesamtangebot bisher: ${body.totalGross.toFixed(2)} ${body.currency || "EUR"}`
                 : "",
@@ -239,7 +239,7 @@ function buildPrompt(
             "Schreibe kurze professionelle Rechnungsnotizen auf Deutsch.",
             "Die Antwort soll direkt einsetzbar sein und keine Einleitung enthalten.",
             `Unternehmen: ${body.companyName || "Unbekannt"}`,
-            `Kunde: ${body.clientName || "Unbekannt"}`,
+            `Patient: ${body.clientName || "Unbekannt"}`,
             `Rechnungsnummer: ${body.invoiceNumber || "Unbekannt"}`,
             `Rechnungsdatum: ${body.issueDate || "Unbekannt"}`,
             `Fälligkeitsdatum: ${body.dueDate || "Unbekannt"}`,
@@ -256,7 +256,7 @@ function buildPrompt(
             "Formuliere professionelle Zahlungsbedingungen auf Deutsch für eine Rechnung.",
             "Die Antwort soll direkt einsetzbar sein und keine Aufzählung enthalten, außer wenn es klar sinnvoll ist.",
             `Unternehmen: ${body.companyName || "Unbekannt"}`,
-            `Kunde: ${body.clientName || "Unbekannt"}`,
+            `Patient: ${body.clientName || "Unbekannt"}`,
             `Rechnungsnummer: ${body.invoiceNumber || "Unbekannt"}`,
             `Rechnungsdatum: ${body.issueDate || "Unbekannt"}`,
             `Fälligkeitsdatum: ${body.dueDate || "Unbekannt"}`,
@@ -270,11 +270,11 @@ function buildPrompt(
 
     if (body.action === "overdue_client_reply") {
         return [
-            "Entwirf eine professionelle Nachricht auf Deutsch an einen Kunden mit überfälligen Rechnungen.",
+            "Entwirf eine professionelle Nachricht auf Deutsch an einen Patienten mit überfälligen Rechnungen.",
             "Struktur: zuerst eine Betreffzeile in der Form 'Betreff: ...', dann eine Leerzeile, dann der Nachrichtentext.",
             `Unternehmen: ${body.companyName || "Unbekannt"}`,
-            `Kunde: ${body.clientName || "Unbekannt"}`,
-            `Kunden-E-Mail: ${body.clientEmail || "Nicht hinterlegt"}`,
+            `Patient: ${body.clientName || "Unbekannt"}`,
+            `Patienten-E-Mail: ${body.clientEmail || "Nicht hinterlegt"}`,
             invoiceSummary ? `Überfällige Rechnungen:\n${invoiceSummary}` : "",
             "Ton: freundlich, bestimmt, professionell. Bitte um kurze Rückmeldung und Zahlungsausgleich. Keine Markdown-Formatierung.",
         ]
@@ -292,13 +292,13 @@ function buildPrompt(
         return [
             "Du bist ein präziser deutscher Buchhaltungs-KI-Assistent. Extrahiere aus dem folgenden Freitext einen strukturierten Rechnungsentwurf.",
             "Gib AUSSCHLIESSLICH valides JSON ohne Markdown-Codeblöcke und ohne Erklärungen zurück.",
-            clientList ? `Bekannte Kunden:\n${clientList}` : "",
+            clientList ? `Bekannte Patienten:\n${clientList}` : "",
             `Standard-Umsatzsteuersatz: ${defaultVat}%`,
             `Freitext-Eingabe: "${body.promptText || ""}"`,
             `Erwartetes JSON-Schema:
 {
-  "client_id": "Exakte ID aus Bekannte Kunden falls passend, sonst null",
-  "client_name": "Erkannter Kundenname oder null",
+  "client_id": "Exakte ID aus Bekannte Patienten falls passend, sonst null",
+  "client_name": "Erkannter Patientenname oder null",
   "due_days": 14,
   "payment_terms": "Formulierte Zahlungsbedingungen falls erwähnt, sonst null",
   "notes": "Kurze freundliche Rechnungsnotiz passend zum Auftrag oder null",
@@ -321,8 +321,8 @@ function buildPrompt(
         "Entwirf eine professionelle Zahlungserinnerung auf Deutsch als E-Mail.",
         "Struktur: zuerst eine Betreffzeile in der Form 'Betreff: ...', dann eine Leerzeile, dann der E-Mail-Text.",
         `Unternehmen: ${body.companyName || "Unbekannt"}`,
-        `Kunde: ${body.clientName || "Unbekannt"}`,
-        `Kunden-E-Mail: ${body.clientEmail || "Nicht hinterlegt"}`,
+        `Patient: ${body.clientName || "Unbekannt"}`,
+        `Patienten-E-Mail: ${body.clientEmail || "Nicht hinterlegt"}`,
         `Rechnungsnummer: ${body.invoiceNumber || "Unbekannt"}`,
         `Rechnungsdatum: ${body.issueDate || "Unbekannt"}`,
         `Fälligkeitsdatum: ${body.dueDate || "Unbekannt"}`,
