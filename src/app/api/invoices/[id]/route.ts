@@ -1,4 +1,6 @@
 import { readEInvoiceData } from "@/lib/eRechnung/identifiers";
+import { parseGoaeLineData } from "@/lib/goae/line";
+import { parseMedicalData } from "@/lib/icd10";
 import { NextRequest, NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 import {
@@ -108,6 +110,7 @@ export async function GET(
             product_id: item.productId ?? undefined,
             description: item.description,
             gtin: item.gtin || undefined,
+            goae: parseGoaeLineData(item.goaeData),
             quantity: item.quantity,
             unit_of_measure: item.unitOfMeasure || "Stück",
             price: item.price,
@@ -121,6 +124,7 @@ export async function GET(
         const invoice = {
             id: doc.$id,
             e_invoice: readEInvoiceData(doc.eInvoiceData),
+            medical: parseMedicalData(doc.medicalData),
             client_id: doc.clientId,
             invoice_number: doc.invoiceNumber,
             issue_date: doc.issueDate,

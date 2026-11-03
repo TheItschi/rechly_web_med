@@ -763,6 +763,15 @@
                     "size": 16000,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "medicalData",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 16000,
+                    "default": null,
+                    "encrypt": true
                 }
             ],
             "indexes": [
@@ -927,6 +936,15 @@
                     "size": 14,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "goaeData",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 4000,
+                    "default": null,
+                    "encrypt": true
                 }
             ],
             "indexes": [

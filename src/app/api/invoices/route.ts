@@ -1,5 +1,7 @@
 import { IdentifierValidationError, parseGTIN, readEInvoiceData, snapshotIdentifiers } from "@/lib/eRechnung/identifiers";
 import { NextRequest, NextResponse } from "next/server";
+import { GoaeValidationError, normalizeGoaeLine } from "@/lib/goae/line";
+import { MedicalDataError, normalizeMedicalData } from "@/lib/icd10";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import {
     createSessionClient,
@@ -147,7 +149,16 @@ export async function POST(request: NextRequest) {
         const companies = await databases.listDocuments(DATABASE_ID, COLLECTIONS.COMPANY_INFO, [Query.equal("userId", user.$id), Query.limit(1)]);
         const identifiers = snapshotIdentifiers(readEInvoiceData(customer.eInvoiceData), readEInvoiceData(companies.documents[0]?.eInvoiceData), body.e_invoice);
         if (!Array.isArray(body.items)) return NextResponse.json({ error: "Invalid items" }, { status: 400 });
-        for (const item of body.items) item.gtin = parseGTIN(item.gtin);
+        for (const item of body.items) {
+            item.gtin = parseGTIN(item.gtin);
+            // GOÄ lines: the price is always Einfachsatz × Steigerungssatz.
+            if (item.goae) {
+                const { data, unitPrice } = normalizeGoaeLine(item.goae);
+                item.goae = data;
+                item.price = unitPrice;
+            }
+        }
+        const medical = normalizeMedicalData(body.medical);
         const invoiceId = ID.unique();
 
         // Calculate totals
@@ -184,6 +195,7 @@ export async function POST(request: NextRequest) {
             purchaseOrderRef: body.purchase_order_ref || null,
             deliveryDate: body.delivery_date || null,
             paymentTerms: body.payment_terms || null,
+            ...(medical ? { medicalData: JSON.stringify(medical) } : {}),
         };
 
         // Optional attributes that may not exist in all Appwrite schemas
@@ -245,6 +257,7 @@ export async function POST(request: NextRequest) {
                     productId: item.product_id || null,
                     description: item.description,
                     ...(item.gtin ? { gtin: item.gtin } : {}),
+                    ...(item.goae ? { goaeData: JSON.stringify(item.goae) } : {}),
                     quantity: item.quantity,
                     unitOfMeasure: item.unit_of_measure || "Stück",
                     price: item.price,
@@ -264,7 +277,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ id: invoiceId });
     } catch (error) {
-        if (error instanceof IdentifierValidationError) return NextResponse.json({ error: error.message }, { status: 400 });
+        if (error instanceof IdentifierValidationError || error instanceof GoaeValidationError || error instanceof MedicalDataError) {
+            return NextResponse.json({ error: error.message }, { status: 400 });
+        }
         console.error("Error creating invoice:", error);
         const appwriteError = error as {
             code?: number;
@@ -281,6 +296,9 @@ export async function POST(request: NextRequest) {
         if (appwriteError.code === 401 || appwriteError.code === 403) {
             userMessage = "Sitzung abgelaufen – bitte erneut anmelden";
             statusCode = 401;
+        } else if (appwriteError.code === 400 && /Unknown attribute: "?(goaeData|medicalData)/.test(appwriteError.message || "")) {
+            userMessage = "Datenbankschema für GOÄ/Diagnosen fehlt – bitte `npm run migrate:medical` ausführen";
+            statusCode = 400;
         } else if (appwriteError.code === 400) {
             userMessage = appwriteError.response?.message || appwriteError.message || "Ungültige Daten – bitte alle Pflichtfelder prüfen";
             statusCode = 400;

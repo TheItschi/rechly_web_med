@@ -21,6 +21,8 @@ import {
 } from "@react-pdf/renderer";
 import QRCode from "qrcode";
 import { buildGirocodePayload } from "@/lib/girocode";
+import { formatFactor } from "@/lib/goae/fees";
+import { formatDiagnosis } from "@/lib/icd10";
 import { getInvoiceById } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { formatCurrency } from "@/lib/currencyUtils";
@@ -31,6 +33,7 @@ import type { InvoiceWithDetails, UserCompany, InvoiceItem } from "@/types";
 const styles = StyleSheet.create({
     page: {
         padding: 40,
+        paddingBottom: 100,
         fontSize: 10,
         fontFamily: "Helvetica",
     },
@@ -139,6 +142,12 @@ const styles = StyleSheet.create({
         flex: 1.2,
         textAlign: "right",
     },
+    colDate: { width: 56 },
+    colGoae: { width: 34 },
+    colFactor: { width: 34, textAlign: "right" },
+    colQtySmall: { width: 26, textAlign: "right" },
+    justification: { fontSize: 8, color: "#555", fontStyle: "italic", marginTop: 2 },
+    diagnoses: { marginBottom: 12 },
     headerText: {
         fontWeight: "bold",
         fontSize: 9,
@@ -242,7 +251,23 @@ interface InvoicePDFProps {
     girocodeUrl?: string | null;
 }
 
+/** GOÄ lines first, chronologically by Leistungsdatum; other lines (Auslagen) after. */
+const sortForMedicalInvoice = (items: InvoiceItem[]) =>
+    items
+        .map((item, index) => ({ item, index }))
+        .sort((a, b) => {
+            const da = a.item.goae?.service_date ?? "9999";
+            const db = b.item.goae?.service_date ?? "9999";
+            return da.localeCompare(db) || a.index - b.index;
+        })
+        .map(({ item }) => item);
+
 const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
+    const items = invoice.items || [];
+    const isMedical = items.some((i) => i.goae);
+    const showVat = !isMedical || items.some((i) => i.tax_rate_percent > 0);
+    const diagnoses = invoice.medical?.diagnoses ?? [];
+    const paymentTerms = invoice.payment_terms || company?.payment_terms_default;
     const clientAddress = invoice.client
         ? `${invoice.client.address_line1}\n${invoice.client.postal_code} ${invoice.client.city}`
         : "";
@@ -333,7 +358,56 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                     </View>
                 </View>
 
+                {/* Diagnosen (ICD-10-GM) */}
+                {diagnoses.length > 0 && (
+                    <View style={styles.diagnoses}>
+                        <Text style={styles.infoLabel}>{diagnoses.length > 1 ? "DIAGNOSEN" : "DIAGNOSE"}</Text>
+                        {diagnoses.map((d, i) => (
+                            <Text key={i} style={styles.addressText}>
+                                {formatDiagnosis(d, invoice.medical?.diagnosis_display ?? "both")}
+                            </Text>
+                        ))}
+                    </View>
+                )}
+
+                {/* Leistungsaufstellung nach § 12 GOÄ */}
+                {isMedical && (
+                    <View style={styles.table}>
+                        <View style={styles.tableHeader} fixed>
+                            <Text style={[styles.colDate, styles.headerText]}>Datum</Text>
+                            <Text style={[styles.colGoae, styles.headerText]}>GOÄ</Text>
+                            <Text style={[styles.colDescription, styles.headerText]}>Leistung</Text>
+                            <Text style={[styles.colFactor, styles.headerText]}>Faktor</Text>
+                            <Text style={[styles.colQtySmall, styles.headerText]}>Anz.</Text>
+                            {showVat && <Text style={[styles.colTax, styles.headerText]}>{t("invoicePdf.vat")}</Text>}
+                            <Text style={[styles.colTotal, styles.headerText]}>Betrag</Text>
+                        </View>
+                        {sortForMedicalInvoice(items).map((item, index) => (
+                            <View key={item.id || index} style={styles.tableRow} wrap={false}>
+                                <Text style={styles.colDate}>
+                                    {item.goae ? formatDateGerman(item.goae.service_date) : ""}
+                                </Text>
+                                <Text style={styles.colGoae}>{item.goae?.number ?? ""}</Text>
+                                <View style={styles.colDescription}>
+                                    <Text>{item.description}</Text>
+                                    {item.goae?.justification && (
+                                        <Text style={styles.justification}>Begründung: {item.goae.justification}</Text>
+                                    )}
+                                    {item.goae?.fee_agreement && (
+                                        <Text style={styles.justification}>Gemäß Vereinbarung nach § 2 GOÄ</Text>
+                                    )}
+                                </View>
+                                <Text style={styles.colFactor}>{item.goae ? formatFactor(item.goae.factor) : ""}</Text>
+                                <Text style={styles.colQtySmall}>{item.quantity}</Text>
+                                {showVat && <Text style={styles.colTax}>{item.tax_rate_percent}%</Text>}
+                                <Text style={styles.colTotal}>{formatCurrency(item.total)}</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
+
                 {/* Table */}
+                {!isMedical && (
                 <View style={styles.table}>
                     {/* Header */}
                     <View style={styles.tableHeader}>
@@ -388,6 +462,7 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                         )
                     )}
                 </View>
+                )}
 
                 {/* Totals */}
                 <View style={styles.totals}>
@@ -397,12 +472,12 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                             {formatCurrency(invoice.subtotal)}
                         </Text>
                     </View>
-                    <View style={styles.totalRow}>
+                    {showVat && <View style={styles.totalRow}>
                         <Text style={styles.totalLabel}>{t("invoicePdf.vatTotal")}</Text>
                         <Text style={styles.totalValue}>
                             {formatCurrency(invoice.total_vat)}
                         </Text>
-                    </View>
+                    </View>}
                     <View style={styles.totalFinal}>
                         <Text style={styles.totalFinalLabel}>
                             {t("invoicePdf.grandTotal")}
@@ -430,16 +505,24 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                     </View>
                 )}
 
-                {/* Payment Terms */}
-                {company?.payment_terms_default && (
+                {/* Heilbehandlung: umsatzsteuerfrei */}
+                {isMedical && !showVat && !company?.is_small_business && (
                     <View style={styles.paymentTerms}>
-                        <Text>{company.payment_terms_default}</Text>
+                        <Text>Ärztliche Heilbehandlung – umsatzsteuerfrei gemäß § 4 Nr. 14 UStG.</Text>
+                    </View>
+                )}
+
+                {/* Payment Terms */}
+                {paymentTerms && (
+                    <View style={styles.paymentTerms}>
+                        <Text>{paymentTerms}</Text>
                     </View>
                 )}
 
                 {/* Girocode: scan-to-pay QR (EPC069-12) */}
                 {girocodeUrl && (
                     <View
+                        wrap={false}
                         style={{
                             flexDirection: "row",
                             alignItems: "center",
@@ -466,7 +549,7 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                 )}
 
                 {/* Footer */}
-                <View style={styles.footer}>
+                <View style={styles.footer} fixed>
                     <View style={styles.footerDivider}>
                         <View style={styles.footerContent}>
                             <View style={styles.footerColumn}>

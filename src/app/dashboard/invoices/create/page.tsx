@@ -3,7 +3,7 @@ import { InvoiceIdentifierEditor } from "@/components/dashboard/EInvoiceFields";
 import { type EInvoiceData, parseEInvoiceData, parseGTIN } from "@/lib/eRechnung/identifiers";
 import { defaultVatRate } from "@/lib/vatDefaults";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     Card,
@@ -20,6 +20,8 @@ import {
     DatePicker,
     Steps,
     Result,
+    Modal,
+    Tag,
 } from "antd";
 import {
     PlusOutlined,
@@ -29,6 +31,7 @@ import {
     CheckOutlined,
     FileTextOutlined,
     RobotOutlined,
+    MedicineBoxOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { getAllClients } from "@/lib/clientService";
@@ -42,6 +45,12 @@ import {
     type InvoiceTotals,
 } from "@/lib/currencyUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { GoaeLineEditor, goaeCatalogOptions, goaeStateForNumber, type GoaeLineState } from "@/components/medical/GoaeLineEditor";
+import { GoaeCheckPanel } from "@/components/medical/GoaeCheckPanel";
+import { DiagnosisPicker } from "@/components/medical/DiagnosisPicker";
+import { checkGoaeLines, findGoaeEntry, formatFactor, goaeUnitAmount, type GoaeHistoryEntry } from "@/lib/goae";
+import type { DiagnosisDisplay, InvoiceDiagnosis } from "@/lib/icd10";
+import { getGoaeHistory } from "@/lib/medicalService";
 import type {
     Client,
     Product,
@@ -54,6 +63,8 @@ const { Title, Text } = Typography;
 
 interface LineItem {
     gtin?: string;
+    /** Set for GOÄ lines; price is derived from Einfachsatz × Faktor */
+    goae?: GoaeLineState;
     key: string;
     description: string;
     service_summary?: string;
@@ -95,6 +106,28 @@ export default function InvoiceCreatePage() {
     const [createdInvoiceId, setCreatedInvoiceId] = useState<string | null>(
         null,
     );
+
+    // Privatliquidation: diagnoses (ICD-10-GM) and GOÄ history of the patient
+    const [diagnoses, setDiagnoses] = useState<InvoiceDiagnosis[]>([]);
+    const [diagnosisDisplay, setDiagnosisDisplay] = useState<DiagnosisDisplay>("both");
+    const [goaeHistory, setGoaeHistory] = useState<GoaeHistoryEntry[]>([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
+
+    useEffect(() => {
+        if (!selectedClient?.id) {
+            setGoaeHistory([]);
+            return;
+        }
+        let cancelled = false;
+        setLoadingHistory(true);
+        getGoaeHistory(selectedClient.id)
+            .then((h) => !cancelled && setGoaeHistory(h))
+            .catch(() => !cancelled && setGoaeHistory([]))
+            .finally(() => !cancelled && setLoadingHistory(false));
+        return () => {
+            cancelled = true;
+        };
+    }, [selectedClient?.id]);
 
     useEffect(() => {
         loadData();
@@ -163,6 +196,68 @@ export default function InvoiceCreatePage() {
         setLineItems(lineItems.filter((item) => item.key !== key));
     };
 
+    const goaePrice = (g: GoaeLineState) =>
+        goaeUnitAmount(g.factor, { points: findGoaeEntry(g.number)?.points, baseFee: g.baseFee });
+
+    const addGoaeLine = (number = "") => {
+        const goae = goaeStateForNumber(number, dayjs().format("YYYY-MM-DD"));
+        const entry = findGoaeEntry(number);
+        setLineItems((items) => [
+            ...items,
+            {
+                key: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                description: entry?.title ?? "",
+                service_summary: "",
+                quantity: 1,
+                unit_of_measure: t("invoiceCreate.unitPiece"),
+                price: goaePrice(goae),
+                // Heilbehandlungen sind nach § 4 Nr. 14 UStG umsatzsteuerfrei.
+                tax_rate_percent: 0,
+                discount_percent: 0,
+                goae,
+            },
+        ]);
+    };
+
+    const updateGoae = (key: string, next: GoaeLineState, catalogTitle?: string) => {
+        setLineItems((items) =>
+            items.map((item) => {
+                if (item.key !== key) return item;
+                const previousTitle = item.goae ? findGoaeEntry(item.goae.number)?.title : undefined;
+                const description = catalogTitle && (!item.description.trim() || item.description === previousTitle)
+                    ? catalogTitle
+                    : item.description;
+                return { ...item, goae: next, description, price: goaePrice(next) };
+            }),
+        );
+    };
+
+    const goaeFindings = useMemo(
+        () => {
+            const goaeLines = lineItems.filter((i) => i.goae);
+            if (!goaeLines.length) return [];
+            return checkGoaeLines(
+                goaeLines.map((i) => ({
+                    key: i.key,
+                    number: i.goae!.number,
+                    factor: i.goae!.factor,
+                    quantity: i.quantity,
+                    serviceDate: i.goae!.serviceDate,
+                    justification: i.goae!.justification,
+                    feeType: i.goae!.feeType,
+                    feeAgreement: i.goae!.feeAgreement,
+                })),
+                { history: goaeHistory, invoiceDate: invoiceDate.format("YYYY-MM-DD"), diagnosisCount: diagnoses.length },
+            );
+        },
+        [lineItems, goaeHistory, invoiceDate, diagnoses.length],
+    );
+    const goaeErrorKeys = useMemo(
+        () => new Set(goaeFindings.filter((f) => f.severity === "error").flatMap((f) => f.lineKeys)),
+        [goaeFindings],
+    );
+    const goaeErrorCount = goaeFindings.filter((f) => f.severity === "error").length;
+
     const addProductAsLineItem = (productId: string) => {
         const product = products.find((p) => p.id === productId);
         if (!product) return;
@@ -190,6 +285,23 @@ export default function InvoiceCreatePage() {
     );
 
     const handleCreateInvoice = async () => {
+        if (goaeErrorCount > 0) {
+            const proceed = await new Promise<boolean>((resolve) =>
+                Modal.confirm({
+                    title: "GOÄ-Prüfung meldet Fehler",
+                    content: `${goaeErrorCount} Regelverstöße gefunden (siehe Schritt „Positionen“). Rechnung trotzdem als Entwurf anlegen?`,
+                    okText: "Trotzdem anlegen",
+                    cancelText: "Zurück",
+                    onOk: () => resolve(true),
+                    onCancel: () => resolve(false),
+                }),
+            );
+            if (!proceed) return;
+        }
+        return submitInvoice();
+    };
+
+    const submitInvoice = async () => {
         if (!selectedClient || !selectedClient.id) {
             message.error(t("invoiceCreate.selectClientError"));
             return;
@@ -203,6 +315,19 @@ export default function InvoiceCreatePage() {
         try {
             const items: InvoiceItemFormData[] = lineItems.map((item) => ({
                 gtin: parseGTIN(item.gtin),
+                ...(item.goae
+                    ? {
+                          goae: {
+                              number: item.goae.number,
+                              factor: item.goae.factor,
+                              base_fee: item.goae.baseFee ?? 0,
+                              fee_type: item.goae.feeType,
+                              service_date: item.goae.serviceDate,
+                              justification: item.goae.justification?.trim() || undefined,
+                              fee_agreement: item.goae.feeAgreement || undefined,
+                          },
+                      }
+                    : {}),
                 description: item.description,
                 quantity: item.quantity,
                 unit_of_measure: item.unit_of_measure,
@@ -223,6 +348,7 @@ export default function InvoiceCreatePage() {
                 due_date: dueDate.format("YYYY-MM-DD"),
                 notes: notes || undefined,
                 payment_terms: paymentTerms || undefined,
+                medical: diagnoses.length ? { diagnoses, diagnosis_display: diagnosisDisplay } : undefined,
                 items,
             };
 
@@ -433,6 +559,13 @@ export default function InvoiceCreatePage() {
             key: "description",
             render: (_: unknown, record: LineItem) => (
                 <Space direction="vertical" style={{ width: "100%" }} size={8}>
+                    {record.goae && (
+                        <GoaeLineEditor
+                            value={record.goae}
+                            hasError={goaeErrorKeys.has(record.key)}
+                            onChange={(next, title) => updateGoae(record.key, next, title)}
+                        />
+                    )}
                     <Input.TextArea
                         value={record.description}
                         onChange={(e) =>
@@ -516,7 +649,12 @@ export default function InvoiceCreatePage() {
             dataIndex: "price",
             key: "price",
             width: 120,
-            render: (_: unknown, record: LineItem) => (
+            render: (_: unknown, record: LineItem) => record.goae ? (
+                <Space direction="vertical" size={0}>
+                    <Text strong>{formatCurrency(record.price)}</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{formatFactor(record.goae.factor)}-fach</Text>
+                </Space>
+            ) : (
                 <Space.Compact style={{ width: "100%" }}>
                     <InputNumber
                         value={record.price}
@@ -632,7 +770,32 @@ export default function InvoiceCreatePage() {
             case 1:
                 return (
                     <Card title={t("invoiceCreate.addPositions")}>
-                        <Space style={{ marginBottom: 16 }}>
+                        <Card
+                            size="small"
+                            title={<Space><MedicineBoxOutlined /> Diagnosen (ICD-10-GM)</Space>}
+                            style={{ marginBottom: 16 }}
+                        >
+                            <DiagnosisPicker
+                                diagnoses={diagnoses}
+                                display={diagnosisDisplay}
+                                onChange={setDiagnoses}
+                                onDisplayChange={setDiagnosisDisplay}
+                            />
+                        </Card>
+                        <Space style={{ marginBottom: 16 }} wrap>
+                            <Select
+                                showSearch
+                                style={{ width: 340 }}
+                                placeholder="GOÄ-Ziffer hinzufügen …"
+                                value={undefined}
+                                onChange={(n: string) => addGoaeLine(n)}
+                                optionFilterProp="label"
+                                options={goaeCatalogOptions()}
+                                popupMatchSelectWidth={520}
+                            />
+                            <Button icon={<PlusOutlined />} onClick={() => addGoaeLine()}>
+                                Freie GOÄ-Ziffer
+                            </Button>
                             <Select
                                 style={{ width: 300 }}
                                 placeholder={t("invoiceCreate.addProduct")}
@@ -652,6 +815,12 @@ export default function InvoiceCreatePage() {
                                 {t("invoiceCreate.freePosition")}
                             </Button>
                         </Space>
+
+                        {lineItems.some((i) => i.goae) && (
+                            <div style={{ marginBottom: 16 }}>
+                                <GoaeCheckPanel findings={goaeFindings} loadingHistory={loadingHistory} />
+                            </div>
+                        )}
 
                         <Table
                             columns={columns}
@@ -797,6 +966,18 @@ export default function InvoiceCreatePage() {
                                     <br />
                                     <Text strong>{selectedClient?.name}</Text>
                                 </div>
+                                {diagnoses.length > 0 && (
+                                    <div>
+                                        <Text type="secondary">Diagnosen</Text>
+                                        <br />
+                                        {diagnoses.map((d, i) => <Tag key={i}>{d.code || d.text}</Tag>)}
+                                    </div>
+                                )}
+                                {goaeErrorCount > 0 && (
+                                    <div>
+                                        <Tag color="red">{goaeErrorCount} GOÄ-Prüffehler</Tag>
+                                    </div>
+                                )}
                                 <div>
                                     <Text type="secondary">{t("invoiceCreate.positionsCount")}</Text>
                                     <br />

@@ -40,7 +40,9 @@ import { runInvoiceAssistant } from "@/lib/aiService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { InvoiceWithDetails, UserCompany } from "@/types";
+import type { InvoiceItem, InvoiceWithDetails, UserCompany } from "@/types";
+import { formatFactor } from "@/lib/goae/fees";
+import { formatDiagnosis } from "@/lib/icd10";
 
 const { Title, Text } = Typography;
 
@@ -257,6 +259,22 @@ export default function InvoiceDetailPage() {
             title: t("invoiceDetail.description"),
             dataIndex: "description",
             key: "description",
+            render: (description: string, item: InvoiceItem) =>
+                item.goae ? (
+                    <div>
+                        <div style={{ fontSize: 12, color: "#1677ff" }}>
+                            GOÄ {item.goae.number} · {formatFactor(item.goae.factor)}-fach · {formatDateGerman(item.goae.service_date)}
+                        </div>
+                        <div>{description}</div>
+                        {item.goae.justification && (
+                            <div style={{ fontSize: 12, fontStyle: "italic", color: "#666" }}>
+                                Begründung: {item.goae.justification}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    description
+                ),
         },
         {
             title: t("invoiceDetail.quantity"),
@@ -401,6 +419,15 @@ export default function InvoiceDetailPage() {
                             <Descriptions.Item label={t("invoiceDetail.currency")}>
                                 EUR
                             </Descriptions.Item>
+                            {invoice.medical?.diagnoses.length ? (
+                                <Descriptions.Item label="Diagnosen">
+                                    <div>
+                                        {invoice.medical.diagnoses.map((d, i) => (
+                                            <div key={i}>{formatDiagnosis(d, "both")}</div>
+                                        ))}
+                                    </div>
+                                </Descriptions.Item>
+                            ) : null}
                         </Descriptions>
                     </div>
                 </div>

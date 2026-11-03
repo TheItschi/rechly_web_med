@@ -1,3 +1,5 @@
+import type { GoaeLineData } from "@/lib/goae/line";
+import type { InvoiceMedicalData } from "@/lib/icd10";
 import type { EInvoiceData } from "@/lib/eRechnung/identifiers";
 // Database entity types - Shared with mobile app
 
@@ -65,6 +67,8 @@ export interface Product {
 
 export interface Invoice {
     e_invoice?: EInvoiceData;
+    /** Diagnosen (ICD-10-GM) for Privatliquidation */
+    medical?: InvoiceMedicalData;
     id?: string;
     client_id: string;
     invoice_number: string;
@@ -86,6 +90,8 @@ export interface Invoice {
 
 export interface InvoiceItem {
     gtin?: string;
+    /** GOÄ-Ziffer, Steigerungssatz, Leistungsdatum, Begründung */
+    goae?: GoaeLineData;
     id?: string;
     invoice_id: string;
     product_id?: string;
@@ -163,6 +169,7 @@ export interface ProductBulkUploadResult {
 
 export interface InvoiceItemFormData {
     gtin?: string;
+    goae?: GoaeLineData;
     product_id?: string;
     description: string;
     quantity: number;
@@ -174,6 +181,7 @@ export interface InvoiceItemFormData {
 
 export interface InvoiceFormData {
     e_invoice?: EInvoiceData;
+    medical?: InvoiceMedicalData;
     client_id: string;
     invoice_number: string;
     issue_date: string;
