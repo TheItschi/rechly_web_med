@@ -32,7 +32,7 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 Läuft im Desktop-Modus: SQLite statt Appwrite, **kein Login** – Port daher nur auf `127.0.0.1` gebunden.
 
 ```bash
-docker compose up -d --build        # http://127.0.0.1:3000
+docker compose up -d --build        # http://127.0.0.1:3020 (Port: RECHLY_PORT in .env)
 docker compose logs -f rechly
 
 # ICD-10-GM importieren (BfArM-Datei nach ./import legen)
