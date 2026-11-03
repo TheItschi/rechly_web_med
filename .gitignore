@@ -87,3 +87,4 @@ docs/TRAIN_LOCAL_AI_MODEL.md
 
 # ICD-10-GM catalogue imported from BfArM (npm run import:icd10gm)
 /data/icd10gm.json
+/import

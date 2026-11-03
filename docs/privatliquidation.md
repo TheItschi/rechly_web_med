@@ -26,3 +26,20 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 - Behandlungsfall = 1 Monat ab erster Inanspruchnahme je Patient, ohne Unterscheidung nach Erkrankung.
 - Die GOÄneu (frühestens 2027) ersetzt Steigerungsfaktoren weitgehend durch feste Beträge; Katalog und `fees.ts` sind dafür austauschbar gehalten.
 - Maßgeblich ist der amtliche Verordnungstext; das Prüfmodul ist eine Plausibilitätshilfe.
+
+## Docker (lokaler Testbetrieb)
+
+Läuft im Desktop-Modus: SQLite statt Appwrite, **kein Login** – Port daher nur auf `127.0.0.1` gebunden.
+
+```bash
+docker compose up -d --build        # http://127.0.0.1:3000
+docker compose logs -f rechly
+
+# ICD-10-GM importieren (BfArM-Datei nach ./import legen)
+docker compose --profile tools run --rm icd-import /import/icd10gm2026syst_kodes.txt
+
+docker compose down                 # Daten bleiben im Volume rechly-data
+docker compose down -v              # inkl. Daten löschen
+```
+
+Backup: `docker run --rm -v rechly_web_med_rechly-data:/data -v "$PWD":/b alpine tar czf /b/rechly-data.tgz -C /data .`

@@ -1,0 +1,35 @@
+services:
+  rechly:
+    build:
+      context: .
+      target: runner
+    image: rechly-med:local
+    container_name: rechly-med
+    restart: unless-stopped
+    # Desktop-Modus hat KEIN Login – nur lokal binden bzw. hinter Reverse-Proxy mit Auth.
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      # Named Volume: übernimmt die Rechte aus dem Image (User node, UID 1000).
+      # Für einen Bind-Mount (./data:/data) vorher: sudo chown -R 1000:1000 ./data
+      - rechly-data:/data
+
+  # Einmalig: ICD-10-GM aus der BfArM-Datei importieren
+  #   docker compose run --rm icd-import /import/icd10gm2026syst_kodes.txt
+  icd-import:
+    build:
+      context: .
+      target: builder
+    image: rechly-med:tools
+    profiles: ["tools"]
+    working_dir: /app
+    environment:
+      RECHLY_DATA_DIR: /data
+    entrypoint: ["npx", "tsx", "scripts/import-icd10gm.mts"]
+    user: "1000:1000"
+    volumes:
+      - rechly-data:/data
+      - ./import:/import:ro
+
+volumes:
+  rechly-data:

@@ -1,0 +1,11 @@
+.git
+node_modules
+.next
+.desktop-data
+data
+import
+desktop
+services
+*.log
+.env*
+!.env.example
