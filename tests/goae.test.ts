@@ -98,3 +98,21 @@ test("server normalisation recomputes the price and enforces § 12", () => {
     const custom = normalizeGoaeLine({ number: "9999", factor: 1, base_fee: 12.345, service_date: "2026-11-02" });
     assert.equal(custom.unitPrice, 12.35);
 });
+
+test("CSV catalogue round-trip and merge/replace activation", async () => {
+    const { parseGoaeCsv, goaeCatalogToCsv, setGoaeCustomCatalog, findGoaeEntry, GOAE_CATALOG } = await import("../src/lib/goae");
+    const csv = goaeCatalogToCsv(GOAE_CATALOG);
+    const back = parseGoaeCsv(csv);
+    assert.equal(back.errors.length, 0);
+    assert.deepEqual(back.entries.find((e) => e.number === "34"), GOAE_CATALOG.find((e) => e.number === "34"));
+
+    const custom = parseGoaeCsv("Ziffer;Bezeichnung;Punkte;Gebuehrenart;NichtNeben;MaxTag\n1240;Spaltlampenmikroskopie;74;persönlich;5,6;1\n;fehlt;1\n9;x;abc");
+    assert.equal(custom.entries.length, 1);
+    assert.equal(custom.errors.length, 2);
+    setGoaeCustomCatalog({ mode: "merge", entries: custom.entries });
+    assert.ok(findGoaeEntry("1240") && findGoaeEntry("1"));
+    setGoaeCustomCatalog({ mode: "replace", entries: custom.entries });
+    assert.ok(findGoaeEntry("1240") && !findGoaeEntry("1"));
+    setGoaeCustomCatalog(null);
+    assert.ok(findGoaeEntry("1") && !findGoaeEntry("1240"));
+});

@@ -76,27 +76,48 @@ export const GOAE_CATALOG: GoaeCatalogEntry[] = [
     { number: "420", title: "Ultraschalluntersuchung von bis zu drei weiteren Organen im Anschluss an eine der Leistungen nach den Nummern 410 bis 418, je Organ", points: 80, feeType: "personal", section: "C", maxPerDay: 3, requiresOneOf: ["410", "411", "412", "413", "414", "415", "416", "417", "418"], invoiceHint: "Die untersuchten Organe sind in der Rechnung anzugeben." },
 ];
 
+export type GoaeCatalogMode = "merge" | "replace";
+
 const catalogIndex = new Map<string, GoaeCatalogEntry>();
-const rebuild = (entries: GoaeCatalogEntry[]) => {
-    for (const entry of entries) catalogIndex.set(normalizeGoaeNumber(entry.number), entry);
-};
+type CustomCatalog = { mode: GoaeCatalogMode; entries: GoaeCatalogEntry[] } | null;
+let customCatalog: CustomCatalog = null;
+let builtFor: CustomCatalog | undefined;
+
+function ensureIndex(): void {
+    if (builtFor === customCatalog && catalogIndex.size > 0) return;
+    catalogIndex.clear();
+    if (customCatalog?.mode !== "replace") {
+        for (const entry of GOAE_CATALOG) catalogIndex.set(normalizeGoaeNumber(entry.number), entry);
+    }
+    for (const entry of customCatalog?.entries ?? []) catalogIndex.set(normalizeGoaeNumber(entry.number), entry);
+    builtFor = customCatalog;
+}
 
 export function normalizeGoaeNumber(value: string): string {
     return String(value ?? "").trim().toUpperCase().replace(/\s+/g, "");
 }
 
+/**
+ * Activate an uploaded catalogue. "merge" adds to / overrides the built-in
+ * excerpt, "replace" uses only the uploaded entries. `null` resets.
+ */
+export function setGoaeCustomCatalog(catalog: { mode: GoaeCatalogMode; entries: GoaeCatalogEntry[] } | null): void {
+    customCatalog = catalog && catalog.entries.length ? { mode: catalog.mode, entries: catalog.entries } : null;
+    builtFor = undefined;
+}
+
 /** Add or override catalogue entries (e.g. Fachgebiets-Ziffern). */
 export function registerGoaeCatalog(entries: GoaeCatalogEntry[]): void {
-    rebuild(entries);
+    setGoaeCustomCatalog({ mode: "merge", entries: [...(customCatalog?.entries ?? []), ...entries] });
 }
 
 export function findGoaeEntry(number: string): GoaeCatalogEntry | undefined {
-    if (catalogIndex.size === 0) rebuild(GOAE_CATALOG);
+    ensureIndex();
     return catalogIndex.get(normalizeGoaeNumber(number));
 }
 
 export function listGoaeCatalog(): GoaeCatalogEntry[] {
-    if (catalogIndex.size === 0) rebuild(GOAE_CATALOG);
+    ensureIndex();
     return [...catalogIndex.values()];
 }
 
@@ -106,7 +127,7 @@ export function listGoaeCatalog(): GoaeCatalogEntry[] {
  */
 export function goaeSectionOf(number: string): string | undefined {
     const known = findGoaeEntry(number);
-    if (known) return known.section;
+    if (known?.section) return known.section;
     const n = Number.parseInt(normalizeGoaeNumber(number), 10);
     if (!Number.isFinite(n)) return undefined;
     const ranges: [number, number, string][] = [

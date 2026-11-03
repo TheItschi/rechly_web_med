@@ -2,6 +2,7 @@ import { IdentifierValidationError, parseGTIN, readEInvoiceData, snapshotIdentif
 import { NextRequest, NextResponse } from "next/server";
 import { GoaeValidationError, normalizeGoaeLine } from "@/lib/goae/line";
 import { MedicalDataError, normalizeMedicalData } from "@/lib/icd10";
+import { loadGoaeCatalog } from "@/lib/server/goaeCatalogStore";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import {
     createSessionClient,
@@ -149,6 +150,7 @@ export async function POST(request: NextRequest) {
         const companies = await databases.listDocuments(DATABASE_ID, COLLECTIONS.COMPANY_INFO, [Query.equal("userId", user.$id), Query.limit(1)]);
         const identifiers = snapshotIdentifiers(readEInvoiceData(customer.eInvoiceData), readEInvoiceData(companies.documents[0]?.eInvoiceData), body.e_invoice);
         if (!Array.isArray(body.items)) return NextResponse.json({ error: "Invalid items" }, { status: 400 });
+        await loadGoaeCatalog(); // activates an uploaded GOÄ catalogue for price/points
         for (const item of body.items) {
             item.gtin = parseGTIN(item.gtin);
             // GOÄ lines: the price is always Einfachsatz × Steigerungssatz.

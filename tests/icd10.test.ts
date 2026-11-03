@@ -41,3 +41,9 @@ test("medical data normalisation rejects malformed codes", () => {
         diagnoses: [{ code: "R51", text: "R51" }], diagnosis_display: "code",
     });
 });
+
+test("detects the Alphabet file", async () => {
+    const { looksLikeIcd10Alphabet } = await import("../src/lib/icd10");
+    assert.ok(looksLikeIcd10Alphabet("5|109254|1|||U61.2!||Text\n0|86498|1|||||Abnorm"));
+    assert.ok(!looksLikeIcd10Alphabet("4;T;X;01;A00;A00.0;A00.0;A000;Titel"));
+});

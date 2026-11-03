@@ -50,7 +50,7 @@ import { GoaeCheckPanel } from "@/components/medical/GoaeCheckPanel";
 import { DiagnosisPicker } from "@/components/medical/DiagnosisPicker";
 import { checkGoaeLines, findGoaeEntry, formatFactor, goaeUnitAmount, type GoaeHistoryEntry } from "@/lib/goae";
 import type { DiagnosisDisplay, InvoiceDiagnosis } from "@/lib/icd10";
-import { getGoaeHistory } from "@/lib/medicalService";
+import { activateGoaeCatalog, getGoaeHistory } from "@/lib/medicalService";
 import type {
     Client,
     Product,
@@ -112,6 +112,14 @@ export default function InvoiceCreatePage() {
     const [diagnosisDisplay, setDiagnosisDisplay] = useState<DiagnosisDisplay>("both");
     const [goaeHistory, setGoaeHistory] = useState<GoaeHistoryEntry[]>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
+    // Bumped once an uploaded GOÄ catalogue is active, so options and checks recompute.
+    const [goaeCatalogVersion, setGoaeCatalogVersion] = useState(0);
+
+    useEffect(() => {
+        activateGoaeCatalog()
+            .then(() => setGoaeCatalogVersion((v) => v + 1))
+            .catch(() => undefined);
+    }, []);
 
     useEffect(() => {
         if (!selectedClient?.id) {
@@ -250,7 +258,8 @@ export default function InvoiceCreatePage() {
                 { history: goaeHistory, invoiceDate: invoiceDate.format("YYYY-MM-DD"), diagnosisCount: diagnoses.length },
             );
         },
-        [lineItems, goaeHistory, invoiceDate, diagnoses.length],
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- catalogue version invalidates the global catalogue
+        [lineItems, goaeHistory, invoiceDate, diagnoses.length, goaeCatalogVersion],
     );
     const goaeErrorKeys = useMemo(
         () => new Set(goaeFindings.filter((f) => f.severity === "error").flatMap((f) => f.lineKeys)),
@@ -791,6 +800,7 @@ export default function InvoiceCreatePage() {
                                 onChange={(n: string) => addGoaeLine(n)}
                                 optionFilterProp="label"
                                 options={goaeCatalogOptions()}
+                                key={goaeCatalogVersion}
                                 popupMatchSelectWidth={520}
                             />
                             <Button icon={<PlusOutlined />} onClick={() => addGoaeLine()}>

@@ -98,6 +98,18 @@ export function parseMedicalData(value: unknown): InvoiceMedicalData | undefined
     }
 }
 
+/** BfArM files are UTF-8 since several years; older releases were ISO-8859-1. */
+export function decodeCatalogText(bytes: Uint8Array): string {
+    const utf8 = new TextDecoder("utf-8").decode(bytes);
+    return utf8.includes("\uFFFD") ? new TextDecoder("latin1").decode(bytes) : utf8;
+}
+
+/** "|"-separated lines with Alpha-ID → the Alphabetisches Verzeichnis, not the Systematik. */
+export function looksLikeIcd10Alphabet(text: string): boolean {
+    const sample = text.split(/\r?\n/).filter(Boolean).slice(0, 50);
+    return sample.length > 0 && sample.filter((l) => /^\d\|\d+\|/.test(l)).length > sample.length / 2;
+}
+
 /**
  * Parses the BfArM ICD-10-GM Systematik "kodes" file. Expected layout
  * (semicolon separated): [0] Ebene, [1] T/N (terminal), [2] X/S, [3] Kapitel,

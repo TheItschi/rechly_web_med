@@ -37,6 +37,9 @@ import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { MedicineBoxOutlined, OrderedListOutlined } from "@ant-design/icons";
+import { Icd10SettingsTab } from "@/components/medical/Icd10SettingsTab";
+import { GoaeSettingsTab } from "@/components/medical/GoaeSettingsTab";
 import type { AIProvider, UserCompany } from "@/types";
 
 const { Title, Text } = Typography;
@@ -833,6 +836,24 @@ export default function SettingsPage() {
                     </Card>
                 </Form>
             ),
+        },
+        {
+            key: "icd10",
+            label: (
+                <span>
+                    <MedicineBoxOutlined /> ICD-10 Codes
+                </span>
+            ),
+            children: <Icd10SettingsTab />,
+        },
+        {
+            key: "goae",
+            label: (
+                <span>
+                    <OrderedListOutlined /> GOÄ-Ziffern
+                </span>
+            ),
+            children: <GoaeSettingsTab />,
         },
         {
             key: "account",

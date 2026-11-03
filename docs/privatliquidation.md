@@ -15,10 +15,15 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 ## Einrichtung
 
 1. **Schema** (Appwrite): `npm run migrate:medical` legt `invoices.medicalData` und `invoice_items.goaeData` an (verschlüsselt, sofern der Server das unterstützt). Desktop-Modus (SQLite) braucht keine Migration.
-2. **ICD-10-GM**: beim BfArM die *Systematik, EDV-Fassung TXT* herunterladen, entpacken und
-   `npm run import:icd10gm -- icd10gm2026syst_kodes.txt` ausführen. Ziel: `data/icd10gm.json`
-   (bzw. `$RECHLY_DATA_DIR` / `$ICD10GM_FILE`). Die Datei ist per `.gitignore` ausgenommen.
-3. **GOÄ-Katalog erweitern**: `src/lib/goae/catalog.ts` enthält einen geprüften Auszug (Abschnitt B, Zuschläge, einige C-Leistungen) mit Regeln. Fachgebietsziffern dort ergänzen; nicht hinterlegte Ziffern sind abrechenbar, werden aber nur auf Gebührenrahmen/Begründung geprüft.
+2. **ICD-10-GM**: *Einstellungen → ICD-10 Codes*: die BfArM-Systematik (EDV-Fassung TXT) als ZIP oder
+   `icd10gmJJJJsyst_kodes.txt` hochladen. Das Alphabetische Verzeichnis wird erkannt und abgelehnt.
+   Alternativ per CLI: `npm run import:icd10gm -- <zip|txt>`. Ablage: `<RECHLY_DATA_DIR|./data>/icd10gm.json`.
+3. **GOÄ-Katalog**: *Einstellungen → GOÄ-Ziffern*: aktuellen Katalog als CSV exportieren, in Excel ergänzen
+   (Spalten siehe Hinweis im Reiter), wieder hochladen – wahlweise *ergänzt* oder *ersetzt* er den
+   mitgelieferten Auszug. Ablage: `<RECHLY_DATA_DIR|./data>/goae-katalog.json`. Nicht hinterlegte Ziffern
+   sind abrechenbar, werden aber nur auf Gebührenrahmen/Begründung geprüft.
+
+Hinweis: Beide Kataloge gelten instanzweit. Im Appwrite-Mehrbenutzerbetrieb kann jeder angemeldete Nutzer sie ersetzen.
 
 ## Grenzen
 
@@ -35,8 +40,8 @@ Läuft im Desktop-Modus: SQLite statt Appwrite, **kein Login** – Port daher nu
 docker compose up -d --build        # http://127.0.0.1:3020 (Port: RECHLY_PORT in .env)
 docker compose logs -f rechly
 
-# ICD-10-GM importieren (BfArM-Datei nach ./import legen)
-docker compose --profile tools run --rm icd-import /import/icd10gm2026syst_kodes.txt
+# ICD-10-GM / GOÄ: bequemer über Einstellungen in der App; alternativ per CLI
+docker compose --profile tools run --rm icd-import /import/icd10gm2026syst-meta.zip
 
 docker compose down                 # Daten bleiben im Volume rechly-data
 docker compose down -v              # inkl. Daten löschen

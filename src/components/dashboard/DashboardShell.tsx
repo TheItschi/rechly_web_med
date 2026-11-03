@@ -235,7 +235,7 @@ export default function DashboardLayout({
                                 fontWeight: "bold",
                             }}
                         >
-                            {collapsed ? "R" : "Rechly"}
+                            {collapsed ? "RM" : "Rechly-Med"}
                         </span>
                     </div>
                     <Menu
@@ -277,7 +277,7 @@ export default function DashboardLayout({
             <Drawer
                 title={
                     <span style={{ fontWeight: "bold", fontSize: 20 }}>
-                        Rechly
+                        Rechly-Med
                     </span>
                 }
                 placement="left"
@@ -398,7 +398,7 @@ export default function DashboardLayout({
                                     color: "inherit",
                                 }}
                             >
-                                Rechly
+                                Rechly-Med
                             </span>
                         )}
                         {isDesktopRuntime && (
