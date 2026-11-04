@@ -26,6 +26,10 @@ export interface UserCompany {
     phone?: string;
     website?: string;
     logo_base64?: string;
+    /** Berufsbezeichnung unter dem Namen im Briefkopf, z. B. "Ärztin" */
+    professional_title?: string;
+    /** Faksimile-Unterschrift (data:image/png|jpeg;base64,…) */
+    signature_base64?: string;
     is_small_business?: boolean; // §19 UStG Kleinunternehmer
     datev_chart_of_accounts?: "SKR03" | "SKR04";
     datev_consultant_number?: string;

@@ -142,6 +142,20 @@ const styles = StyleSheet.create({
         flex: 1.2,
         textAlign: "right",
     },
+    letterhead: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        marginBottom: 28,
+    },
+    letterheadImage: { height: 84, marginRight: 14 },
+    letterheadName: { flex: 1, paddingTop: 4 },
+    practiceName: { fontSize: 15, fontFamily: "Helvetica-Bold", marginBottom: 12 },
+    practiceTitle: { fontSize: 13 },
+    letterheadContact: { width: 170, fontSize: 9, lineHeight: 1.35, paddingTop: 4 },
+    senderLine: { fontSize: 7, color: "#666", textDecoration: "underline", marginBottom: 8 },
+    closing: { marginTop: 24, fontSize: 10 },
+    signature: { height: 46, marginTop: 6, marginBottom: 2, objectFit: "contain", alignSelf: "flex-start" },
+    signatureName: { fontSize: 9, color: "#444" },
     colDate: { width: 56 },
     colGoae: { width: 34 },
     colFactor: { width: 34, textAlign: "right" },
@@ -251,6 +265,8 @@ interface InvoicePDFProps {
     girocodeUrl?: string | null;
 }
 
+const isPdfImage = (src?: string): src is string => !!src && /^data:image\/(png|jpeg);base64,/.test(src);
+
 /** GOÄ lines first, chronologically by Leistungsdatum; other lines (Auslagen) after. */
 const sortForMedicalInvoice = (items: InvoiceItem[]) =>
     items
@@ -268,6 +284,8 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
     const showVat = !isMedical || items.some((i) => i.tax_rate_percent > 0);
     const diagnoses = invoice.medical?.diagnoses ?? [];
     const paymentTerms = invoice.payment_terms || company?.payment_terms_default;
+    const logo = isPdfImage(company?.logo_base64) ? company!.logo_base64 : undefined;
+    const signature = isPdfImage(company?.signature_base64) ? company!.signature_base64 : undefined;
     const clientAddress = invoice.client
         ? `${invoice.client.address_line1}\n${invoice.client.postal_code} ${invoice.client.city}`
         : "";
@@ -275,64 +293,48 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
     return (
         <Document>
             <Page size="A4" style={styles.page}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.companyInfo}>
-                        <Text style={styles.companyName}>
+                {/* Briefkopf – wiederholt sich auf Folgeseiten */}
+                <View style={styles.letterhead} fixed>
+                    {/* React PDF's Image is a PDF primitive and has no HTML alt attribute. */}
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    {logo && <Image src={logo} style={styles.letterheadImage} />}
+                    <View style={styles.letterheadName}>
+                        <Text style={styles.practiceName}>
                             {company?.name || t("invoicePdf.company")}
                         </Text>
-                        <Text style={styles.addressText}>
-                            {company?.address_line1}
-                            {company?.address_line2 &&
-                                `\n${company.address_line2}`}
-                        </Text>
-                        <Text style={styles.addressText}>
+                        {company?.professional_title && (
+                            <Text style={styles.practiceTitle}>{company.professional_title}</Text>
+                        )}
+                    </View>
+                    <View style={styles.letterheadContact}>
+                        <Text>{company?.address_line1}</Text>
+                        {company?.address_line2 && <Text>{company.address_line2}</Text>}
+                        <Text>
                             {company?.postal_code} {company?.city}
                         </Text>
-                    </View>
-                    <View>
-                        <Text style={styles.invoiceTitle}>{t("invoicePdf.invoiceTitle")}</Text>
-                        <Text style={styles.invoiceNumber}>
-                            {invoice.invoice_number}
-                        </Text>
+                        {(company?.phone || company?.email || company?.website) && <Text> </Text>}
+                        {company?.phone && <Text>Tel: {company.phone}</Text>}
+                        {company?.email && <Text>Mail: {company.email}</Text>}
+                        {company?.website && <Text>{company.website}</Text>}
                     </View>
                 </View>
 
-                {/* React PDF's Image is a PDF primitive and has no HTML alt attribute. */}
-                {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                {company?.logo_base64 && /^data:image\/(png|jpeg);base64,/.test(company.logo_base64) && <Image src={company.logo_base64} style={{ width: 100, maxHeight: 60, objectFit: "contain", marginBottom: 12 }} />}
                 {identifierSummary(invoice.e_invoice) && <View style={{ marginBottom: 16 }}><Text>{identifierSummary(invoice.e_invoice)}</Text></View>}
-                {/* Addresses */}
+
+                {/* Empfänger (Fensterposition) und Rechnungskennung */}
                 <View style={styles.addresses}>
                     <View style={styles.addressBlock}>
-                        <Text style={styles.addressLabel}>
-                            {t("invoicePdf.recipient")}
+                        <Text style={styles.senderLine}>
+                            {[company?.name, company?.address_line1, [company?.postal_code, company?.city].filter(Boolean).join(" ")].filter(Boolean).join(" · ")}
                         </Text>
                         <Text style={styles.addressName}>
                             {invoice.client?.name || t("invoicePdf.unknown")}
                         </Text>
                         <Text style={styles.addressText}>{clientAddress}</Text>
-                        {invoice.client?.email && (
-                            <Text style={styles.addressText}>
-                                {invoice.client.email}
-                            </Text>
-                        )}
                     </View>
-                    <View style={styles.addressBlock}>
-                        <Text style={styles.addressLabel}>
-                            {t("invoicePdf.sender")}
-                        </Text>
-                        <Text style={styles.addressName}>{company?.name}</Text>
-                        <Text style={styles.addressText}>
-                            {company?.address_line1}
-                            {"\n"}
-                            {company?.postal_code} {company?.city}
-                        </Text>
-                        {company?.email && (
-                            <Text style={styles.addressText}>
-                                {company.email}
-                            </Text>
-                        )}
+                    <View style={{ alignItems: "flex-end" }}>
+                        <Text style={styles.invoiceTitle}>{t("invoicePdf.invoiceTitle")}</Text>
+                        <Text style={styles.invoiceNumber}>{invoice.invoice_number}</Text>
                     </View>
                 </View>
 
@@ -547,6 +549,14 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                         </View>
                     </View>
                 )}
+
+                {/* Grußformel mit Faksimile */}
+                <View style={styles.closing} wrap={false}>
+                    <Text>Mit freundlichen Grüßen</Text>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    {signature ? <Image src={signature} style={styles.signature} /> : <View style={{ height: 36 }} />}
+                    <Text style={styles.signatureName}>{company?.name}</Text>
+                </View>
 
                 {/* Footer */}
                 <View style={styles.footer} fixed>
