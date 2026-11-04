@@ -2,3 +2,6 @@
 # artifacts. Their SHA-256 hashes are recorded in docs/validation/summary.json.
 docs/validation/*.xml -text -whitespace
 tests/fixtures/identifiers-*.xml -text -whitespace
+
+# Windows batch files need CRLF line endings
+*.bat text eol=crlf

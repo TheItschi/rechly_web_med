@@ -9,3 +9,4 @@ services
 *.log
 .env*
 !.env.example
+backups

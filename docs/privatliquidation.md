@@ -47,4 +47,19 @@ docker compose down                 # Daten bleiben im Volume rechly-data
 docker compose down -v              # inkl. Daten löschen
 ```
 
-Backup: `docker run --rm -v rechly_web_med_rechly-data:/data -v "$PWD":/b alpine tar czf /b/rechly-data.tgz -C /data .`
+### Datensicherung (Windows)
+
+```bat
+scripts\backup.bat                          :: -> backups\rechly-JJJJMMTT-HHMMSS.tgz
+scripts\backup.bat \\nas\backup\rechly      :: zusaetzlich Kopie auf NAS / externe Platte
+scripts\restore.bat                         :: listet vorhandene Backups
+scripts\restore.bat rechly-20261104-130000.tgz
+```
+
+- Sicherung im laufenden Betrieb: die SQLite-Datenbank wird per `VACUUM INTO` konsistent kopiert,
+  dazu Belege und Kataloge. Aufbewahrt werden die letzten 30 Backups (`set KEEP=…`, `0` = alle).
+- Wiederherstellung prüft das Archiv, fragt nach, legt vorher ein Sicherheitsbackup an, stoppt die App,
+  ersetzt die Daten und startet die App wieder.
+- Automatisch: Aufgabenplanung → Aufgabe erstellen → Aktion „Programm starten“:
+  Programm `cmd.exe`, Argumente `/c "C:\Pfad\rechly_web_med\scripts\backup.bat" >> "C:\Pfad\rechly_web_med\backups\backup.log" 2>&1`.
+- Die Archive enthalten Gesundheitsdaten – nur verschlüsselt (BitLocker, verschlüsseltes NAS) außer Haus lagern.

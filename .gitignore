@@ -89,3 +89,6 @@ docs/TRAIN_LOCAL_AI_MODEL.md
 /data/icd10gm.json
 /import
 /data/goae-katalog.json
+
+# Local backups (scripts/backup.bat)
+/backups
