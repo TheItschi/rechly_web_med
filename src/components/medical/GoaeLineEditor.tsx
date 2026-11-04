@@ -3,7 +3,7 @@
 import { AutoComplete, Button, Checkbox, DatePicker, Input, InputNumber, Select, Space, Tag, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import {
-    baseFeeFromPoints,
+    catalogBaseFee,
     exceedsMaximum,
     findGoaeEntry,
     formatFactor,
@@ -30,15 +30,19 @@ export interface GoaeLineState {
     feeAgreement?: boolean;
 }
 
+/** Default factor: first allowed factor (e.g. Leichenschau 1,0), else the Schwellenwert. */
+export const defaultGoaeFactor = (number: string, feeType: GoaeFeeType = guessGoaeFeeType(number)): number =>
+    findGoaeEntry(number)?.allowedFactors?.[0] ?? GOAE_FEE_FRAMES[feeType].threshold;
+
 export const goaeStateForNumber = (number: string, serviceDate: string): GoaeLineState => {
     const feeType = guessGoaeFeeType(number);
-    return { number: normalizeGoaeNumber(number), factor: GOAE_FEE_FRAMES[feeType].threshold, serviceDate, feeType };
+    return { number: normalizeGoaeNumber(number), factor: defaultGoaeFactor(number, feeType), serviceDate, feeType };
 };
 
 export const goaeCatalogOptions = () =>
     listGoaeCatalog().map((e) => ({
         value: e.number,
-        label: `${/^\d/.test(e.number) ? "Nr." : "Zuschlag"} ${e.number} – ${e.title.length > 70 ? `${e.title.slice(0, 70)}…` : e.title} (${e.points} P.)`,
+        label: `${/^\d/.test(e.number) ? "Nr." : e.fixedFee !== undefined ? "" : "Zuschlag"} ${e.number} – ${e.title.length > 70 ? `${e.title.slice(0, 70)}…` : e.title} (${e.fixedFee !== undefined ? `${e.fixedFee.toFixed(2).replace(".", ",")} €` : `${e.points} P.`})`.trim(),
     }));
 
 interface Props {
@@ -51,16 +55,21 @@ export function GoaeLineEditor({ value, hasError, onChange }: Props) {
     const entry = findGoaeEntry(value.number);
     const frame = GOAE_FEE_FRAMES[value.feeType];
     const isSurcharge = value.feeType === "surcharge";
-    const overThreshold = !isSurcharge && needsJustification(value.feeType, value.factor);
-    const overMax = !isSurcharge && exceedsMaximum(value.feeType, value.factor);
-    const baseFee = entry ? baseFeeFromPoints(entry.points) : value.baseFee ?? 0;
+    const fixedFactors = entry?.allowedFactors;
+    const overThreshold = !isSurcharge && !fixedFactors && needsJustification(value.feeType, value.factor);
+    const overMax = !isSurcharge && !fixedFactors && exceedsMaximum(value.feeType, value.factor);
+    const baseFee = entry ? catalogBaseFee(entry) : value.baseFee ?? 0;
 
     const setNumber = (raw: string) => {
         const number = normalizeGoaeNumber(raw);
         const known = findGoaeEntry(number);
         const feeType = known?.feeType ?? (number === value.number ? value.feeType : guessGoaeFeeType(number));
-        // Reset the factor to the default of the new fee frame when the frame changes.
-        const factor = feeType === value.feeType ? value.factor : GOAE_FEE_FRAMES[feeType].threshold;
+        // Reset the factor when the fee frame or fixed factor set changes.
+        const factor = known?.allowedFactors
+            ? (known.allowedFactors.includes(value.factor) ? value.factor : known.allowedFactors[0])
+            : feeType === value.feeType && !findGoaeEntry(value.number)?.allowedFactors
+                ? value.factor
+                : GOAE_FEE_FRAMES[feeType].threshold;
         onChange({ ...value, number, feeType, factor }, known?.title);
     };
 
@@ -89,6 +98,17 @@ export function GoaeLineEditor({ value, hasError, onChange }: Props) {
                         style={{ width: 130 }}
                     />
                 </Tooltip>
+                {fixedFactors ? (
+                    <Tooltip title="Nur mit festem Satz berechnungsfähig (Gebührenrahmen gilt nicht)">
+                        <Select
+                            aria-label="Steigerungssatz"
+                            value={value.factor}
+                            style={{ width: 150 }}
+                            onChange={(factor: number) => onChange({ ...value, factor })}
+                            options={fixedFactors.map((f) => ({ value: f, label: f === 1 ? "1,0-fach" : `${formatFactor(f)}-fach (verkürzt)` }))}
+                        />
+                    </Tooltip>
+                ) : (
                 <Tooltip title={isSurcharge ? "Zuschläge nur mit einfachem Satz" : `Schwellenwert ${formatFactor(frame.threshold)} · Höchstsatz ${formatFactor(frame.max)}`}>
                     <Space.Compact>
                         <InputNumber
@@ -105,8 +125,13 @@ export function GoaeLineEditor({ value, hasError, onChange }: Props) {
                         <Button disabled style={{ pointerEvents: "none" }}>×</Button>
                     </Space.Compact>
                 </Tooltip>
+                )}
                 {entry ? (
-                    <Tag>{GOAE_FEE_TYPE_LABELS[value.feeType]} · {entry.points} Punkte · Einfachsatz {baseFee.toFixed(2).replace(".", ",")} €</Tag>
+                    <Tag>
+                        {entry.fixedFee !== undefined
+                            ? `Festbetrag ${baseFee.toFixed(2).replace(".", ",")} €`
+                            : `${GOAE_FEE_TYPE_LABELS[value.feeType]} · ${entry.points} Punkte · Einfachsatz ${baseFee.toFixed(2).replace(".", ",")} €`}
+                    </Tag>
                 ) : (
                     <>
                         <Select

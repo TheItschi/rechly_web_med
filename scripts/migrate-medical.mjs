@@ -7,12 +7,14 @@ const project = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 const key = process.env.APPWRITE_API_KEY;
 if (!endpoint || !project || !key) throw new Error("Set Appwrite endpoint, project and scoped API key in the environment.");
 const db = new Databases(new Client().setEndpoint(endpoint).setProject(project).setKey(key));
-for (const [collection, attribute, size] of [
+for (const [collection, attribute, size, encrypt = true] of [
     ["invoices", "medicalData", 16000],
     ["invoice_items", "goaeData", 4000],
+    ["user_company", "professionalTitle", 255, false],
+    ["user_company", "signatureBase64", 5000000, false],
 ]) {
     try {
-        await db.createStringAttribute("rechly-db", collection, attribute, size, false, undefined, false, true);
+        await db.createStringAttribute("rechly-db", collection, attribute, size, false, undefined, false, encrypt);
     } catch (error) {
         if (error.code === 409) { /* exists */ }
         else if (error.code === 400 || error.code === 401) {

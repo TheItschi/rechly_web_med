@@ -10,11 +10,13 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 | Steigerungssatz | Vorgabe = Schwellenwert der Gebührenart: 2,3 (persönlich), 1,8 (technisch, Abschn. A/E/O), 1,15 (Labor, M), 1,0 (Zuschläge). Darüber Pflicht-Begründung (§ 12 Abs. 3), über Höchstsatz nur mit Haken „Vereinbarung nach § 2“. |
 | Prüfmodul | `src/lib/goae/check.ts`, läuft live im Browser inkl. früherer Rechnungen des Patienten (`/api/goae/history`): Ausschlüsse am selben Tag, „nur neben“, Höchstanzahl je Sitzung/Behandlungsfall/6 Monate/Kalenderjahr, Nr. 1/5 neben Sonderleistungen C–O, Zuschlagsregeln, fehlendes Leistungsdatum/Diagnose. Fehler erfordern eine Bestätigung. |
 | Diagnosen | ICD-10-GM-Suche (nach Import) oder Freitext; Zusatzkennzeichen G/V/Z/A und Seite R/L/B; Ausgabe als Klartext, Schlüssel oder beides. |
+| Leichenschau | Nr. 100–102 (nur Faktor 1,0 bzw. 0,6 bei verkürzter Dauer), 106–109, Zuschläge F/G/H, Wegegeld § 8 als W1–W4 (Tag) und W1N–W4N (Nacht) mit Festbeträgen. |
+| Briefkopf | *Einstellungen → Unternehmen*: Briefkopf-Grafik, Berufsbezeichnung und Faksimile-Unterschrift (PNG/JPEG). Bilder liegen in der Datenbank, nicht im Repo. |
 | PDF | Leistungstabelle nach § 12 Abs. 2 (Datum, Ziffer, Bezeichnung, Faktor, Betrag, Begründung), Diagnosen, Hinweis § 4 Nr. 14 UStG, Girocode (EPC-QR). |
 
 ## Einrichtung
 
-1. **Schema** (Appwrite): `npm run migrate:medical` legt `invoices.medicalData` und `invoice_items.goaeData` an (verschlüsselt, sofern der Server das unterstützt). Desktop-Modus (SQLite) braucht keine Migration.
+1. **Schema** (Appwrite): `npm run migrate:medical` legt `invoices.medicalData`, `invoice_items.goaeData` (verschlüsselt, sofern unterstützt) sowie `user_company.professionalTitle` und `user_company.signatureBase64` an. Desktop-Modus (SQLite) braucht keine Migration.
 2. **ICD-10-GM**: *Einstellungen → ICD-10 Codes*: die BfArM-Systematik (EDV-Fassung TXT) als ZIP oder
    `icd10gmJJJJsyst_kodes.txt` hochladen. Das Alphabetische Verzeichnis wird erkannt und abgelehnt.
    Alternativ per CLI: `npm run import:icd10gm -- <zip|txt>`. Ablage: `<RECHLY_DATA_DIR|./data>/icd10gm.json`.

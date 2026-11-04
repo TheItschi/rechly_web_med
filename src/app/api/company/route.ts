@@ -68,6 +68,8 @@ export async function GET() {
             bank_iban: doc.bankIban,
             bank_bic: doc.bankBic ?? undefined,
             logo_base64: doc.logoBase64 ?? undefined,
+            professional_title: doc.professionalTitle ?? undefined,
+            signature_base64: doc.signatureBase64 ?? undefined,
             is_small_business: doc.isSmallBusiness ?? false,
             payment_terms_default: doc.paymentTermsDefault,
             created_at: new Date(doc.$createdAt).getTime(),
@@ -143,6 +145,10 @@ export async function POST(request: NextRequest) {
             bankIban: typeof body.bank_iban === "string" ? body.bank_iban.replace(/\s+/g, "").toUpperCase() : body.bank_iban,
             bankBic: body.bank_bic ? String(body.bank_bic).replace(/\s+/g, "").toUpperCase() : null,
             logoBase64: body.logo_base64 || null,
+            // Briefkopf/Faksimile (Privatliquidation) – only sent when the client
+            // knows these fields, so unmigrated Appwrite schemas keep working.
+            ...("professional_title" in body ? { professionalTitle: body.professional_title || null } : {}),
+            ...("signature_base64" in body ? { signatureBase64: body.signature_base64 || null } : {}),
             isSmallBusiness: !!body.is_small_business,
             paymentTermsDefault: body.payment_terms_default,
         };
@@ -194,6 +200,8 @@ export async function POST(request: NextRequest) {
             bank_iban: doc.bankIban,
             bank_bic: doc.bankBic ?? undefined,
             logo_base64: doc.logoBase64 ?? undefined,
+            professional_title: doc.professionalTitle ?? undefined,
+            signature_base64: doc.signatureBase64 ?? undefined,
             is_small_business: doc.isSmallBusiness ?? false,
             payment_terms_default: doc.paymentTermsDefault,
             created_at: new Date(doc.$createdAt).getTime(),
@@ -204,6 +212,9 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         if (error instanceof IdentifierValidationError) return NextResponse.json({ error: error.message }, { status: 400 });
         console.error("Error saving company:", error);
+        if (/Unknown attribute: "?(professionalTitle|signatureBase64)/.test((error as { message?: string })?.message || "")) {
+            return NextResponse.json({ error: "Datenbankschema für Briefkopf/Faksimile fehlt – bitte `npm run migrate:medical` ausführen" }, { status: 400 });
+        }
         return NextResponse.json(
             { error: "Failed to save company" },
             { status: 500 }

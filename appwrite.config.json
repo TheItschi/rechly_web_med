@@ -300,6 +300,24 @@
                     "size": 16000,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "professionalTitle",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "signatureBase64",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 5000000,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": []

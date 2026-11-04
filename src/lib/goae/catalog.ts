@@ -1,4 +1,4 @@
-import type { GoaeFeeType } from "./fees";
+import { baseFeeFromPoints, type GoaeFeeType } from "./fees";
 
 /**
  * Rule-annotated excerpt of the GOÄ Gebührenverzeichnis.
@@ -36,12 +36,25 @@ export interface GoaeCatalogEntry {
     repeatSameDayNeedsReason?: boolean;
     /** Note that must be reflected on the invoice text */
     invoiceHint?: string;
+    /**
+     * Only these factors are allowed (e.g. Leichenschau: 1,0 or 0,6 for the
+     * shortened service). First value is the default. Gebührenrahmen n/a.
+     */
+    allowedFactors?: number[];
+    /** Fixed amount in EUR instead of Punktzahl (e.g. Wegegeld § 8) */
+    fixedFee?: number;
 }
+
+/** Einfachsatz (1,0-fach) in EUR of a catalogue entry. */
+export const catalogBaseFee = (entry: GoaeCatalogEntry): number =>
+    entry.fixedFee ?? baseFeeFromPoints(entry.points);
 
 const NOT_WITH_PSYCH = [
     "804", "805", "806", "807", "808", "809", "810", "811", "812", "817", "835", "849",
     "861", "862", "863", "864", "870", "871", "886", "887",
 ];
+/** Besuche und Leichenschau – Bezugsleistungen für Zuschläge F–H und Wegegeld */
+const VISITS_AND_LS = ["48", "50", "51", "52", "100", "101"];
 const BASIC_CONTACTS = ["1", "3", "4", "5", "6", "7", "8", "45", "46", "48", "50", "51"];
 
 export const GOAE_CATALOG: GoaeCatalogEntry[] = [
@@ -60,6 +73,30 @@ export const GOAE_CATALOG: GoaeCatalogEntry[] = [
     { number: "50", title: "Besuch, einschließlich Beratung und symptombezogener Untersuchung", points: 320, feeType: "personal", section: "B", notWith: ["1", "5", "45", "46", "48", "52"] },
     { number: "70", title: "Kurze Bescheinigung oder kurzes Zeugnis, Arbeitsunfähigkeitsbescheinigung", points: 40, feeType: "personal", section: "B" },
     { number: "75", title: "Ausführlicher schriftlicher Krankheits- und Befundbericht", points: 130, feeType: "personal", section: "B" },
+
+    // ── Abschnitt B VII: Leichenschau (seit 01.01.2020, nur einfacher Satz) ──
+    { number: "100", title: "Untersuchung eines Toten und Ausstellung einer vorläufigen Todesbescheinigung gemäß landesrechtlichen Bestimmungen, einschließlich Aufsuchen", points: 1896, feeType: "personal", section: "B", allowedFactors: [1, 0.6], minMinutes: 20, maxPerDay: 1, notWith: ["101", "48", "50", "51", "52"], invoiceHint: "Mindestdauer 20 Minuten (ohne Aufsuchen) – Dauer auf der Rechnung angeben (§ 12 Abs. 2 Nr. 2 GOÄ). Bei 10–20 Minuten nur 60 % (Faktor 0,6)." },
+    { number: "101", title: "Eingehende Untersuchung eines Toten und Ausstellung einer Todesbescheinigung, einschließlich Angaben zu Todesart und Todesursache gemäß landesrechtlichen Bestimmungen, einschließlich Aufsuchen", points: 2844, feeType: "personal", section: "B", allowedFactors: [1, 0.6], minMinutes: 40, maxPerDay: 1, notWith: ["100", "48", "50", "51", "52"], invoiceHint: "Mindestdauer 40 Minuten (ohne Aufsuchen) – Dauer auf der Rechnung angeben (§ 12 Abs. 2 Nr. 2 GOÄ). Bei 20–40 Minuten nur 60 % (Faktor 0,6)." },
+    { number: "102", title: "Zuschlag zu den Leistungen nach den Nummern 100 und 101 bei einer Leiche mit dem Arzt unbekannter Identität und/oder besonderen Todesumständen", points: 474, feeType: "personal", section: "B", allowedFactors: [1], minMinutes: 10, maxPerDay: 1, requiresOneOf: ["100", "101"], invoiceHint: "Zusätzliche Mindestdauer 10 Minuten." },
+    { number: "106", title: "Entnahme einer Körperflüssigkeit bei einem Toten", points: 150, feeType: "personal", section: "B" },
+    { number: "107", title: "Bulbusentnahme bei einem Toten", points: 250, feeType: "personal", section: "B" },
+    { number: "108", title: "Hornhautentnahme aus einem Auge bei einem Toten", points: 230, feeType: "personal", section: "B" },
+    { number: "109", title: "Entnahme eines Herzschrittmachers bei einem Toten", points: 220, feeType: "personal", section: "B" },
+
+    // ── Zuschläge zu Besuchen und zur Leichenschau (nur einfacher Satz) ─────
+    { number: "F", title: "Zuschlag für in der Zeit zwischen 20 und 22 Uhr oder 6 und 8 Uhr erbrachte Leistungen", points: 260, feeType: "surcharge", section: "Z", requiresOneOf: VISITS_AND_LS, maxPerDay: 1 },
+    { number: "G", title: "Zuschlag für in der Zeit zwischen 22 und 6 Uhr erbrachte Leistungen", points: 450, feeType: "surcharge", section: "Z", notWith: ["F"], requiresOneOf: VISITS_AND_LS, maxPerDay: 1 },
+    { number: "H", title: "Zuschlag für an Samstagen, Sonn- oder Feiertagen erbrachte Leistungen", points: 340, feeType: "surcharge", section: "Z", requiresOneOf: VISITS_AND_LS, maxPerDay: 1 },
+
+    // ── § 8 Wegegeld je Besuch (Radius um Praxis bzw. Wohnung) ──────────────
+    { number: "W1", title: "Wegegeld nach § 8 GOÄ, bis 2 km", points: 0, fixedFee: 3.58, feeType: "surcharge", section: "W", notWith: ["W1N"], requiresOneOf: VISITS_AND_LS },
+    { number: "W2", title: "Wegegeld nach § 8 GOÄ, mehr als 2 bis 5 km", points: 0, fixedFee: 6.65, feeType: "surcharge", section: "W", notWith: ["W2N"], requiresOneOf: VISITS_AND_LS },
+    { number: "W3", title: "Wegegeld nach § 8 GOÄ, mehr als 5 bis 10 km", points: 0, fixedFee: 10.23, feeType: "surcharge", section: "W", notWith: ["W3N"], requiresOneOf: VISITS_AND_LS },
+    { number: "W4", title: "Wegegeld nach § 8 GOÄ, mehr als 10 bis 25 km", points: 0, fixedFee: 15.34, feeType: "surcharge", section: "W", notWith: ["W4N"], requiresOneOf: VISITS_AND_LS },
+    { number: "W1N", title: "Wegegeld nach § 8 GOÄ, bis 2 km, bei Nacht (20–8 Uhr)", points: 0, fixedFee: 7.16, feeType: "surcharge", section: "W", requiresOneOf: VISITS_AND_LS },
+    { number: "W2N", title: "Wegegeld nach § 8 GOÄ, mehr als 2 bis 5 km, bei Nacht (20–8 Uhr)", points: 0, fixedFee: 10.23, feeType: "surcharge", section: "W", requiresOneOf: VISITS_AND_LS },
+    { number: "W3N", title: "Wegegeld nach § 8 GOÄ, mehr als 5 bis 10 km, bei Nacht (20–8 Uhr)", points: 0, fixedFee: 15.34, feeType: "surcharge", section: "W", requiresOneOf: VISITS_AND_LS },
+    { number: "W4N", title: "Wegegeld nach § 8 GOÄ, mehr als 10 bis 25 km, bei Nacht (20–8 Uhr)", points: 0, fixedFee: 25.56, feeType: "surcharge", section: "W", requiresOneOf: VISITS_AND_LS },
 
     // ── Zuschläge zu Beratungen und Untersuchungen (nur einfacher Satz) ─────
     { number: "A", title: "Zuschlag für außerhalb der Sprechstunde erbrachte Leistungen", points: 70, feeType: "surcharge", section: "Z", notWith: ["B", "C", "D"], requiresOneOf: BASIC_CONTACTS, maxPerDay: 1 },

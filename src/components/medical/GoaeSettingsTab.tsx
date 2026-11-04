@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Card, Input, Popconfirm, Radio, Space, Table, Tag, Typography, Upload, message } from "antd";
 import { DownloadOutlined, InboxOutlined, UndoOutlined } from "@ant-design/icons";
-import { baseFeeFromPoints, GOAE_FEE_TYPE_LABELS, listGoaeCatalog, setGoaeCustomCatalog, type GoaeCatalogEntry, type GoaeCatalogMode } from "@/lib/goae";
+import { catalogBaseFee, formatFactor, GOAE_FEE_TYPE_LABELS, listGoaeCatalog, setGoaeCustomCatalog, type GoaeCatalogEntry, type GoaeCatalogMode } from "@/lib/goae";
 import { activateGoaeCatalog, type GoaeCatalogInfo } from "@/lib/medicalService";
 
 const { Text, Paragraph } = Typography;
@@ -18,6 +18,8 @@ const rulesSummary = (e: GoaeCatalogEntry) =>
         e.maxPerCase ? `max. ${e.maxPerCase}×/Fall` : "",
         e.maxPerPeriod ? `max. ${e.maxPerPeriod.count}× ${e.maxPerPeriod.calendarYear ? "/Jahr" : `in ${e.maxPerPeriod.months} Mon.`}` : "",
         e.minMinutes ? `≥ ${e.minMinutes} Min.` : "",
+        e.allowedFactors ? `nur Faktor ${e.allowedFactors.map(formatFactor).join("/")}` : "",
+        e.fixedFee !== undefined ? "Festbetrag" : "",
     ].filter(Boolean).join(" · ");
 
 export function GoaeSettingsTab() {
@@ -105,8 +107,8 @@ export function GoaeSettingsTab() {
                     columns={[
                         { title: "Ziffer", dataIndex: "number", width: 80, render: (n: string) => <Space size={4}>{n}{customNumbers.has(n) && <Tag color="blue">eigen</Tag>}</Space> },
                         { title: "Bezeichnung", dataIndex: "title", ellipsis: true },
-                        { title: "Punkte", dataIndex: "points", width: 70, align: "right" },
-                        { title: "1,0-fach", width: 80, align: "right", render: (_, e) => `${baseFeeFromPoints(e.points).toFixed(2).replace(".", ",")} €` },
+                        { title: "Punkte", width: 70, align: "right", render: (_, e) => (e.fixedFee !== undefined ? "–" : e.points) },
+                        { title: "1,0-fach", width: 80, align: "right", render: (_, e) => `${catalogBaseFee(e).toFixed(2).replace(".", ",")} €` },
                         { title: "Art", dataIndex: "feeType", width: 150, render: (f: GoaeCatalogEntry["feeType"]) => GOAE_FEE_TYPE_LABELS[f] },
                         { title: "Regeln", render: (_, e) => <Text type="secondary" style={{ fontSize: 12 }}>{rulesSummary(e)}</Text> },
                     ]}

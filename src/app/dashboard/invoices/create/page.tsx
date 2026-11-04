@@ -48,7 +48,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { GoaeLineEditor, goaeCatalogOptions, goaeStateForNumber, type GoaeLineState } from "@/components/medical/GoaeLineEditor";
 import { GoaeCheckPanel } from "@/components/medical/GoaeCheckPanel";
 import { DiagnosisPicker } from "@/components/medical/DiagnosisPicker";
-import { checkGoaeLines, findGoaeEntry, formatFactor, goaeUnitAmount, type GoaeHistoryEntry } from "@/lib/goae";
+import { checkGoaeLines, findGoaeEntry, formatFactor, goaeLinePrice, type GoaeHistoryEntry } from "@/lib/goae";
 import type { DiagnosisDisplay, InvoiceDiagnosis } from "@/lib/icd10";
 import { activateGoaeCatalog, getGoaeHistory } from "@/lib/medicalService";
 import type {
@@ -204,8 +204,7 @@ export default function InvoiceCreatePage() {
         setLineItems(lineItems.filter((item) => item.key !== key));
     };
 
-    const goaePrice = (g: GoaeLineState) =>
-        goaeUnitAmount(g.factor, { points: findGoaeEntry(g.number)?.points, baseFee: g.baseFee });
+    const goaePrice = (g: GoaeLineState) => goaeLinePrice(g.number, g.factor, g.baseFee);
 
     const addGoaeLine = (number = "") => {
         const goae = goaeStateForNumber(number, dayjs().format("YYYY-MM-DD"));

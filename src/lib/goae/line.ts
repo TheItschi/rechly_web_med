@@ -1,4 +1,4 @@
-import { findGoaeEntry, guessGoaeFeeType, normalizeGoaeNumber } from "./catalog";
+import { catalogBaseFee, findGoaeEntry, guessGoaeFeeType, normalizeGoaeNumber } from "./catalog";
 import { baseFeeFromPoints, exceedsMaximum, GOAE_FEE_FRAMES, goaeUnitAmount, needsJustification, round2, type GoaeFeeType } from "./fees";
 
 /** GOÄ data attached to an invoice line (stored as JSON in invoice_items.goaeData). */
@@ -33,28 +33,30 @@ export function normalizeGoaeLine(raw: unknown): { data: GoaeLineData; unitPrice
     if (!number || number.length > 12) throw new GoaeValidationError("GOÄ-Ziffer fehlt oder ist ungültig");
 
     const entry = findGoaeEntry(number);
-    const feeType: GoaeFeeType = FEE_TYPES.includes(r.fee_type as GoaeFeeType)
-        ? (r.fee_type as GoaeFeeType)
-        : guessGoaeFeeType(number);
+    const feeType: GoaeFeeType = entry?.feeType
+        ?? (FEE_TYPES.includes(r.fee_type as GoaeFeeType) ? (r.fee_type as GoaeFeeType) : guessGoaeFeeType(number));
     const factor = Number(r.factor);
     if (!(factor > 0) || factor > 99) throw new GoaeValidationError(`Nr. ${number}: ungültiger Steigerungssatz`);
 
-    const points = entry?.points ?? (Number(r.points) > 0 ? Number(r.points) : undefined);
-    const baseFee = points ? baseFeeFromPoints(points) : round2(Number(r.base_fee));
+    if (entry?.allowedFactors && !entry.allowedFactors.some((f) => Math.abs(f - factor) < 1e-9)) {
+        throw new GoaeValidationError(`Nr. ${number}: nur mit Faktor ${entry.allowedFactors.join(" oder ").replace(/\./g, ",")} berechnungsfähig`);
+    }
+    const points = entry ? (entry.fixedFee ? undefined : entry.points) : (Number(r.points) > 0 ? Number(r.points) : undefined);
+    const baseFee = entry ? catalogBaseFee(entry) : points ? baseFeeFromPoints(points) : round2(Number(r.base_fee));
     if (!(baseFee >= 0)) throw new GoaeValidationError(`Nr. ${number}: Einfachsatz fehlt`);
 
     const serviceDate = String(r.service_date ?? "");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(serviceDate)) throw new GoaeValidationError(`Nr. ${number}: Leistungsdatum fehlt`);
 
     const justification = typeof r.justification === "string" ? r.justification.trim().slice(0, 1000) : "";
-    if (feeType === "surcharge" && factor !== 1 && !(number === "D" && factor === 0.5)) {
+    if (!entry?.allowedFactors && feeType === "surcharge" && factor !== 1 && !(number === "D" && factor === 0.5)) {
         throw new GoaeValidationError(`${number}: Zuschläge nur mit einfachem Satz`);
     }
-    if (needsJustification(feeType, factor) && !justification) {
+    if (!entry?.allowedFactors && needsJustification(feeType, factor) && !justification) {
         throw new GoaeValidationError(`Nr. ${number}: Begründung für Faktor über ${GOAE_FEE_FRAMES[feeType].threshold} erforderlich (§ 12 Abs. 3 GOÄ)`);
     }
     const feeAgreement = r.fee_agreement === true;
-    if (exceedsMaximum(feeType, factor) && !feeAgreement) {
+    if (!entry?.allowedFactors && exceedsMaximum(feeType, factor) && !feeAgreement) {
         throw new GoaeValidationError(`Nr. ${number}: Faktor über Höchstsatz nur mit Vereinbarung nach § 2 GOÄ`);
     }
 
@@ -84,4 +86,11 @@ export function parseGoaeLineData(value: unknown): GoaeLineData | undefined {
         /* ignore malformed legacy data */
     }
     return undefined;
+}
+
+/** Unit price of a GOÄ line (catalogue Punktzahl/Festbetrag, else the given Einfachsatz). */
+export function goaeLinePrice(number: string, factor: number, customBaseFee?: number): number {
+    const entry = findGoaeEntry(number);
+    if (entry?.fixedFee !== undefined) return goaeUnitAmount(factor, { baseFee: entry.fixedFee });
+    return goaeUnitAmount(factor, { points: entry?.points, baseFee: customBaseFee });
 }

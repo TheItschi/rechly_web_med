@@ -37,7 +37,7 @@ import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { MedicineBoxOutlined, OrderedListOutlined } from "@ant-design/icons";
+import { EditOutlined, MedicineBoxOutlined, OrderedListOutlined } from "@ant-design/icons";
 import { Icd10SettingsTab } from "@/components/medical/Icd10SettingsTab";
 import { GoaeSettingsTab } from "@/components/medical/GoaeSettingsTab";
 import type { AIProvider, UserCompany } from "@/types";
@@ -51,6 +51,7 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
     const [aiLoading, setAiLoading] = useState(true);
     const [aiSaving, setAiSaving] = useState(false);
     const [aiTesting, setAiTesting] = useState(false);
@@ -89,6 +90,7 @@ export default function SettingsPage() {
             if (data) {
                 form.setFieldsValue(data);
                 setLogoPreview(data.logo_base64 || null);
+                setSignaturePreview(data.signature_base64 || null);
             }
         } catch (error) {
             console.error("Error loading company info:", error);
@@ -130,6 +132,8 @@ export default function SettingsPage() {
             await saveCompanyInfo({
                 ...values,
                 logo_base64: logoPreview || undefined,
+                signature_base64: signaturePreview || "",
+                professional_title: values.professional_title || "",
             });
             message.success(t("settings.saved"));
         } catch (error) {
@@ -140,8 +144,9 @@ export default function SettingsPage() {
         }
     };
 
-    const handleLogoUpload: UploadProps["beforeUpload"] = (file) => {
-        const isImage = file.type.startsWith("image/");
+    // PDF rendering (react-pdf) supports PNG and JPEG only.
+    const readImage = (setter: (v: string) => void): UploadProps["beforeUpload"] => (file) => {
+        const isImage = file.type === "image/png" || file.type === "image/jpeg";
         if (!isImage) {
             message.error(t("settings.imageOnly"));
             return false;
@@ -155,12 +160,14 @@ export default function SettingsPage() {
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            setLogoPreview(e.target?.result as string);
+            setter(e.target?.result as string);
         };
         reader.readAsDataURL(file);
 
         return false; // Prevent auto upload
     };
+    const handleLogoUpload = readImage(setLogoPreview);
+    const handleSignatureUpload = readImage(setSignaturePreview);
 
     const handleRemoveLogo = () => {
         setLogoPreview(null);
@@ -286,62 +293,36 @@ export default function SettingsPage() {
                     onFinish={handleSave}
                     disabled={loading}
                 >
-                    {/* Logo */}
-                    <Card size="small" style={{ marginBottom: 16 }}>
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 16,
-                            }}
-                        >
-                            {logoPreview ? (
-                                <Image
-                                    src={logoPreview}
-                                    alt="Logo"
-                                    width={80}
-                                    height={80}
-                                    style={{ objectFit: "contain" }}
-                                />
-                            ) : (
-                                <div
-                                    style={{
-                                        width: 80,
-                                        height: 80,
-                                        background: "#f0f0f0",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        borderRadius: 8,
-                                    }}
-                                >
-                                    <BankOutlined
-                                        style={{ fontSize: 32, color: "#999" }}
-                                    />
+                    {/* Briefkopf-Grafik und Faksimile */}
+                    <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
+                        {[
+                            { key: "logo", title: "Briefkopf-Grafik / Logo", hint: "erscheint links im Briefkopf", value: logoPreview, onUpload: handleLogoUpload, onRemove: () => setLogoPreview(null), icon: <BankOutlined style={{ fontSize: 32, color: "#999" }} /> },
+                            { key: "signature", title: "Faksimile-Unterschrift", hint: "unter der Grußformel; ideal: PNG, transparent, ~300 dpi", value: signaturePreview, onUpload: handleSignatureUpload, onRemove: () => setSignaturePreview(null), icon: <EditOutlined style={{ fontSize: 32, color: "#999" }} /> },
+                        ].map((img) => (
+                            <Card key={img.key} size="small" title={img.title} style={{ flex: "1 1 280px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                                    {img.value ? (
+                                        <Image src={img.value} alt={img.title} width={80} height={80} style={{ objectFit: "contain" }} />
+                                    ) : (
+                                        <div style={{ width: 80, height: 80, background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 8 }}>
+                                            {img.icon}
+                                        </div>
+                                    )}
+                                    <Space direction="vertical">
+                                        <Upload beforeUpload={img.onUpload} showUploadList={false} accept="image/png,image/jpeg">
+                                            <Button icon={<UploadOutlined />}>Bild hochladen</Button>
+                                        </Upload>
+                                        {img.value && (
+                                            <Button danger icon={<DeleteOutlined />} onClick={img.onRemove}>
+                                                {t("settings.removeLogo")}
+                                            </Button>
+                                        )}
+                                        <Text type="secondary" style={{ fontSize: 12 }}>{img.hint}</Text>
+                                    </Space>
                                 </div>
-                            )}
-                            <Space direction="vertical">
-                                <Upload
-                                    beforeUpload={handleLogoUpload}
-                                    showUploadList={false}
-                                    accept="image/*"
-                                >
-                                    <Button icon={<UploadOutlined />}>
-                                        {t("settings.uploadLogo")}
-                                    </Button>
-                                </Upload>
-                                {logoPreview && (
-                                    <Button
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                        onClick={handleRemoveLogo}
-                                    >
-                                        {t("settings.removeLogo")}
-                                    </Button>
-                                )}
-                            </Space>
-                        </div>
-                    </Card>
+                            </Card>
+                        ))}
+                    </div>
 
                     {/* Company Name */}
                     <Form.Item
@@ -352,6 +333,13 @@ export default function SettingsPage() {
                         ]}
                     >
                         <Input placeholder={t("settings.companyName")} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="professional_title"
+                        label="Berufsbezeichnung (Briefkopf)"
+                    >
+                        <Input placeholder="z. B. Ärztin, Facharzt für Allgemeinmedizin" />
                     </Form.Item>
 
                     <Form.Item

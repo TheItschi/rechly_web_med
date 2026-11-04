@@ -116,3 +116,39 @@ test("CSV catalogue round-trip and merge/replace activation", async () => {
     setGoaeCustomCatalog(null);
     assert.ok(findGoaeEntry("1") && !findGoaeEntry("1240"));
 });
+
+test("Leichenschau: fixed factors, exclusions, surcharges and Wegegeld", async () => {
+    const { goaeLinePrice, parseGoaeCsv, goaeCatalogToCsv, GOAE_CATALOG } = await import("../src/lib/goae");
+    // Amounts as on the sample invoice (1,0-fach)
+    assert.equal(goaeLinePrice("101", 1), 165.77);
+    assert.equal(goaeLinePrice("101", 0.6), 99.46);
+    assert.equal(goaeLinePrice("100", 1), 110.51); // 1896 P × 5,82873 Ct
+    assert.equal(goaeLinePrice("102", 1), 27.63);
+    assert.equal(goaeLinePrice("H", 1), 19.82);
+    assert.equal(goaeLinePrice("F", 1), 15.15);
+    assert.equal(goaeLinePrice("G", 1), 26.23);
+    assert.equal(goaeLinePrice("W4", 1), 15.34);
+    assert.equal(goaeLinePrice("W4N", 1), 25.56);
+
+    const ls = (extra: GoaeCheckLine[] = []) => [line("a", "101", undefined, { factor: 1 }), ...extra];
+    assert.deepEqual(codes(ls([
+        line("b", "102", undefined, { factor: 1 }),
+        line("c", "H", undefined, { factor: 1, feeType: "surcharge" }),
+        line("d", "G", undefined, { factor: 1, feeType: "surcharge" }),
+        line("e", "W4", undefined, { factor: 1, feeType: "surcharge" }),
+    ]), { diagnosisCount: 1 }), []);
+    assert.ok(codes([line("a", "101", undefined, { factor: 2.3 })]).includes("factor-fixed"));
+    assert.ok(!codes([line("a", "101", undefined, { factor: 0.6 })]).includes("factor-fixed"));
+    assert.ok(codes(ls([line("b", "100", undefined, { factor: 1 })])).includes("exclusion"));
+    assert.ok(codes(ls([line("b", "50")])).includes("exclusion"));
+    assert.ok(codes(ls([line("b", "F", undefined, { factor: 1, feeType: "surcharge" }), line("c", "G", undefined, { factor: 1, feeType: "surcharge" })])).includes("exclusion"));
+    assert.ok(codes([line("a", "102", undefined, { factor: 1 })]).includes("requires"));
+
+    assert.throws(() => normalizeGoaeLine({ number: "101", factor: 2.3, service_date: "2026-05-20" }), GoaeValidationError);
+    assert.equal(normalizeGoaeLine({ number: "101", factor: 0.6, service_date: "2026-05-20" }).unitPrice, 99.46);
+    assert.equal(normalizeGoaeLine({ number: "W4", factor: 1, service_date: "2026-05-20", base_fee: 99 }).unitPrice, 15.34);
+
+    const back = parseGoaeCsv(goaeCatalogToCsv(GOAE_CATALOG));
+    assert.equal(back.errors.length, 0);
+    for (const n of ["101", "W4", "G"]) assert.deepEqual(back.entries.find((e) => e.number === n), GOAE_CATALOG.find((e) => e.number === n));
+});

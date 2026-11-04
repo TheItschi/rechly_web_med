@@ -12,7 +12,7 @@ export const GOAE_CSV_COLUMNS = [
     "Ziffer", "Bezeichnung", "Punkte", "Gebuehrenart", "Abschnitt",
     "NichtNeben", "NurNeben", "Allein", "Erfordert", "MaxTag", "MaxFall",
     "MaxAnzahl", "MaxMonate", "Kalenderjahr", "NichtImFall", "MinMinuten",
-    "MehrfachBegruendung", "Hinweis",
+    "MehrfachBegruendung", "Hinweis", "Faktoren", "Festbetrag",
 ] as const;
 
 const FEE_TYPE_IN: Record<string, GoaeFeeType> = {
@@ -60,10 +60,14 @@ export function parseGoaeCsv(text: string): GoaeCsvResult {
         const row = i + 2; // header is row 1
         const number = normalizeGoaeNumber(r.Ziffer);
         const title = (r.Bezeichnung ?? "").trim();
-        const points = Number.parseFloat((r.Punkte ?? "").replace(",", "."));
+        const fixedFeeRaw = (r.Festbetrag ?? "").trim();
+        const fixedFee = fixedFeeRaw ? Number.parseFloat(fixedFeeRaw.replace(",", ".")) : undefined;
+        if (fixedFee !== undefined && !(fixedFee > 0)) return errors.push({ row, message: `${number}: ungültiger Festbetrag` });
+        const points = fixedFee !== undefined && !(r.Punkte ?? "").trim() ? 0 : Number.parseFloat((r.Punkte ?? "").replace(",", "."));
         if (!number) return errors.push({ row, message: "Ziffer fehlt" });
         if (!title) return errors.push({ row, message: `${number}: Bezeichnung fehlt` });
-        if (!(points > 0)) return errors.push({ row, message: `${number}: ungültige Punktzahl` });
+        if (!(points > 0) && fixedFee === undefined) return errors.push({ row, message: `${number}: ungültige Punktzahl` });
+        const factors = (r.Faktoren ?? "").split("/").map((x) => Number.parseFloat(x.trim().replace(",", "."))).filter((x) => x > 0);
         if (seen.has(number)) return errors.push({ row, message: `${number}: doppelt` });
         const feeRaw = (r.Gebuehrenart ?? "").trim().toLowerCase();
         const feeType = feeRaw ? FEE_TYPE_IN[feeRaw] : undefined;
@@ -96,6 +100,8 @@ export function parseGoaeCsv(text: string): GoaeCsvResult {
         }
         if (int(r.MinMinuten)) entry.minMinutes = int(r.MinMinuten);
         if ((r.Hinweis ?? "").trim()) entry.invoiceHint = r.Hinweis.trim();
+        if (factors.length) entry.allowedFactors = factors;
+        if (fixedFee !== undefined) entry.fixedFee = fixedFee;
         entries.push(entry);
     });
     return { entries, errors };
@@ -121,6 +127,8 @@ export function goaeCatalogToCsv(entries: GoaeCatalogEntry[]): string {
         MinMinuten: e.minMinutes ? String(e.minMinutes) : "",
         MehrfachBegruendung: e.repeatSameDayNeedsReason ? "ja" : "",
         Hinweis: e.invoiceHint ?? "",
+        Faktoren: (e.allowedFactors ?? []).map((f) => String(f).replace(".", ",")).join("/"),
+        Festbetrag: e.fixedFee !== undefined ? String(e.fixedFee).replace(".", ",") : "",
     }));
     // BOM so Excel opens UTF-8 correctly
     return "﻿" + Papa.unparse(rows, { delimiter: ";", columns: [...GOAE_CSV_COLUMNS] });

@@ -123,6 +123,10 @@ export function checkGoaeLines(lines: GoaeCheckLine[], options: GoaeCheckOptions
 
         if (!(line.factor > 0)) {
             push("error", "factor-invalid", `${nr(number)}: Steigerungssatz muss größer 0 sein.`, [line.key]);
+        } else if (entry?.allowedFactors) {
+            if (!entry.allowedFactors.some((f) => Math.abs(f - line.factor) < 1e-9)) {
+                push("error", "factor-fixed", `${nr(number)}: nur mit Faktor ${entry.allowedFactors.map(formatFactor).join(" oder ")} berechnungsfähig.`, [line.key]);
+            }
         } else if (feeType === "surcharge") {
             if (line.factor !== 1 && !(number === "D" && line.factor === 0.5)) {
                 push("error", "surcharge-factor", `${nr(number)}: Zuschläge sind nur mit dem einfachen Satz berechnungsfähig.`, [line.key]);
@@ -134,7 +138,7 @@ export function checkGoaeLines(lines: GoaeCheckLine[], options: GoaeCheckOptions
         } else if (exceedsMaximum(feeType, line.factor)) {
             push("error", "factor-above-max", `${nr(number)}: Steigerungssatz ${formatFactor(line.factor)} über dem Höchstsatz ${formatFactor(frame.max)} – nur mit abweichender Vereinbarung nach § 2 GOÄ zulässig.`, [line.key]);
         }
-        if (feeType !== "surcharge" && needsJustification(feeType, line.factor)) {
+        if (!entry?.allowedFactors && feeType !== "surcharge" && needsJustification(feeType, line.factor)) {
             const reason = line.justification?.trim() ?? "";
             if (!reason) {
                 push("error", "justification-missing", `${nr(number)}: Faktor ${formatFactor(line.factor)} überschreitet den Schwellenwert ${formatFactor(frame.threshold)} – Begründung erforderlich (§ 12 Abs. 3 GOÄ).`, [line.key]);
