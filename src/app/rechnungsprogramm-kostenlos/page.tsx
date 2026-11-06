@@ -87,6 +87,18 @@ export default function RechnungsprogrammKostenlosPage() {
             ]}
             clusterLinks={[
                 {
+                    href: "/desktop",
+                    title: "Rechnungsprogramm Download (Vollversion Win & Mac)",
+                    description:
+                        "Rechly Desktop kostenlos herunterladen: 100 % offline, ohne Abo und ohne Cloud-Zwang.",
+                },
+                {
+                    href: "/tools/rechnungsgenerator",
+                    title: "Online-Rechnungsgenerator (ohne Anmeldung)",
+                    description:
+                        "Sofort im Browser eine PDF-Rechnung oder XRechnung schreiben und herunterladen.",
+                },
+                {
                     href: "/rechnung-schreiben",
                     title: "Rechnung schreiben",
                     description:
@@ -97,18 +109,6 @@ export default function RechnungsprogrammKostenlosPage() {
                     title: "Kostenlose Rechnungssoftware",
                     description:
                         "Testphase, Freemium oder echte Vollversion? Der ehrliche Vergleich der Gratis-Modelle.",
-                },
-                {
-                    href: "/lexoffice-alternative",
-                    title: "lexoffice Alternative",
-                    description:
-                        "Wenn du statt kostenlos vor allem Alternativen zu etablierter SaaS-Rechnungssoftware vergleichst.",
-                },
-                {
-                    href: "/rechnungssoftware-fuer-freelancer",
-                    title: "Rechnungssoftware für Freelancer",
-                    description:
-                        "Wenn dein Fokus stärker auf Freelancer-Workflows als auf Preisintention liegt.",
                 },
             ]}
         />

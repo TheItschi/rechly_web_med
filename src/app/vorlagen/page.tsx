@@ -19,9 +19,9 @@ import { VORLAGEN_CATALOG } from "@/lib/tools/vorlagenCatalog";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = createPageMetadata({
-    title: "Rechnungsvorlagen kostenlos (PDF, Word & Online-Generator) – 14 Branchen | Rechly",
+    title: "14 Rechnungsvorlagen kostenlos (PDF, Muster & Generator)",
     description:
-        "14 kostenlose, rechtssichere Rechnungsvorlagen für Handwerker (§ 35a), Bauleistungen (§ 13b), Kleinunternehmer (§ 19 UStG), Freiberufler, IT, Heilberufe & Privatpersonen. Direkt online ausfüllen & als PDF/XRechnung herunterladen.",
+        "14 kostenlose, rechtssichere Rechnungsvorlagen & Muster für Handwerker (§ 35a), Bau (§ 13b), Kleinunternehmer (§ 19), Gebäudereinigung & Privat. Online ausfüllen & PDF laden!",
     path: "/vorlagen",
     category: "Rechnungsvorlagen",
     keywords: [
@@ -169,6 +169,7 @@ export default function VorlagenHubPage() {
                                 </Link>
                                 <Link
                                     href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
+                                    rel="nofollow"
                                     className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition-colors"
                                 >
                                     Online ausfüllen →

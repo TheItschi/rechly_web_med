@@ -33,7 +33,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "pflichtangaben-rechnung",
         term: "Pflichtangaben auf Rechnungen (§ 14 UStG)",
         title: "Pflichtangaben auf Rechnungen nach § 14 Abs. 4 UStG – Komplette Checkliste 2026",
-        metaTitle: "Pflichtangaben Rechnung (§ 14 UStG) – Checkliste & Muster 2026 | Rechly Lexikon",
+        metaTitle: "Pflichtangaben Rechnung (§ 14 UStG): Checkliste & Muster",
         metaDescription:
             "Alle 10 gesetzlichen Pflichtangaben einer Rechnung nach § 14 Abs. 4 UStG im Überblick: Checkliste für Vorsteuerabzug, Ausnahmen bis 250 € & kostenloser Rechnungsgenerator.",
         category: "Rechnungsrecht",
@@ -90,7 +90,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "kleinbetragsrechnung",
         term: "Kleinbetragsrechnung (§ 33 UStDV)",
         title: "Kleinbetragsrechnung bis 250 Euro (§ 33 UStDV) – Regeln & Pflichtangaben",
-        metaTitle: "Kleinbetragsrechnung bis 250 € (§ 33 UStDV) – Pflichtangaben & Muster | Rechly",
+        metaTitle: "Kleinbetragsrechnung bis 250 € (§ 33 UStDV): Pflichtangaben",
         metaDescription:
             "Was muss auf einer Kleinbetragsrechnung bis 250 € Brutto stehen? Alle Pflichtangaben nach § 33 UStDV für Kassenbons, Tankbelege, Bewirtung & Quittungen.",
         category: "Rechnungsrecht",
@@ -134,7 +134,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "e-rechnung-pflicht",
         term: "E-Rechnungspflicht 2025–2028",
         title: "E-Rechnungspflicht in Deutschland (2025 bis 2028) – Fristen, Ausnahmen & Formate",
-        metaTitle: "E-Rechnungspflicht 2025, 2027 & 2028 – Fristen & Regeln für Unternehmen | Rechly",
+        metaTitle: "E-Rechnungspflicht 2025, 2027 & 2028: Fristen & Ausnahmen",
         metaDescription:
             "Alles zur gesetzlichen E-Rechnungspflicht nach dem Wachstumschancengesetz: Empfangspflicht seit 01.01.2025, Übergangsfristen 2027/2028, Ausnahmen für Kleinbeträge & XRechnung/ZUGFeRD.",
         category: "E-Rechnung & GoBD",
@@ -174,7 +174,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "kleinunternehmerregelung",
         term: "Kleinunternehmerregelung (§ 19 UStG)",
         title: "Kleinunternehmerregelung (§ 19 UStG) 2026 – Neue Grenzen (25.000 € / 100.000 €)",
-        metaTitle: "Kleinunternehmerregelung 2026 (§ 19 UStG) – 25.000 € & 100.000 € Grenze | Rechly",
+        metaTitle: "Kleinunternehmerregelung 2026 (§ 19 UStG): 25.000 € Grenze",
         metaDescription:
             "Die reformierte Kleinunternehmerregelung nach § 19 UStG ab 2025/2026: Neue Umsatzgrenzen 25.000 € (Vorjahr) und 100.000 € (laufendes Jahr), echte Steuerbefreiung & Rechnungshinweis.",
         category: "Steuerrecht & UStG",
@@ -209,7 +209,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "gobd-konformitaet",
         term: "GoBD-Konformität",
         title: "GoBD einfach erklärt – Was bedeutet GoBD-konforme Rechnungsstellung?",
-        metaTitle: "GoBD einfach erklärt – Regeln für Rechnungen & Buchhaltung 2026 | Rechly Lexikon",
+        metaTitle: "GoBD einfach erklärt: Regeln für Rechnungen & Buchhaltung",
         metaDescription:
             "Was bedeutet GoBD-konform? Warum Word und Excel bei einer Betriebsprüfung durchfallen, wie Unveränderbarkeit funktioniert und wie Sie Belege rechtssicher archivieren.",
         category: "E-Rechnung & GoBD",
@@ -251,7 +251,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "aufbewahrungsfristen",
         term: "Aufbewahrungsfristen (8 & 10 Jahre)",
         title: "Aufbewahrungsfristen für Rechnungen & Geschäftsunterlagen (Neu: 8 Jahre nach BEG IV)",
-        metaTitle: "Aufbewahrungsfristen Rechnungen 2026 – Neu: 8 Jahre statt 10 Jahre (BEG IV) | Rechly",
+        metaTitle: "Aufbewahrungsfristen Rechnungen: Neu 8 statt 10 Jahre (BEG IV)",
         metaDescription:
             "Wie lange müssen Rechnungen aufbewahrt werden? Alle neuen Aufbewahrungsfristen nach dem Bürokratieentlastungsgesetz IV (BEG IV): 8 Jahre für Buchungsbelege & Rechnungen, 10 Jahre für Bilanzen.",
         category: "E-Rechnung & GoBD",
@@ -286,7 +286,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "rechnungsnummer",
         term: "Fortlaufende Rechnungsnummer",
         title: "Fortlaufende Rechnungsnummer (§ 14 UStG) – Regeln, Formate & Nummernkreise",
-        metaTitle: "Fortlaufende Rechnungsnummer – Regeln, Beispiele & Nummernkreise | Rechly Lexikon",
+        metaTitle: "Fortlaufende Rechnungsnummer (§ 14 UStG): Regeln & Beispiele",
         metaDescription:
             "Muss eine Rechnungsnummer mit 1 beginnen? Sind Lücken erlaubt? Alles zu fortlaufenden Rechnungsnummern nach § 14 UStG und § 31 Abs. 2 UStDV mit besten Format-Beispielen.",
         category: "Rechnungsrecht",
@@ -325,7 +325,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "handwerkerrechnung-35a",
         term: "Steuerbonus Handwerkerrechnung (§ 35a EStG)",
         title: "Handwerkerrechnung absetzen (§ 35a EStG) – Bis zu 1.200 € Steuerbonus sichern",
-        metaTitle: "Handwerkerrechnung absetzen (§ 35a EStG) – 20% Steuerbonus & Voraussetzungen | Rechly",
+        metaTitle: "Handwerkerrechnung absetzen (§ 35a EStG): 20 % Steuerbonus",
         metaDescription:
             "Wie Privatkunden 20 % der Arbeits- und Fahrtkosten (bis zu 1.200 € pro Jahr) von der Steuer abziehen und wie Handwerker ihre Rechnung nach § 35a EStG korrekt ausstellen.",
         category: "Steuerrecht & UStG",
@@ -364,7 +364,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "reverse-charge-13b",
         term: "Reverse-Charge-Verfahren (§ 13b UStG)",
         title: "Reverse-Charge-Verfahren (§ 13b UStG) – Steuerschuldnerschaft des Leistungsempfängers",
-        metaTitle: "Reverse Charge (§ 13b UStG) einfach erklärt – Bauleistungen & EU-Rechnungen | Rechly",
+        metaTitle: "Reverse Charge (§ 13b UStG): Bauleistungen & EU-Rechnungen",
         metaDescription:
             "Wann gilt § 13b UStG (Reverse Charge)? Alles zur Umkehr der Steuerschuldnerschaft bei EU-B2B-Rechnungen, ausländischen Dienstleistern und Bauleistungen (Freistellungsbescheinigung).",
         category: "Steuerrecht & UStG",
@@ -403,7 +403,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "ist-vs-soll-versteuerung",
         term: "Ist-Versteuerung vs. Soll-Versteuerung",
         title: "Ist-Versteuerung vs. Soll-Versteuerung (§ 16 & § 20 UStG) – Was spart mehr Liquidität?",
-        metaTitle: "Ist-Versteuerung vs. Soll-Versteuerung (§ 20 UStG) – Unterschied & Antrag | Rechly",
+        metaTitle: "Ist-Versteuerung vs. Soll-Versteuerung (§ 20 UStG): Antrag",
         metaDescription:
             "Soll-Versteuerung oder Ist-Versteuerung? Wann Sie die Umsatzsteuer erst nach Zahlungseingang ans Finanzamt abführen müssen (§ 20 UStG) und wer den Antrag stellen darf.",
         category: "Steuerrecht & UStG",
@@ -436,7 +436,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "gutschrift-vs-stornorechnung",
         term: "Gutschrift vs. Stornorechnung",
         title: "Gutschrift vs. Stornorechnung – Warum der falsche Begriff Umsatzsteuer kostet",
-        metaTitle: "Gutschrift vs. Stornorechnung (§ 14 UStG) – Unterschied & Muster | Rechly Lexikon",
+        metaTitle: "Gutschrift vs. Stornorechnung (§ 14 UStG): Unterschied & Muster",
         metaDescription:
             "Was ist der Unterschied zwischen einer Gutschrift und einer Stornorechnung (Rechnungskorrektur)? Wann § 14c UStG droht und wie Sie fehlerhafte Rechnungen richtig stornieren.",
         category: "Rechnungsrecht",
@@ -474,9 +474,9 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "leistungszeitraum",
         term: "Leistungszeitraum & Lieferdatum",
         title: "Leistungszeitraum & Lieferdatum auf der Rechnung (§ 14 UStG & § 31 UStDV)",
-        metaTitle: "Leistungszeitraum auf der Rechnung – Pflichtangabe nach § 14 UStG | Rechly Lexikon",
+        metaTitle: "Leistungszeitraum & Lieferdatum Rechnung: Muster & § 14 UStG",
         metaDescription:
-            "Warum das Leistungsdatum oder der Leistungszeitraum auf keiner Rechnung über 250 € fehlen darf, wann die Monatsangabe genügt (§ 31 Abs. 4 UStDV) und wie Sie Abmahnungen vermeiden.",
+            "Leistungszeitraum & Lieferdatum auf der Rechnung (§ 14 UStG): Kopiervorlagen ('Leistungsdatum entspricht Rechnungsdatum', Monatsangabe § 31 UStDV) & Beispiele.",
         category: "Rechnungsrecht",
         legalReference: "§ 14 Abs. 4 Nr. 6 UStG & § 31 Abs. 4 UStDV",
         shortDefinition:
@@ -487,6 +487,18 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
             "Satz 'Leistungsdatum entspricht Rechnungsdatum' ist zulässig, wenn beide Tage tatsächlich übereinstimmen.",
         ],
         sections: [
+            {
+                heading: "Kopiervorlagen: So geben Sie Leistungszeitraum & Lieferdatum richtig an",
+                paragraphs: [
+                    "Je nach Art Ihrer Leistung wählen Sie eine dieser finanzamtkonformen Formulierungen nach § 14 Abs. 4 Nr. 6 UStG i.V.m. § 31 Abs. 4 UStDV:",
+                ],
+                bullets: [
+                    "Taggenaue Lieferung / Abnahme: „Lieferdatum / Leistungsdatum: 24.10.2026“",
+                    "Identisch mit Rechnungsdatum (§ 31 Abs. 4 UStDV): „Das Leistungsdatum entspricht dem Rechnungsdatum.“",
+                    "Laufende Beratung / Monatsabrechnung: „Leistungszeitraum: 01.10.2026 – 31.10.2026“ oder „Leistungsmonat: Oktober 2026“",
+                    "Verweis auf Lieferschein (§ 31 Abs. 3 UStDV): „Lieferdatum laut Lieferschein Nr. LS-2026-089 vom 22.10.2026“",
+                ],
+            },
             {
                 heading: "Warum prüft das Finanzamt den Leistungszeitraum so genau?",
                 paragraphs: [
@@ -508,9 +520,9 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "zahlungsziel-und-verzug",
         term: "Zahlungsziel & Zahlungsverzug (§ 286 BGB)",
         title: "Zahlungsziel, Fälligkeit & Zahlungsverzug (§ 286 & § 288 BGB) – Wann darf man mahnen?",
-        metaTitle: "Zahlungsziel & Zahlungsverzug (§ 286 BGB) – Verzugszinsen & 40 € Pauschale | Rechly",
+        metaTitle: "Zahlungsziel Rechnung & Verzug (§ 286 BGB): Muster & Fristen",
         metaDescription:
-            "Wann ist eine Rechnung fällig? Wann gerät der Kunde ohne Mahnung in Zahlungsverzug (§ 286 BGB)? Alles zur 30-Tage-Regel, Verzugszinsen (§ 288 BGB) und der 40-€-Verzugspauschale.",
+            "Zahlungsziel auf Rechnung richtig formulieren (§ 271 & § 286 BGB): Mustertexte, Fälligkeit bei Handwerkerrechnungen, 30-Tage-Regel & 40 € Verzugspauschale.",
         category: "Rechnungsrecht",
         legalReference: "§§ 271, 286, 288 BGB",
         shortDefinition:
@@ -521,6 +533,17 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
             "40-Euro-Verzugspauschale (§ 288 Abs. 5 BGB): Gegenüber Geschäftskunden (B2B) haben Sie bei Verzug sofort Anspruch auf 40,00 € Pauschalschadensersatz.",
         ],
         sections: [
+            {
+                heading: "Kopiervorlagen: Zahlungsziel auf der Rechnung rechtssicher formulieren",
+                paragraphs: [
+                    "Nutzen Sie auf Ihren Rechnungen ein konkretes Kalenderdatum statt einer bloßen Tagesfrist, um den Zahlungseingang spürbar zu beschleunigen:",
+                ],
+                bullets: [
+                    "Standard mit Kalenderdatum (Empfehlung): „Bitte überweisen Sie den Rechnungsbetrag ohne Abzug bis zum [Datum, z. B. 20.11.2026] auf das unten genannte Konto.“",
+                    "Zahlungsziel für Handwerkerrechnungen (§ 641 BGB nach Abnahme): „Die Vergütung ist gemäß § 641 BGB mit der Abnahme sofort fällig. Bitte überweisen Sie den Betrag bis zum [Datum] unter Angabe der Rechnungsnummer.“",
+                    "Mit 30-Tage-Verzugshinweis für Privatkunden (§ 286 Abs. 3 BGB): „Zahlbar bis zum [Datum]. Wir weisen darauf hin, dass Sie gemäß § 286 Abs. 3 BGB spätestens 30 Tage nach Fälligkeit und Zugang dieser Rechnung automatisch in Zahlungsverzug geraten.“",
+                ],
+            },
             {
                 heading: "Warum 'Zahlbar innerhalb von 14 Tagen' rechtlich eine Falle sein kann",
                 paragraphs: [
@@ -543,7 +566,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "freiberufler-vs-gewerbe",
         term: "Freiberufler vs. Gewerbetreibende (§ 18 EStG)",
         title: "Freiberufler (§ 18 EStG) vs. Gewerbe – Katalogberufe, Gewerbesteuer & Buchhaltung",
-        metaTitle: "Freiberufler vs. Gewerbe (§ 18 EStG) – Unterschiede, Katalogberufe & Steuern | Rechly",
+        metaTitle: "Freiberufler vs. Gewerbe (§ 18 EStG): Katalogberufe & Steuern",
         metaDescription:
             "Bin ich Freiberufler (§ 18 EStG) oder Gewerbetreibender? Alle Katalogberufe, Vorteile bei Gewerbesteuer, IHK-Pflicht, Bilanzierungspflicht und Ist-Versteuerung im Vergleich.",
         category: "Gründung & Praxis",
@@ -582,7 +605,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "xrechnung-vs-zugferd",
         term: "XRechnung vs. ZUGFeRD",
         title: "XRechnung vs. ZUGFeRD – Welches E-Rechnungsformat ist das richtige für Sie?",
-        metaTitle: "XRechnung vs. ZUGFeRD (EN 16931) – Der große Vergleich 2026 | Rechly Lexikon",
+        metaTitle: "XRechnung vs. ZUGFeRD (EN 16931): Vergleich & Unterschiede",
         metaDescription:
             "Was ist der Unterschied zwischen XRechnung und ZUGFeRD 2.2/2.3? Welches Format Sie für Behörden (Leitweg-ID) und B2B-Kunden brauchen – inkl. kostenlosem Generator & Viewer.",
         category: "E-Rechnung & GoBD",
@@ -617,7 +640,7 @@ export const LEXIKON_CATALOG: LexikonEntry[] = [
         slug: "zusammenfassende-meldung",
         term: "Zusammenfassende Meldung (ZM · § 18a UStG)",
         title: "Zusammenfassende Meldung (ZM nach § 18a UStG) – Fristen & Pflichten bei EU-Rechnungen",
-        metaTitle: "Zusammenfassende Meldung (ZM § 18a UStG) – Fristen, ELSTER & EU-Umsätze | Rechly",
+        metaTitle: "Zusammenfassende Meldung (ZM § 18a UStG): Fristen & ELSTER",
         metaDescription:
             "Wer muss eine Zusammenfassende Meldung (ZM) abgeben? Alles zu § 18a UStG bei innergemeinschaftlichen Lieferungen und Reverse-Charge-Leistungen (§ 13b) ins EU-Ausland.",
         category: "Steuerrecht & UStG",

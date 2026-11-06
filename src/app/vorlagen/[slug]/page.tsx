@@ -195,6 +195,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                     <div className="flex flex-wrap items-center gap-3 pt-2">
                         <Link
                             href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
+                            rel="nofollow"
                             className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors"
                         >
                             <Sparkles className="w-4 h-4" />
@@ -218,6 +219,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                         </h2>
                         <Link
                             href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
+                            rel="nofollow"
                             className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
                         >
                             Positionen & Texte im Generator anpassen →
@@ -362,6 +364,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                         </div>
                         <Link
                             href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
+                            rel="nofollow"
                             className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 pt-1"
                         >
                             Im Rechnungsgenerator automatisch einfügen lassen

@@ -24,7 +24,10 @@ export function createPageMetadata({
 }: PageMetadataOptions): Metadata {
     const canonicalPath = path === "/" ? "/" : path.replace(/\/$/, "");
     const canonicalUrl = `${siteUrl}${canonicalPath === "/" ? "" : canonicalPath}`;
-    const brandedTitle = title.includes("Rechly") ? title : `${title} | Rechly`;
+    const brandedTitle =
+        title.includes("Rechly") || title.length >= 54
+            ? title
+            : `${title} | Rechly`;
 
     const ogParams = new URLSearchParams({
         title: title.replace(/\s*\|\s*Rechly$/i, ""),

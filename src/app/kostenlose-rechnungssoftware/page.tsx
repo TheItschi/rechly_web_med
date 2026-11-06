@@ -103,6 +103,12 @@ export default function KostenloseRechnungssoftwarePage() {
             ]}
             clusterLinks={[
                 {
+                    href: "/desktop",
+                    title: "Rechly Desktop Vollversion (Windows & Mac)",
+                    description:
+                        "Kostenloses Offline-Rechnungsprogramm ohne Cloud und ohne Abo direkt herunterladen.",
+                },
+                {
                     href: "/rechnungsprogramm-kostenlos",
                     title: "Rechnungsprogramm kostenlos",
                     description:

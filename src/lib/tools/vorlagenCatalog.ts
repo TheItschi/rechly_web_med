@@ -69,9 +69,9 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Inkl. § 35a EStG Ausweis",
         description:
             "Kostenlose Rechnungsvorlage für Handwerksbetriebe: Arbeitskosten, Fahrtkosten und Material sauber getrennt ausweisen, damit Privatkunden 20 % Steuerbonus nach § 35a EStG absetzen können.",
-        metaTitle: "Rechnungsvorlage Handwerker kostenlos (PDF & § 35a EStG) | Rechly",
+        metaTitle: "Handwerkerrechnung Vorlage & Muster kostenlos (§ 35a PDF)",
         metaDescription:
-            "Kostenlose Rechnungsvorlage für Handwerker: Lohnanteil und Materialkosten nach § 35a EStG korrekt ausweisen, direkt online ausfüllen und als PDF oder XRechnung speichern.",
+            "Kostenlose Handwerkerrechnung Vorlage & Muster (PDF): Lohnkosten und Material nach § 35a EStG sauber trennen, online ausfüllen und als PDF oder XRechnung laden!",
         keywords: [
             "Rechnungsvorlage Handwerker",
             "Handwerkerrechnung Vorlage kostenlos",
@@ -164,9 +164,9 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "0 % USt Reverse Charge",
         description:
             "Rechtssichere Vorlage für Bauleistungen zwischen Bauunternehmen nach § 13b Abs. 2 Nr. 4 UStG: Netto-Abrechnung mit amtlichem Pflichthinweis zur Steuerschuldnerschaft des Leistungsempfängers.",
-        metaTitle: "Rechnungsvorlage § 13b UStG Bauleistungen kostenlos (PDF) | Rechly",
+        metaTitle: "§ 13b UStG Rechnung Muster & Vorlage: Bauleistungen (PDF)",
         metaDescription:
-            "Muster & Rechnungsvorlage für § 13b UStG Bauleistungen: Netto-Rechnung für Subunternehmer mit Pflichttext zur Steuerschuldnerschaft und Freistellungsbescheinigung (§ 48b EStG).",
+            "Kostenlose Rechnungsvorlage & Muster für § 13b UStG Bauleistungen (Subunternehmer): Netto-Rechnung mit Pflichttext zur Steuerschuldnerschaft sofort als PDF laden.",
         keywords: [
             "Rechnungsvorlage 13b Bauleistungen",
             "§ 13b UStG Rechnung Muster",
@@ -239,9 +239,9 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Reform 2025/2026",
         description:
             "Kostenlose Rechnungsvorlage für Kleinunternehmer nach § 19 UStG: Ohne Mehrwertsteuer, mit rechtssicherem Pflichthinweis und angepassten Umsatzgrenzen (25.000 € / 100.000 €).",
-        metaTitle: "Rechnungsvorlage Kleinunternehmer § 19 UStG kostenlos (PDF) | Rechly",
+        metaTitle: "Kleinunternehmer Rechnungsvorlage & Muster (§ 19 UStG PDF)",
         metaDescription:
-            "Kostenlose Kleinunternehmer Rechnungsvorlage nach § 19 UStG (2026): Ohne Umsatzsteuer, inklusive Pflichthinweis, sofort online ausfüllen und als PDF herunterladen.",
+            "Kostenlose Kleinunternehmer Rechnungsvorlage & Muster nach § 19 UStG (2026): Ohne MwSt., inklusive Pflichthinweis, sofort online ausfüllen & als PDF herunterladen!",
         keywords: [
             "Rechnungsvorlage Kleinunternehmer",
             "Kleinunternehmer Rechnung Muster kostenlos",
@@ -314,7 +314,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Honorarrechnung",
         description:
             "Professionelle Honorarrechnung Vorlage für Freiberufler (Ingenieure, Architekten, Texter, Berater, Journalisten): Ohne Handelsregistereintrag, mit 7 % oder 19 % USt.",
-        metaTitle: "Rechnungsvorlage Freiberufler & Honorarrechnung kostenlos | Rechly",
+        metaTitle: "Honorarrechnung & Freiberufler Rechnungsvorlage (PDF Muster)",
         metaDescription:
             "Honorarrechnung Vorlage für Freiberufler nach § 18 EStG: Korrekte Pflichtangaben, Steuersatz 7 % (Urheberrecht) oder 19 % wählen und sofort als PDF exportieren.",
         keywords: [
@@ -383,7 +383,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Inkl. Stundennachweis",
         description:
             "Maßgeschneiderte Rechnungsvorlage für Softwareentwickler, DevOps-Engineers, IT-Berater und Webdesigner: Tagessätze, Sprint-Abrechnung, Hosting-Weiterberechnung & XRechnung.",
-        metaTitle: "Rechnungsvorlage IT-Freelancer & Webdesigner kostenlos (PDF) | Rechly",
+        metaTitle: "Rechnungsvorlage IT-Freelancer & Webdesign: Muster (PDF)",
         metaDescription:
             "Kostenlose Rechnungsvorlage für IT-Freelancer & Softwareentwickler: Tagessätze, Stunden und Lizenzen sauber abrechnen und als PDF oder XRechnung exportieren.",
         keywords: [
@@ -452,7 +452,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Urheberrecht 7% / 19%",
         description:
             "Spezial-Rechnungsvorlage für Fotografen, Videografen und Grafikdesigner: Richtige Unterscheidung zwischen 7 % USt (Nutzungsrechte) und 19 % USt (Auftragsproduktion / Event).",
-        metaTitle: "Rechnungsvorlage Fotograf & Grafikdesigner kostenlos (PDF) | Rechly",
+        metaTitle: "Rechnungsvorlage Fotograf & Grafikdesigner: Muster (PDF)",
         metaDescription:
             "Rechnungsvorlage für Fotografen, Videografen & Designer: 7 % Urheberrecht vs. 19 % Auftragsfotografie richtig ausweisen und Lizenzumfang rechtssicher dokumentieren.",
         keywords: [
@@ -527,15 +527,19 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Privat (§ 35a) & B2B (§ 13b)",
         description:
             "Rechnungsvorlage für Gebäudereiniger, Büroreinigung, Fensterputzer und Haushaltshilfen: Sowohl für Gewerbekunden als auch mit 20 % Steuervorteil (§ 35a EStG) für Privathaushalte.",
-        metaTitle: "Rechnungsvorlage Gebäudereinigung & Reinigungskraft (PDF) | Rechly",
+        metaTitle: "Rechnung Gebäudereinigung & Reinigungsfirma: Muster & Vorlage",
         metaDescription:
-            "Kostenlose Rechnungsvorlage für Gebäudereinigung, Büroreinigung & Haushaltshilfe: § 35a EStG für Privatkunden oder § 13b UStG für Reinigungsbetriebe.",
+            "Kostenlose Rechnungsvorlage & Muster für Gebäudereinigung, Reinigungsfirma, Putzfrau & Haushaltshilfe (§ 35a EStG & § 13b UStG): Online ausfüllen & als PDF laden!",
         keywords: [
+            "Rechnung Gebäudereinigung Muster",
+            "Rechnung Reinigungsfirma Muster",
+            "Rechnung Putzfrau Muster",
+            "Rechnung Haushaltshilfe Muster",
             "Rechnungsvorlage Gebäudereinigung",
             "Rechnungsvorlage Reinigungskraft",
             "Büroreinigung Rechnung Muster",
             "Haushaltshilfe Rechnung § 35a EStG",
-            "§ 13b UStG Gebäudereinigung Vordruck USt 1 TG",
+            "Reinigungsarbeiten in Rechnung stellen",
         ],
         presetData: {
             invoiceTitle: "RECHNUNG",
@@ -605,7 +609,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Steuerfrei § 4 Nr. 14 UStG",
         description:
             "Rechnungsvorlage für Heilpraktiker, Physiotherapeuten, Psychotherapeuten, Osteopathen und Ärzte: Umsatzsteuerfreie Heilbehandlung nach § 4 Nr. 14 UStG korrekt ausweisen.",
-        metaTitle: "Rechnungsvorlage Heilpraktiker & Physiotherapie (§ 4 Nr. 14 UStG) | Rechly",
+        metaTitle: "Rechnungsvorlage Heilpraktiker & Physiotherapie (§ 4 Nr. 14)",
         metaDescription:
             "Kostenlose Rechnungsvorlage für Heilpraktiker, Physiotherapie & Psychotherapie: Steuerfreie Heilbehandlung nach § 4 Nr. 14 UStG rechtssicher abrechnen.",
         keywords: [
@@ -674,7 +678,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Honorar & § 4 Nr. 21 UStG",
         description:
             "Honorarrechnung Vorlage für freiberufliche Dozenten, Lehrbeauftragte, Musiklehrer und Nachhilfelehrer: Mit Umsatzsteuerbefreiung nach § 4 Nr. 21 UStG oder § 19 UStG.",
-        metaTitle: "Rechnungsvorlage Dozent, Lehrer & Nachhilfe kostenlos (PDF) | Rechly",
+        metaTitle: "Honorarrechnung Dozent, Lehrer & Nachhilfe: Vorlage (PDF)",
         metaDescription:
             "Honorarrechnung Vorlage für Dozenten, Trainer & Nachhilfelehrer: Unterrichtseinheiten (UE) und Umsatzsteuerbefreiung nach § 4 Nr. 21 UStG korrekt abrechnen.",
         keywords: [
@@ -742,7 +746,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Inkl. § 35a EStG Grünpflege",
         description:
             "Rechnungsvorlage für Garten- und Landschaftsbau, Baumpflege, Winterdienst und Hausmeisterservice: Grünpflege, Arbeitsstunden, Grünschnitt-Entsorgung & § 35a EStG.",
-        metaTitle: "Rechnungsvorlage Gartenbau & Hausmeisterservice kostenlos | Rechly",
+        metaTitle: "Rechnungsvorlage Gartenbau & Hausmeister: Muster (PDF)",
         metaDescription:
             "Kostenlose Rechnungsvorlage für Gartenbau (GaLaBau), Winterdienst & Hausmeisterservice: Arbeitslohn nach § 35a EStG, Pflanzen (7 % / 19 %) und Entsorgung abrechnen.",
         keywords: [
@@ -821,7 +825,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Ohne Umsatzsteuer",
         description:
             "Kostenlose Vorlage für eine Privatrechnung ohne Gewerbe: Gebrauchtwagen, Technik, Möbel oder einmalige Nachbarschafts-/Gefälligkeitsleistung rechtssicher mit Gewährleistungsausschluss abrechnen.",
-        metaTitle: "Rechnung schreiben als Privatperson – Vorlage kostenlos (PDF) | Rechly",
+        metaTitle: "Rechnung schreiben als Privatperson: Vorlage & Muster (PDF)",
         metaDescription:
             "Privatrechnung ohne Gewerbe online erstellen: Vorlage für Privatverkauf an Firmen oder einmalige Leistungen – ohne Umsatzsteuer und mit Sachmängelhaftungsausschluss.",
         keywords: [
@@ -884,7 +888,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Gagenabrechnung",
         description:
             "Rechnungsvorlage für Musiker, DJs, Bands, Schauspieler und bildende Künstler: Gagenabrechnung, Fahrtkosten, § 4 Nr. 20a UStG / 7 % / 19 % USt und Künstlersozialkasse.",
-        metaTitle: "Rechnungsvorlage Musiker, DJ & Künstler kostenlos (PDF) | Rechly",
+        metaTitle: "Rechnungsvorlage Musiker, DJ & Künstler: Gagen-Muster (PDF)",
         metaDescription:
             "Kostenlose Rechnungsvorlage für Musiker, DJs, Bands & Künstler: Gagen, Technik-Pauschalen und Reisekosten rechtssicher abrechnen und als PDF herunterladen.",
         keywords: [
@@ -959,7 +963,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Retainer & Projekt",
         description:
             "Professionelle Rechnungsvorlage für Unternehmensberater, Business Coaches, Marketing-Agenturen und SEO/SEA-Experten: Workshops, Tagessätze, Retainer & Media-Budget.",
-        metaTitle: "Rechnungsvorlage Unternehmensberatung & Agentur kostenlos | Rechly",
+        metaTitle: "Rechnungsvorlage Beratung, Coaching & Agentur: Muster (PDF)",
         metaDescription:
             "Kostenlose Rechnungsvorlage für Unternehmensberatung, Coaching & Marketing-Agenturen: Workshops, Beratungsstunden und durchlaufende Posten sauber abrechnen.",
         keywords: [
@@ -1027,7 +1031,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "1. / 2. Abschlag",
         description:
             "Kostenlose Vorlage für eine Abschlagsrechnung (Anzahlung / Teilrechnung) nach § 632a BGB und § 16 VOB/B: Liquidität während laufender Projekte rechtssicher sichern.",
-        metaTitle: "Abschlagsrechnung Vorlage kostenlos (PDF & § 632a BGB) | Rechly",
+        metaTitle: "Abschlagsrechnung Vorlage & Muster kostenlos (§ 632a PDF)",
         metaDescription:
             "Abschlagsrechnung & Anzahlungsrechnung online erstellen: Vorlage nach § 632a BGB und VOB/B mit Umsatzsteuerausweis für Handwerk, Bau, Agenturen und IT-Projekte.",
         keywords: [
@@ -1089,7 +1093,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Inkl. Abschlags-Abzug",
         description:
             "Rechtssichere Schlussrechnung Vorlage nach § 14 Abs. 5 UStG: Gesamtleistung aufführen, erhaltene Abschlagszahlungen (Netto + USt) sauber abziehen und Restzahlung ausweisen.",
-        metaTitle: "Schlussrechnung Vorlage kostenlos (Abzug Abschläge & PDF) | Rechly",
+        metaTitle: "Schlussrechnung Vorlage & Muster (mit Abschlags-Abzug PDF)",
         metaDescription:
             "Schlussrechnung nach § 14 Abs. 5 UStG und VOB/B online erstellen: Gesamtleistung abzüglich gezahlter Abschläge und Umsatzsteuer fehlerfrei berechnen.",
         keywords: [
@@ -1168,7 +1172,7 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         badge: "Für ganzes Kalenderjahr",
         description:
             "Kostenlose Dauerrechnung Vorlage für gewerbliche Vermieter, Wartungsverträge, Hosting-Abos und monatliche Retainer: Einmal jährlich ausstellen und Vorsteuerabzug sichern.",
-        metaTitle: "Dauerrechnung Vorlage kostenlos (Gewerbemiete & Wartung PDF) | Rechly",
+        metaTitle: "Dauerrechnung Vorlage & Muster kostenlos (Miete & Wartung)",
         metaDescription:
             "Dauerrechnung für Gewerbemiete, Leasing & Wartungsverträge online erstellen: Vorlage mit Gültigkeitszeitraum und allen Pflichtangaben nach § 14 UStG.",
         keywords: [

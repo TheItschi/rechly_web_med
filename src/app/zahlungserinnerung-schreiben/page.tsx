@@ -4,18 +4,19 @@ import { createPageMetadata } from "@/lib/seo";
 const path = "/zahlungserinnerung-schreiben";
 
 export const metadata = createPageMetadata({
-    title: "Zahlungserinnerung schreiben: Vorlage & freundliche Muster",
+    title: "Zahlungserinnerung & Mahnung Vorlage: Mustertexte & PDF",
     description:
-        "Kostenlose Vorlage für Zahlungserinnerung: Freundliche Mahnung formulieren, Fristen setzen, rechtssichere Mustertexte & PDF-Generator für offene Rechnungen.",
+        "Kostenlose Vorlage für Zahlungserinnerung & 1.–3. Mahnung: Kopierfertige Mustertexte (freundlich bis letzte Mahnung), Verzugszinsen & kostenloser PDF-Generator.",
     path,
     type: "article",
     keywords: [
         "Zahlungserinnerung schreiben",
         "Zahlungserinnerung Vorlage kostenlos",
         "Zahlungserinnerung Muster",
-        "Zahlungserinnerung online schreiben",
-        "Mahnung freundlich formulieren",
-        "Zahlungsaufforderung Vorlage",
+        "Mahnung Vorlage kostenlos",
+        "1. 2. 3. Mahnung Muster",
+        "Letzte Mahnung Vorlage",
+        "Mahnschreiben Vorlage kostenlos",
     ],
 });
 
@@ -58,6 +59,18 @@ export default function ZahlungserinnerungSchreibenPage() {
                         "Kundenkontext und Rechnungsdaten zusammenführen",
                         "KI-Schreibhilfe für höfliche und klare Texte nutzen",
                         "Weniger Copy-paste zwischen Rechnungsliste und E-Mail",
+                    ],
+                },
+                {
+                    title: "Kopiervorlagen: Mustertexte für Zahlungserinnerung sowie 1., 2. & 3. (Letzte) Mahnung",
+                    body: [
+                        "Je nach Eskalationsstufe sollte sich der Tonfall Ihres Schreibens steigern – von der höflichen Erinnerung bis zur unmissverständlichen letzten Fristsetzung vor dem gerichtlichen Mahnbescheid:",
+                    ],
+                    bullets: [
+                        "Freundliche Zahlungserinnerung (Muster): „Sicherlich ist es Ihrer Aufmerksamkeit im Tagesgeschäft entgangen, dass unsere Rechnung Nr. [RE-Nr.] vom [Datum] über [Betrag €] seit dem [Fälligkeitsdatum] zur Zahlung fällig ist. Wir bitten Sie freundlich, den offenen Betrag bis zum [neues Datum, +7 Tage] auf das unten genannte Konto zu überweisen.“",
+                        "1. Mahnung (Bestimmt & sachlich): „Leider konnten wir trotz unserer Zahlungserinnerung bisher keinen Zahlungseingang zur Rechnung Nr. [RE-Nr.] vom [Datum] feststellen. Bitte begleichen Sie den offenen Rechnungsbetrag in Höhe von [Betrag €] bis spätestens zum [Datum, +7 Tage].“",
+                        "2. Mahnung (Mit Verzugszinsen & Mahngebühr): „Da der Rechnungsbetrag aus Rechnung Nr. [RE-Nr.] weiterhin offen ist, befinden Sie sich gemäß § 286 BGB in Zahlungsverzug. Zusätzlich zur Hauptforderung berechnen wir gesetzliche Verzugszinsen nach § 288 BGB und bitten letztmalig um Ausgleich bis zum [Datum, +5 Tage].“",
+                        "3. / Letzte Mahnung (Androhung Inkasso / Mahnbescheid): „Unsere bisherigen Zahlungsaufforderungen zur Rechnung Nr. [RE-Nr.] blieben leider unbeantwortet. Wir setzen Ihnen hiermit eine allerletzte Frist bis zum [Datum, +5 Tage]. Nach fruchtlosem Ablauf werden wir die Forderung ohne weitere Ankündigung an unser Inkassobüro / unseren Rechtsanwalt zur Einleitung des gerichtlichen Mahnverfahrens übergeben.“",
                     ],
                 },
                 {

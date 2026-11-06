@@ -4,9 +4,9 @@ import { createPageMetadata } from "@/lib/seo";
 const path = "/rechnungsvorlage";
 
 export const metadata = createPageMetadata({
-    title: "Rechnungsvorlage kostenlos – Word, Excel, PDF & Generator",
+    title: "Rechnungsvorlage kostenlos (PDF, Word & Online-Generator)",
     description:
-        "Kostenlose Rechnungsvorlage für Deutschland (Word, Excel & PDF): Mit allen Pflichtangaben nach § 14 UStG, für Kleinunternehmer & Gewerbe. Jetzt Vorlage laden oder direkt online ausfüllen!",
+        "14 kostenlose Rechnungsvorlagen & Muster nach § 14 UStG (Kleinunternehmer, Handwerker, Reinigung & Privat): Sofort online ausfüllen & als PDF oder XRechnung laden!",
     path,
     type: "article",
     keywords: [
@@ -16,6 +16,7 @@ export const metadata = createPageMetadata({
         "Rechnungsvorlage Excel",
         "Rechnung Muster PDF",
         "Rechnungsvordruck kostenlos",
+        "Rechnungsvorlage Kleinunternehmer",
     ],
 });
 
@@ -23,17 +24,39 @@ export default function RechnungsvorlagePage() {
     return (
         <KeywordLandingPage
             path={path}
-            eyebrow="RECHNUNGSVORLAGE"
-            title="Rechnungsvorlage kostenlos: Word, Excel oder direkt online erstellen"
-            intro="Viele suchen nach einer Rechnungsvorlage, weil sie schnell und unkompliziert eine Rechnung schreiben wollen. Doch Vorsicht: Eine gute Vorlage muss alle 8 gesetzlichen Pflichtangaben nach § 14 UStG enthalten, damit der Vorsteuerabzug deines Kunden gesichert ist."
-            summary="Rechly liefert dir die perfekte Lösung: Nutze unsere kostenlosen Vorlagen für Word und Excel oder fülle deine Rechnung direkt in unserem kostenlosen Online-Generator aus – mit automatischer Berechnung und fehlerfreiem PDF-Download."
+            eyebrow="RECHNUNGSVORLAGE KOSTENLOS · DIN 5008 & § 14 USTG"
+            title="Rechnungsvorlage kostenlos: Muster für jede Branche (PDF, Word & Online)"
+            intro="Wer eine Rechnungsvorlage sucht, möchte ohne Umwege eine saubere, finanzamtkonforme Rechnung erstellen. Entscheidend ist, dass alle Pflichtangaben nach § 14 UStG (bzw. § 19 UStG für Kleinunternehmer) enthalten sind, damit das Finanzamt die Rechnung problemlos anerkennt."
+            summary="Bei Rechly wählen Sie aus 14 spezialisierten Branchen-Vorlagen (Handwerk, Gebäudereinigung, Bau § 13b, Kleinunternehmer, Freiberufler & Privat) und füllen Ihre Rechnung direkt kostenlos im Browser aus – inklusive fehlerfreiem PDF- und XRechnung-Download."
             keywordPills={[
                 "Rechnungsvorlage kostenlos",
-                "Rechnung Vorlage Word",
-                "Rechnungsvorlage Excel",
                 "Rechnung Muster PDF",
-                "Rechnungsvordruck",
+                "Rechnungsvorlage Kleinunternehmer",
+                "Handwerkerrechnung Vorlage",
+                "Rechnungsvordruck DIN 5008",
+                "E-Rechnung Vorlage",
             ]}
+            howTo={{
+                title: "So füllen Sie Ihre kostenlose Rechnungsvorlage in 2 Minuten aus",
+                steps: [
+                    {
+                        name: "Branchen-Vorlage oder Standard-Muster wählen",
+                        text: "Starten Sie mit unserem Standard-Muster (19 %/7 % USt.), der Kleinunternehmer-Vorlage (§ 19 UStG), der Handwerkerrechnung (§ 35a EStG) oder der Bauleistungsvorlage (§ 13b UStG).",
+                    },
+                    {
+                        name: "Absender, Empfänger und Rechnungsnummer eintragen",
+                        text: "Ergänzen Sie Ihre Adresse, Steuernummer/USt-IdNr., das Leistungsdatum und die fortlaufende Rechnungsnummer direkt im Formular.",
+                    },
+                    {
+                        name: "Positionen eingeben & automatisch berechnen lassen",
+                        text: "Anders als in starren Word-Vorlagen berechnet Rechly Netto, Mehrwertsteuer, Rabatte und Lohnanteile automatisch auf den Cent genau.",
+                    },
+                    {
+                        name: "Sofort als DIN-5008-PDF oder XRechnung speichern",
+                        text: "Laden Sie Ihre fertige Rechnung ohne Anmeldung und ohne Wasserzeichen als PDF (inkl. GiroCode QR) oder als XRechnung 3.0 XML herunter.",
+                    },
+                ],
+            }}
             sections={[
                 {
                     title: "Warum eine Rechnungsvorlage oft nur der Anfang ist",
@@ -87,16 +110,40 @@ export default function RechnungsvorlagePage() {
             ]}
             clusterLinks={[
                 {
-                    href: "/rechnungssoftware-fuer-freelancer",
-                    title: "Rechnungssoftware für Freelancer",
+                    href: "/vorlagen",
+                    title: "Alle 14 Branchen-Rechnungsvorlagen",
                     description:
-                        "Wenn du statt einer Vorlage einen wiederholbaren Rechnungsprozess suchst.",
+                        "Direkter Zugriff auf alle kostenlosen Muster für Handwerk, Reinigung, Bau, IT & Heilberufe.",
                 },
                 {
-                    href: "/rechnung-fuer-kleinunternehmer-erstellen",
-                    title: "Rechnung für Kleinunternehmer erstellen",
+                    href: "/vorlagen/kleinunternehmer",
+                    title: "Kleinunternehmer Rechnungsvorlage (§ 19 UStG)",
                     description:
-                        "Für konkrete Rechnungsabläufe mit Kleinunternehmerregelung und Pflichtangaben.",
+                        "Kostenloses Muster ohne Umsatzsteuer mit fertigem §-19-UStG-Pflichthinweis.",
+                },
+                {
+                    href: "/vorlagen/handwerker",
+                    title: "Handwerkerrechnung Vorlage (§ 35a EStG)",
+                    description:
+                        "Muster mit separatem Ausweis von Arbeits- und Fahrtkosten für den Steuerbonus.",
+                },
+                {
+                    href: "/vorlagen/reinigungsgewerbe",
+                    title: "Rechnung Gebäudereinigung & Haushaltshilfe Muster",
+                    description:
+                        "Vorlage für Reinigungsfirmen, Putzfrauen und haushaltsnahe Dienstleistungen.",
+                },
+                {
+                    href: "/tools/rechnungsgenerator",
+                    title: "Kostenloser Online-Rechnungsgenerator",
+                    description:
+                        "Jetzt Rechnung ohne Anmeldung direkt im Browser ausfüllen und als PDF speichern.",
+                },
+                {
+                    href: "/desktop",
+                    title: "Rechly Desktop (Kostenlose Vollversion)",
+                    description:
+                        "Alle Vorlagen & Kunden dauerhaft 100 % offline auf Windows und Mac verwalten.",
                 },
             ]}
         />

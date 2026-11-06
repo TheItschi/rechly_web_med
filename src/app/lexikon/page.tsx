@@ -18,7 +18,7 @@ import { LEXIKON_CATALOG } from "@/lib/tools/lexikonCatalog";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = createPageMetadata({
-    title: "Rechnungs- & Steuer-Lexikon für Selbstständige, Handwerk & KMU | Rechly",
+    title: "Rechnungs- & Steuer-Lexikon für Selbstständige & KMU",
     description:
         "Das deutsche Fachlexikon für Rechnungsstellung, Umsatzsteuer (§ 14, § 13b, § 19 UStG), E-Rechnungspflicht 2025–2028, GoBD, Aufbewahrungsfristen (8 Jahre) & Handwerkerbonus (§ 35a EStG).",
     path: "/lexikon",

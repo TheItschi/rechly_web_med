@@ -4,10 +4,16 @@ import { getSiteUrl } from "@/lib/env";
 const siteUrl = getSiteUrl();
 
 export const metadata = createPageMetadata({
-    title: "Funktionen der Rechly Rechnungssoftware",
+    title: "Rechnungssoftware Funktionen: E-Rechnung, GiroCode & DATEV",
     description:
-        "Rechnungen, Angebote, XRechnung, ZUGFeRD, Kundenverwaltung, Zahlungserinnerungen, Ausgaben, Bankabgleich und DATEV-Export in Rechly entdecken.",
+        "Alle Funktionen von Rechly im Überblick: Rechnungen & Angebote, XRechnung 3.0 & ZUGFeRD, GiroCode, Mahnwesen, DATEV-Export & 100 % Offline Desktop-Vollversion.",
     path: "/features",
+    keywords: [
+        "Rechnungssoftware Funktionen",
+        "XRechnung ZUGFeRD Software kostenlos",
+        "Rechnungsprogramm mit GiroCode und DATEV",
+        "Open Source Rechnungssoftware",
+    ],
 });
 
 export default function FeaturesLayout({
@@ -17,11 +23,27 @@ export default function FeaturesLayout({
         "@context": "https://schema.org",
         "@graph": [
             {
+                "@type": "SoftwareApplication",
+                "@id": `${siteUrl}/features#software`,
+                name: "Rechly Rechnungssoftware",
+                applicationCategory: "BusinessApplication",
+                operatingSystem: "Web, Windows 10, Windows 11, macOS",
+                inLanguage: "de-DE",
+                url: `${siteUrl}/features`,
+                isAccessibleForFree: true,
+                offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "EUR",
+                    availability: "https://schema.org/InStock",
+                },
+            },
+            {
                 "@type": "WebPage",
-                name: "Funktionen",
+                name: "Funktionen der Rechly Rechnungssoftware",
                 url: `${siteUrl}/features`,
                 description:
-                    "Entdecke die Funktionen von Rechly: Rechnungen online schreiben, Kunden verwalten, PDFs exportieren, Cloud-Sync nutzen und die Open-Source-Software selbst hosten.",
+                    "Entdecke die Funktionen von Rechly: Rechnungen online schreiben, Kunden verwalten, XRechnung & ZUGFeRD exportieren und die 100 % lokale Desktop-App nutzen.",
                 isPartOf: {
                     "@type": "WebSite",
                     "@id": `${siteUrl}/#website`,

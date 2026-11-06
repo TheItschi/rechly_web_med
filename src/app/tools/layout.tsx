@@ -1,12 +1,14 @@
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata = createPageMetadata({
-    title: "Kostenlose Business-Tools, Rechner & Generatoren für Unternehmen",
+    title: "30+ Kostenlose Business-Tools, Rechner & PDF-Generatoren",
     description:
-        "Über 30 kostenlose Business-Tools für Deutschland: Rechnungsgenerator, Angebotsgenerator, E-Rechnung Viewer, GiroCode, MwSt-Rechner, Stundensatz, USt-IdNr.-Prüfer, Mahnung & Steuerkalender – ohne Anmeldung.",
+        "Kostenlose Online-Rechner & Generatoren ohne Anmeldung: Rechnungsgenerator, Angebotsgenerator, XRechnung Viewer, MwSt-Rechner, Spesenrechner 2026 & USt-IdNr.-Prüfer.",
     path: "/tools",
     keywords: [
         "Business Tools kostenlos",
+        "Rechnungstools kostenlos",
+        "Rechenportal Alternative",
         "Rechnungsgenerator kostenlos",
         "Angebotsgenerator",
         "E-Rechnung Viewer",

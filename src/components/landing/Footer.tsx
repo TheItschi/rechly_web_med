@@ -85,7 +85,7 @@ export default function Footer() {
                             <Link href="/features" style={linkStyle}>
                                 {t("nav.features")}
                             </Link>
-                            <Link href="/#download" style={linkStyle}>
+                            <Link href="/desktop" style={linkStyle}>
                                 Desktop-App (Download)
                             </Link>
                             <Link href="/open-source" style={linkStyle}>
@@ -202,6 +202,9 @@ export default function Footer() {
                         <Space direction="vertical" size={8}>
                             <Link href="/rechnung-schreiben" style={linkStyle}>
                                 Rechnung schreiben
+                            </Link>
+                            <Link href="/angebot-schreiben" style={linkStyle}>
+                                Angebot schreiben
                             </Link>
                             <Link
                                 href="/rechnungsprogramm-kostenlos"

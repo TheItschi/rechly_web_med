@@ -33,6 +33,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.8,
         },
         {
+            url: "/desktop",
+            lastModified: "2026-11-06",
+            changeFrequency: "weekly",
+            priority: 0.96,
+        },
+        {
+            url: "/angebot-schreiben",
+            lastModified: "2026-11-06",
+            changeFrequency: "monthly",
+            priority: 0.93,
+        },
+        {
             url: "/features",
             lastModified: "2026-11-06",
             changeFrequency: "monthly",

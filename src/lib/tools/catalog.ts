@@ -41,18 +41,19 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "XRechnung (UBL/CII) und ZUGFeRD/Factur-X PDFs direkt im Browser ansehen, Pflichtangaben prüfen, Positionen analysieren, CSV exportieren und GiroCode erzeugen. 100% lokal ohne Upload.",
-        metaTitle: "XRechnung & ZUGFeRD Viewer kostenlos – E-Rechnung öffnen",
+        metaTitle: "XRechnung & ZUGFeRD Viewer kostenlos – XML & PDF öffnen",
         metaDescription:
-            "Kostenloser XRechnung & ZUGFeRD Viewer: XML-Dateien und hybride PDFs direkt online ohne Upload öffnen, prüfen, visualisieren und exportieren. 100% lokal & DSGVO-sicher.",
+            "Kostenloser XRechnung & ZUGFeRD Viewer (E-Rechnung Reader): XML-Dateien & PDFs online ohne Upload öffnen, prüfen & lesbar anzeigen. Schnelle Quba-Viewer Alternative!",
         keywords: [
             "XRechnung Viewer kostenlos",
             "E-Rechnung Viewer kostenlos",
+            "E-Rechnung Reader kostenlos",
             "XRechnung öffnen",
             "ZUGFeRD Viewer online",
-            "XRechnung Reader",
-            "XML Rechnung ansehen",
-            "XRechnung visualisieren",
-            "EN 16931 Validator",
+            "XRechnung ansehen",
+            "XRechnung Viewer PDF",
+            "Quba Viewer Alternative",
+            "E-Rechnung Empfang kostenlos",
         ],
         badge: "E-Rechnung 2025/2026",
         icon: "FileSearchOutlined",
@@ -86,6 +87,10 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
                 question: "Ist die Nutzung wirklich ohne Registrierung kostenlos?",
                 answer: "Ja, alle Rechly Werkzeuge stehen dauerhaft kostenlos und ohne Benutzerkonto für die Öffentlichkeit bereit.",
             },
+            {
+                question: "Kann ich den Viewer als kostenlose Alternative zum Quba-Viewer oder für den E-Rechnung-Empfang nutzen?",
+                answer: "Ja. Unser E-Rechnung Reader öffnet sowohl reine XRechnung-XML-Dateien (UBL & CII) als auch hybride ZUGFeRD-PDFs sofort im Browser oder komplett offline in unserer kostenlosen Rechly Desktop-App (/desktop) – ideal für den gesetzlichen E-Rechnungsempfang.",
+            },
         ],
         relatedToolIds: ["girocode-generator", "leitweg-id-pruefen", "skontorechner"],
     },
@@ -99,9 +104,9 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Erstelle in Sekunden einen offiziellen SEPA GiroCode (EPC069-12 QR-Code) für deine Rechnungen. Kunden scannen den Code in ihrer Banking-App und überweisen fehlerfrei mit vorausgefüllter IBAN und Betrag.",
-        metaTitle: "GiroCode Generator kostenlos – EPC-QR-Code für Rechnungen | Rechly",
+        metaTitle: "GiroCode Generator kostenlos: EPC-QR-Code für Rechnungen",
         metaDescription:
-            "Offizieller EPC GiroCode Generator: Erstelle SEPA-QR-Codes für Rechnungen & Überweisungen. Schneller bezahlt werden, fehlerfrei überweisen. Kostenloser Download!",
+            "Offizieller EPC GiroCode Generator: Erstelle kostenlos SEPA-QR-Codes für Rechnungen & Überweisungen (PNG/SVG). Schneller bezahlt werden – ohne Anmeldung!",
         keywords: [
             "GiroCode erstellen",
             "Giro Code Generator",
@@ -149,9 +154,9 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Finanzen & Steuern",
         description:
             "Berechne tagesgenaue gesetzliche Verzugszinsen nach §§ 286, 288 BGB mit den aktuellen Basiszinssätzen der Deutschen Bundesbank. Inklusive 40 € Verzugspauschale für B2B und fertigem Mahnschreiben-Generator.",
-        metaTitle: "Verzugszinsen Rechner 2026 – BGB Zinsen & 40 € Pauschale | Rechly",
+        metaTitle: "Verzugszinsen Rechner 2026: BGB Zinsen & 40 € Pauschale",
         metaDescription:
-            "Tagesgenauer Verzugszinsen-Rechner nach § 288 BGB mit aktuellen Bundesbank-Zinssätzen. Berechne Verzugszinsen für B2B (+9%) und B2C (+5%) plus 40 € Mahnpauschale & Mahntext.",
+            "Tagesgenauer Verzugszinsen-Rechner nach § 288 BGB mit aktuellen Bundesbank-Zinssätzen. Berechne Verzugszinsen für B2B (+9%) und B2C (+5%) plus 40 € Mahnpauschale.",
         keywords: [
             "Verzugszinsen berechnen",
             "Verzugszinsen Rechner 2026",
@@ -200,16 +205,18 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Überprüfe Umsatzsteuer-Identifikationsnummern europäischer Geschäftspartner in Echtzeit über das VIES-System der EU-Kommission. Erhalte einen druckfertigen Prüfnachweis für die 10-jährige Aufbewahrungspflicht beim Finanzamt.",
-        metaTitle: "USt-IdNr prüfen kostenlos – VIES UID Abfrage & Prüfbeleg | Rechly",
+        metaTitle: "USt-IdNr. & UID-Prüfer kostenlos – Offizielle VIES Prüfung",
         metaDescription:
-            "USt-IdNr. (UID) live prüfen über die EU VIES Schnittstelle: Gültigkeit, Firmenname und Adresse abfragen. Erstelle den amtlichen Prüfbeleg für steuerfreie EU-Lieferungen nach § 6a UStG.",
+            "USt-IdNr. & UID-Prüfer: Umsatzsteuer-ID und UID-Nummer (Deutschland & EU) live über die offizielle VIES-Schnittstelle prüfen – inkl. PDF-Prüfbeleg für das Finanzamt.",
         keywords: [
             "USt-IdNr prüfen",
-            "UID Abfrage VIES",
+            "USt Prüfer",
+            "UID Prüfer",
+            "VIES UID Prüfung",
+            "USt ID Prüfer",
+            "UID Nummer Deutschland prüfen",
             "Umsatzsteuer-Identifikationsnummer prüfen",
             "VIES VAT check",
-            "Gelangensbestätigung USt-IdNr",
-            "Reverse Charge Prüfung",
         ],
         badge: "Offizielle EU VIES",
         icon: "SafetyCertificateOutlined",
@@ -564,15 +571,17 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Kalkulation & HR",
         description:
             "Berechne den gesetzlichen Verpflegungsmehraufwand für In- und Auslandsdienstreisen nach BMF-Tabelle. Mit 24h-Pauschalen, An-/Abreisetag und Mahlzeitenkürzungen (Frühstück, Mittag, Abendessen).",
-        metaTitle: "Verpflegungsmehraufwand 2026 Rechner – Spesen Inland & Ausland BMF",
+        metaTitle: "Spesenrechner 2026 / 2027 & Verpflegungsmehraufwand (BMF)",
         metaDescription:
-            "Spesen- und Verpflegungsmehraufwand-Rechner nach § 9 Abs. 4a EStG & aktueller BMF-Tabelle. Inland und Auslandspauschalen berechnen inkl. Mahlzeitenabzug & Reisekosten-Druck.",
+            "Kostenloser Spesenrechner 2026 / 2027 & Verpflegungsmehraufwand-Rechner nach BMF-Tabelle: Tagegeld (14 € / 28 € Inland & Ausland) inkl. Frühstücks-Abzug berechnen.",
         keywords: [
+            "Spesenrechner 2026",
+            "Spesen Rechner 2026",
+            "Spesen 2027",
             "Verpflegungsmehraufwand 2026",
             "Spesenrechner Inland Ausland",
             "Tagegeld BMF Pauschale",
             "Reisekostenabrechnung Vorlage",
-            "Mahlzeitenkürzung Frühstück Spesen",
         ],
         badge: "BMF Tabelle 2026",
         icon: "CompassOutlined",
@@ -681,7 +690,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Finanzen & Steuern",
         description:
             "Alle gesetzlichen Fristen 2026 für USt-VA, ESt, GewSt, KSt und Lohnsteuer. Inklusive 3-Tage-Schonfrist nach § 240 AO, Feiertagsverschiebung nach § 108 AO und 1-Klick Kalender-Download (.ics).",
-        metaTitle: "Steuerkalender 2026 für Selbstständige – Alle Fristen & Termine (.ics) | Rechly",
+        metaTitle: "Steuerkalender 2026 Selbstständige: Alle Termine & .ics",
         metaDescription:
             "Steuerkalender 2026: Alle Abgabefristen für USt-Voranmeldung, Einkommensteuer und Gewerbesteuer Vorauszahlung. Mit automatischer Schonfrist-Berechnung und .ics Kalender-Download.",
         keywords: [
@@ -738,18 +747,18 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Recht & Vorlagen",
         description:
             "Erstellen Sie rechtssichere Zahlungserinnerungen, 1. Mahnungen und letzte Mahnungen vor Inkasso nach DIN 5008. Mit automatischer Verzugszins- und 40 € Pauschalen-Berechnung (§ 288 BGB).",
-        metaTitle: "Mahnung schreiben Vorlage kostenlos (1.–3. Mahnung) | Rechly",
+        metaTitle: "Mahnung Vorlage kostenlos: 1.–3. Mahnung & Generator (PDF)",
         metaDescription:
-            "Kostenlose Mahnungsvorlage & Generator: 1., 2. & letzte Mahnung oder Zahlungserinnerung rechtssicher nach § 286 BGB online erstellen. Inkl. 40 € Pauschale & PDF-Download!",
+            "Kostenlose Mahnung Vorlage & Generator: Zahlungserinnerung sowie 1., 2. & 3. (letzte) Mahnung mit Mustertext & Verzugszinsen online ausfüllen & als PDF laden!",
         keywords: [
+            "Mahnung Vorlage kostenlos",
             "Mahnung schreiben Vorlage kostenlos",
+            "1. 2. 3. letzte Mahnung Muster",
             "Letzte Mahnung Vorlage",
             "Zahlungserinnerung Vorlage kostenlos",
+            "Mahnschreiben Vorlage kostenlos",
             "Mahnungs Generator",
-            "Mahnungsvorlagen gratis",
-            "Verzugskosten berechnen",
             "1. Mahnung Muster",
-            "Mahnung online erstellen",
         ],
         badge: "BGB-konform",
         icon: "ExclamationCircleOutlined",
@@ -763,7 +772,19 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
                 bullets: [
                     "Stufe 1 (Zahlungserinnerung): Freundlicher Hinweis ohne Verzugskosten. Typische Zahlungsfrist: 7 bis 10 Tage.",
                     "Stufe 2 (1. Mahnung): Bestimmte Aufforderung mit Geltendmachung von Verzugszinsen und Mahnspesen. Frist: 7 Tage.",
-                    "Stufe 3 (Letzte Mahnung): Letzte Fristsetzung (3 bis 5 Tage) mit unmissverständlicher Androhung des gerichtlichen Mahnbescheids oder Inkassoübergabe.",
+                    "Stufe 3 (2. / 3. Letzte Mahnung): Letzte Fristsetzung (3 bis 5 Tage) mit unmissverständlicher Androhung des gerichtlichen Mahnbescheids oder Inkassoübergabe.",
+                ],
+            },
+            {
+                title: "Kopiervorlagen: Mustertexte für Zahlungserinnerung sowie 1., 2. & 3. (Letzte) Mahnung",
+                content: [
+                    "Unser Generator fügt den passenden Rechtstext je nach gewählter Mahnstufe automatisch in Ihr DIN-5008-PDF ein. Wenn Sie den Text direkt für eine E-Mail oder einen Brief kopieren möchten, nutzen Sie diese bewährten Vorlagen:",
+                ],
+                bullets: [
+                    "Freundliche Zahlungserinnerung: „Sicherlich ist es im Rahmen Ihres Tagesgeschäfts untergegangen, dass unsere Rechnung Nr. [RE-Nr.] vom [Datum] über [Betrag €] seit dem [Fälligkeitsdatum] zur Zahlung fällig ist. Bitte überweisen Sie den Betrag bis zum [Datum, +7 Tage].“",
+                    "1. Mahnung (Bestimmt): „Leider konnten wir bis heute keinen Zahlungseingang zu unserer Rechnung Nr. [RE-Nr.] vom [Datum] feststellen. Wir bitten Sie, den offenen Betrag von [Betrag €] bis spätestens zum [Datum, +7 Tage] auszugleichen.“",
+                    "2. Mahnung (Mit Verzugszinsen): „Da unsere Rechnung Nr. [RE-Nr.] trotz Erinnerung weiterhin offen ist, befinden Sie sich gemäß § 286 BGB in Zahlungsverzug. Bitte begleichen Sie die Gesamtforderung inkl. gesetzlicher Verzugszinsen nach § 288 BGB bis zum [Datum, +5 Tage].“",
+                    "3. / Letzte Mahnung (Vor Inkasso / Mahnbescheid): „Unsere bisherigen Zahlungsaufforderungen zur Rechnung Nr. [RE-Nr.] blieben unbeantwortet. Wir setzen Ihnen hiermit eine letzte Zahlungsfrist bis zum [Datum, +5 Tage]. Nach fruchtlosem Fristablauf übergeben wir den Vorgang ohne weitere Ankündigung an unseren Rechtsanwalt zur Einleitung des gerichtlichen Mahnverfahrens.“",
                 ],
             },
             {
@@ -796,7 +817,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Finanzen & Steuern",
         description:
             "Ermitteln Sie Ihren steuerlichen Gewinn nach § 4 Abs. 3 EStG und berechnen Sie sofort alle offiziellen ELSTER USt-VA Kennziffern (Kz 81, Kz 86, Kz 66 und Kz 83 Zahllast). Kostenlos & ohne Login.",
-        metaTitle: "EÜR Rechner 2026 kostenlos – Einnahmen-Überschuss-Rechnung & USt-VA | Rechly",
+        metaTitle: "EÜR Rechner 2026 kostenlos: Gewinn & USt-VA berechnen",
         metaDescription:
             "Kostenloser EÜR Rechner für Freiberufler & Kleinunternehmer: Gewinn nach § 4 Abs. 3 EStG ermitteln, Vorsteuer abziehen und ELSTER-Kennziffern (Kz 81, 86, 66, 83) direkt berechnen.",
         keywords: [
@@ -900,7 +921,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Finanzen & Steuern",
         description:
             "Berechnen Sie die lineare Abschreibung nach amtlicher BMF AfA-Tabelle, prüfen Sie GWG-Sofortabschreibung (bis 800 € netto nach § 6 Abs. 2 EStG) und erstellen Sie den vollständigen Abschreibungsplan.",
-        metaTitle: "AfA Rechner 2026 – Lineare Abschreibung & GWG Grenze berechnen | Rechly",
+        metaTitle: "AfA Rechner 2026: Lineare Abschreibung & 800 € GWG",
         metaDescription:
             "AfA Rechner für Selbstständige: Lineare Abschreibung nach amtlicher BMF-Tabelle, GWG-Sofortabschreibung bis 800 € und Sammelposten berechnen. Mit Jahresplan & Steuerersparnis.",
         keywords: [
@@ -951,7 +972,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Erstellen Sie standardkonforme ISO 20022 XML-Dateien für Sammelüberweisungen (pain.001.001.03) und SEPA-Lastschriften (pain.008.001.02) für alle deutschen Banken (Sparkasse, Deutsche Bank, etc.).",
-        metaTitle: "SEPA XML Generator kostenlos – pain.001 & pain.008 online erstellen | Rechly",
+        metaTitle: "SEPA XML Generator kostenlos: pain.001 & pain.008 online",
         metaDescription:
             "Kostenloser SEPA XML Generator: pain.001 Sammelüberweisungen und pain.008 Lastschriften im ISO 20022 Format im Browser generieren und sofort im Online-Banking hochladen. Ohne Registrierung.",
         keywords: [
@@ -1008,9 +1029,9 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Schreiben Sie rechtssichere Rechnungen direkt im Browser – komplett kostenlos und ohne Anmeldung. Mit Live-Vorschau nach DIN 5008, integriertem SEPA-GiroCode QR-Code, 14 Branchen-Vorlagen (§ 19 UStG, § 13b Bau, § 35a Handwerk) und 1-Klick XRechnung 3.0 XML-Export.",
-        metaTitle: "Rechnung schreiben kostenlos – Online Rechnungsgenerator (PDF & XRechnung) | Rechly",
+        metaTitle: "Rechnungsgenerator kostenlos: Rechnung online schreiben (PDF)",
         metaDescription:
-            "Kostenloser Online-Rechnungsgenerator ohne Anmeldung: Rechnung nach § 14 UStG & DIN 5008 erstellen, als PDF drucken oder als XRechnung 3.0 XML herunterladen. Inkl. Kleinunternehmer (§ 19) & Handwerker (§ 35a).",
+            "Kostenloser Online-Rechnungsgenerator ohne Anmeldung: Rechnung nach § 14 UStG & DIN 5008 ausfüllen, sofort als PDF (mit GiroCode) oder XRechnung 3.0 herunterladen!",
         keywords: [
             "Rechnung schreiben kostenlos",
             "Rechnungsgenerator online ohne Anmeldung",
@@ -1065,10 +1086,12 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Erstellen Sie überzeugende Angebote, freibleibende Angebote und Kostenvoranschläge mit Bindefrist, Eventualpositionen und Unterschriftsfeld zur Auftragsbestätigung – inklusive 1-Klick-Umwandlung in eine Rechnung.",
-        metaTitle: "Angebot schreiben kostenlos – Angebotsgenerator & Vorlage | Rechly",
+        metaTitle: "Angebotsgenerator kostenlos: Angebot schreiben & PDF Vorlage",
         metaDescription:
-            "Kostenlos Angebot oder Kostenvoranschlag online schreiben: Sofort als professionelle PDF herunterladen, mit 1 Klick in Rechnung umwandeln. Ohne Anmeldung!",
+            "Kostenloser Angebotsgenerator ohne Anmeldung: Angebot oder Kostenvoranschlag nach DIN 5008 online schreiben, als PDF herunterladen & per 1-Klick abrechnen!",
         keywords: [
+            "Angebotsgenerator",
+            "Angebotsgenerator kostenlos",
             "Angebot schreiben kostenlos",
             "Angebot erstellen",
             "Angebotsgenerator online",
@@ -1118,7 +1141,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Finanzen & Steuern",
         description:
             "Berechnen Sie blitzschnell Netto aus Brutto, Brutto aus Netto oder den Gesamtwert aus dem reinen Mehrwertsteuerbetrag – mit 19 %, 7 %, 0 % oder individuellem Steuersatz sowie praktischer Umrechnungstabelle.",
-        metaTitle: "Mehrwertsteuer-Rechner (19% & 7%) – Brutto Netto MwSt. online berechnen | Rechly",
+        metaTitle: "Mehrwertsteuer-Rechner (19 % & 7 %): Brutto ↔ Netto MwSt.",
         metaDescription:
             "Kostenloser Mehrwertsteuer-Rechner (Umsatzsteuerrechner): Netto in Brutto (+19% / +7%) oder Brutto in Netto (-19% / -7%) sekundenschnell berechnen und für Ihre Rechnung kopieren.",
         keywords: [
@@ -1169,7 +1192,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Erstellen Sie sofort druckfertige Quittungen für Barzahlungen inklusive automatischer Umwandlung des Euro-Betrags in deutsche Zahlwörter, MwSt.-Aufschlüsselung sowie Original & Durchschlag auf einer A4-Seite.",
-        metaTitle: "Quittung online erstellen & ausdrucken (PDF Vorlage kostenlos) | Rechly",
+        metaTitle: "Quittung online erstellen & drucken: Kostenlose PDF-Vorlage",
         metaDescription:
             "Kostenloser Quittungsgenerator: Quittung mit MwSt. oder für Privatverkauf online ausfüllen. Betrag wird automatisch in Worten ausgeschrieben. Mit Original & Durchschlag als PDF drucken.",
         keywords: [
@@ -1215,7 +1238,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Erstellen Sie professionelle Lieferscheine nach DIN 5008 mit Artikelnummern, Mengenangaben, Eigentumsvorbehalt (§ 449 BGB) und Unterschriftsfeld für die Warenannahme – plus 1-Klick-Übernahme in die Rechnung.",
-        metaTitle: "Lieferschein erstellen kostenlos – Online Lieferschein-Generator (PDF) | Rechly",
+        metaTitle: "Lieferschein erstellen kostenlos: Online-Generator (PDF)",
         metaDescription:
             "Kostenloser Lieferschein-Generator ohne Anmeldung: DIN 5008 Lieferschein ohne Preise für Versand & Baustelle als PDF drucken und mit 1 Klick in eine Rechnung umwandeln.",
         keywords: [
@@ -1256,7 +1279,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Tagesgeschäft & E-Rechnung",
         description:
             "Korrigieren oder stornieren Sie fehlerhafte Rechnungen GoBD-konform per Stornorechnung (Rechnungskorrektur) oder erstellen Sie eine Abrechnungsgutschrift nach § 14 Abs. 2 S. 2 UStG als druckfertiges PDF.",
-        metaTitle: "Stornorechnung erstellen kostenlos – Rechnungskorrektur & Gutschrift Generator | Rechly",
+        metaTitle: "Stornorechnung & Gutschrift Generator: Kostenlose PDF-Vorlage",
         metaDescription:
             "Fehlerhafte Rechnung rechtssicher stornieren: Kostenloser Stornorechnung-Generator nach § 14 UStG & GoBD. Mit Pflichtverweis auf die Originalrechnung sofort als PDF drucken.",
         keywords: [
@@ -1298,12 +1321,15 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Finanzen & Steuern",
         description:
             "Berechnen Sie Ihre steuerfreie Kilometerpauschale für Dienstreisen (0,30 €/km), die Entfernungspauschale 2026 (0,30 € / 0,38 € ab dem 21. km) oder die umsatzsteuerlich korrekte Weiterberechnung von Fahrtkosten an Kunden.",
-        metaTitle: "Fahrtkostenrechner 2026 – Kilometergeld, Dienstreise & Pendlerpauschale | Rechly",
+        metaTitle: "Kilometergeld & Fahrtkostenrechner 2026: Kilometerpauschale",
         metaDescription:
-            "Kostenloser Fahrtkostenrechner 2026: Kilometergeld (0,30 €/km Dienstreise), Pendlerpauschale (0,38 € ab km 21) & Kunden-Weiterberechnung mit MwSt. berechnen + PDF-Eigenbeleg drucken.",
+            "Kilometergeld & Kilometerpauschale 2026 berechnen: 0,30 €/km Dienstreise (Arbeitgeber & Selbstständige), 0,38 € Pendlerpauschale & Kunden-Weiterberechnung + PDF.",
         keywords: [
             "Fahrtkostenrechner 2026",
             "Kilometergeld Rechner Dienstreise",
+            "Berechnung des Kilometergeldes",
+            "Berechnung der Kilometerpauschale",
+            "Fahrtkostenrechner Arbeitgeber",
             "Pendlerpauschale Rechner 2026",
             "Fahrtkosten an Kunden weiterberechnen MwSt",
             "Kilometerpauschale Selbstständige",
@@ -1340,7 +1366,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Kalkulation & HR",
         description:
             "Erfassen Sie Arbeits- und Projektstunden online mit automatischer Umrechnung in Dezimalstunden, gesetzlicher Pausenprüfung nach § 4 ArbZG (30/45 Min.), Honorarkalkulation sowie PDF- und CSV-Export.",
-        metaTitle: "Stundenzettel Vorlage kostenlos – Online Arbeitszeitrechner (PDF & Excel/CSV) | Rechly",
+        metaTitle: "Stundenzettel Vorlage kostenlos & Arbeitszeitrechner (PDF)",
         metaDescription:
             "Kostenloser Stundenzettel-Generator & Arbeitszeitrechner: Arbeitszeiten in Dezimalstunden umrechnen, gesetzliche Pausen (§ 4 ArbZG) prüfen und als PDF oder CSV exportieren.",
         keywords: [
@@ -1382,7 +1408,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         category: "Finanzen & Steuern",
         description:
             "Berechnen Sie Gewinnmarge (Handelsspanne), Kalkulationsaufschlag, Rohertrag und die komplette kaufmännische IHK-Vorwärtskalkulation vom Listeneinkaufspreis bis zum Bruttoverkaufspreis.",
-        metaTitle: "Marge Rechner kostenlos – Handelsspanne, Aufschlag & Handelskalkulation | Rechly",
+        metaTitle: "Marge-Rechner kostenlos: Handelsspanne & Aufschlag (IHK)",
         metaDescription:
             "Kostenloser Marge-Rechner für Handel, E-Commerce & Handwerk: Gewinnmarge (Handelsspanne) vs. Kalkulationsaufschlag und vollständige IHK-Vorwärtskalkulation online berechnen.",
         keywords: [

@@ -79,6 +79,22 @@ export default function KeywordLandingPage({
                   ]
                 : []),
             {
+                "@type": "SoftwareApplication",
+                "@id": `${siteUrl}${path}#software`,
+                name: "Rechly Rechnungssoftware",
+                applicationCategory: "BusinessApplication",
+                operatingSystem: "Web, Windows 10, Windows 11, macOS",
+                inLanguage: "de-DE",
+                url: `${siteUrl}${path}`,
+                isAccessibleForFree: true,
+                offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "EUR",
+                    availability: "https://schema.org/InStock",
+                },
+            },
+            {
                 "@type": "WebPage",
                 "@id": `${siteUrl}${path}#webpage`,
                 name: title,
@@ -443,7 +459,7 @@ export default function KeywordLandingPage({
                                 }}
                             >
                                 <Link
-                                    href="/register"
+                                    href="/tools/rechnungsgenerator"
                                     style={{
                                         display: "inline-flex",
                                         alignItems: "center",
@@ -457,10 +473,10 @@ export default function KeywordLandingPage({
                                         textDecoration: "none",
                                     }}
                                 >
-                                    Kostenlos registrieren
+                                    Online-Rechnungsgenerator (ohne Anmeldung)
                                 </Link>
                                 <Link
-                                    href="/#download"
+                                    href="/desktop"
                                     style={{
                                         display: "inline-flex",
                                         alignItems: "center",
@@ -475,10 +491,10 @@ export default function KeywordLandingPage({
                                         textDecoration: "none",
                                     }}
                                 >
-                                    Desktop-App (100% Offline)
+                                    Desktop-App Download (100 % Offline)
                                 </Link>
                                 <Link
-                                    href="/features"
+                                    href="/register"
                                     style={{
                                         display: "inline-flex",
                                         alignItems: "center",
@@ -492,7 +508,7 @@ export default function KeywordLandingPage({
                                         textDecoration: "none",
                                     }}
                                 >
-                                    Funktionen ansehen
+                                    Kostenloses Konto erstellen
                                 </Link>
                             </div>
                         </div>
