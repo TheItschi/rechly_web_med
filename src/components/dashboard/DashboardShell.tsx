@@ -31,6 +31,7 @@ import {
     RedoOutlined,
     WalletOutlined,
     BankOutlined,
+    SwapOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -121,6 +122,11 @@ export default function DashboardLayout({
                     key: "/dashboard/products",
                     icon: <ShoppingOutlined />,
                     label: t("dashboard.products"),
+                },
+                {
+                    key: "/dashboard/migration",
+                    icon: <SwapOutlined />,
+                    label: t("dashboard.migration"),
                 },
             ],
         },

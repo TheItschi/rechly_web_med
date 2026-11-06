@@ -27,7 +27,9 @@ import {
     RobotOutlined,
     MailOutlined,
     CopyOutlined,
+    SwapOutlined,
 } from "@ant-design/icons";
+import Link from "next/link";
 import { useClientStore } from "@/store";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getAllInvoices } from "@/lib/invoiceService";
@@ -375,13 +377,17 @@ export default function ClientsPage() {
                     xs={24}
                     sm={8}
                     md={12}
-                    style={{ display: "flex", justifyContent: "flex-end" }}
+                    style={{ display: "flex", justifyContent: "flex-end", gap: 8, flexWrap: "wrap" }}
                 >
+                    <Link href="/dashboard/migration">
+                        <Button icon={<SwapOutlined />}>
+                            {t("clients.importData")}
+                        </Button>
+                    </Link>
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
                         onClick={openCreateModal}
-                        style={{ width: "100%", maxWidth: 200 }}
                     >
                         {t("clients.new")}
                     </Button>

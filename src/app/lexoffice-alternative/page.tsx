@@ -60,14 +60,25 @@ export default function LexofficeAlternativePage() {
                     ],
                 },
                 {
-                    title: "Worauf du bei einem Wechsel achten solltest",
+                    title: "In 2 Minuten von Lexware Office (lexoffice) zu Rechly umziehen",
                     body: [
-                        "Ein guter Wechsel hängt weniger vom Markennamen ab als von deinem tatsächlichen Ablauf. Prüfe, wie oft du Rechnungen schreibst, wie wichtig dir offene Deployment-Optionen sind und ob du primär eine klare Rechnungssoftware oder eine breitere Business-Suite brauchst.",
-                        "Wenn dein Schwerpunkt auf einfacher Rechnungserstellung, Erinnerungen und operativer Ruhe liegt, ist eine fokussierte Alternative oft sinnvoller als ein möglichst großes System.",
+                        "Die größte Hürde beim Wechsel der Rechnungssoftware sind bestehende Stammdaten. Deshalb besitzt Rechly einen integrierten Daten-Umzugs-Assistenten speziell für Lexware Office (lexoffice), sevdesk, FastBill, Papierkram und DATEV.",
+                        "Du exportierst deine Kundenliste, Artikel und Rechnungen als CSV oder E-Rechnung (XRechnung / ZUGFeRD) und ziehst die Dateien einfach per Drag & Drop in Rechly. Alle Spalten, Steuersätze, Leitweg-IDs und Kundenverknüpfungen werden automatisch erkannt.",
+                    ],
+                    bullets: [
+                        "Automatische Spaltenerkennung für Lexware-Office-Exporte (inkl. Windows-1252-Umlaute)",
+                        "Kunden, Artikel/Leistungen, Ausgangsrechnungen und Ausgaben in einem Schritt importieren",
+                        "Batch-Import bestehender XRechnung- (.xml) und ZUGFeRD-Dateien (.pdf)",
+                        "Jederzeit 1-Klick Komplett-Backup (.json) für den Wechsel zwischen Cloud & Desktop-App",
                     ],
                 },
             ]}
             faqs={[
+                {
+                    question:
+                        "Kann ich meine Kunden, Produkte und Rechnungen aus lexoffice importieren?",
+                    answer: "Ja! Im Rechly-Dashboard findest du unter »Daten-Umzug & Import« einen Assistenten für Lexware Office (lexoffice). Du lädst einfach deine exportierten CSV-Dateien oder ZUGFeRD/XRechnung-Belege hoch und Rechly übernimmt Kunden, Produkte, Rechnungen und Ausgaben automatisch.",
+                },
                 {
                     question:
                         "Ist Rechly ein direkter 1:1-Ersatz für jede lexoffice-Nutzung?",

@@ -60,14 +60,24 @@ export default function SevdeskAlternativePage() {
                     ],
                 },
                 {
-                    title: "Wie du eine Alternative realistisch bewertest",
+                    title: "Nahtloser Daten-Umzug: Kontakte, Artikel & Rechnungen aus sevdesk übernehmen",
                     body: [
-                        "Der sauberste Vergleich entsteht, wenn du nicht nur Features, sondern konkrete Arbeitsmomente prüfst: Wie schnell entsteht eine Rechnung? Wie leicht lassen sich Erinnerungen aus offenen Forderungen ableiten? Wie klar bleibt die Oberfläche nach einigen Wochen Nutzung?",
-                        "Wenn diese Fragen wichtiger sind als ein maximal breiter Funktionskatalog, lohnt es sich, fokussierte Alternativen ernsthaft zu testen.",
+                        "Ein Wechsel zu Rechly bedeutet nicht, bei null anzufangen. Über das integrierte »Daten-Umzug & Import«-Zentrum übernimmst du deine bestehenden sevdesk-Kontakte (Organisationen & Personen), Artikel, Ausgangsrechnungen und Ausgaben in wenigen Klicks.",
+                        "Auch bereits erstellte XRechnungen (.xml) und ZUGFeRD-PDFs lassen sich gesammelt per Drag & Drop importieren – fehlende Kundendaten legt Rechly dabei automatisch für dich an.",
+                    ],
+                    bullets: [
+                        "Direkter CSV-Import für sevdesk Kontakte, Artikel, Rechnungen & Belege",
+                        "Automatische Zusammenführung von Organisationen und Ansprechpartnern",
+                        "Sammel-Import für XRechnung (.xml) und ZUGFeRD (.pdf)",
+                        "100% Datenhoheit mit Komplett-Backup zwischen Rechly Cloud und Desktop-App",
                     ],
                 },
             ]}
             faqs={[
+                {
+                    question: "Wie nehme ich meine Daten aus sevdesk zu Rechly mit?",
+                    answer: "Exportiere in sevdesk deine Kontakte, Artikel und Rechnungen als CSV-Datei und ziehe sie in Rechly unter »Daten-Umzug & Import« in das Upload-Feld. Rechly erkennt das sevdesk-Format automatisch und zeigt dir vor dem Import eine Live-Vorschau aller Datensätze.",
+                },
                 {
                     question: "Ist Rechly nur für sehr kleine Teams gedacht?",
                     answer: "Der Schwerpunkt liegt klar auf Freelancern, Selbstständigen und kleineren Teams. Genau dort bringt ein fokussierter Rechnungsworkflow meist den größten Mehrwert.",

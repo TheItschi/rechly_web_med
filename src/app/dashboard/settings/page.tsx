@@ -31,7 +31,9 @@ import {
     BankOutlined,
     RobotOutlined,
     ExclamationCircleOutlined,
+    SwapOutlined,
 } from "@ant-design/icons";
+import MigrationWizard from "@/components/dashboard/MigrationWizard";
 import type { UploadProps } from "antd";
 import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
@@ -902,6 +904,15 @@ export default function SettingsPage() {
                     </Card>
                 </div>
             ),
+        },
+        {
+            key: "migration",
+            label: (
+                <span>
+                    <SwapOutlined /> {t("dashboard.migration")}
+                </span>
+            ),
+            children: <MigrationWizard compact />,
         },
     ];
 

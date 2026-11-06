@@ -975,6 +975,8 @@ export const translations: Record<Language, Record<string, string>> = {
         "bank.format.dkb": "DKB",
         "bank.format.ing": "ING-DiBa",
         "bank.format.generic": "Generisch (CSV)",
+        "dashboard.migration": "Daten-Umzug & Import",
+        "clients.importData": "Kunden importieren",
     },
     en: {
         "appearance.label": "Appearance",
@@ -1920,6 +1922,8 @@ export const translations: Record<Language, Record<string, string>> = {
         "bank.format.dkb": "DKB",
         "bank.format.ing": "ING-DiBa",
         "bank.format.generic": "Generic (CSV)",
+        "dashboard.migration": "Data Migration & Import",
+        "clients.importData": "Import Clients",
     },
 };
 
