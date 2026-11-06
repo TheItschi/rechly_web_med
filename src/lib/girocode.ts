@@ -25,21 +25,26 @@ export interface GirocodeInput {
 export const buildGirocodePayload = (input: GirocodeInput): string | null => {
     const name = input.name?.trim();
     const iban = input.iban?.replace(/\s/g, "").toUpperCase();
-    if (!name || !iban) return null;
-    if (!(input.amount > 0) || input.amount > 999999999.99) return null;
+    if (!name || !iban || iban.length < 15 || iban.length > 34) return null;
+
+    const amount = typeof input.amount === "string" ? parseFloat(input.amount) : input.amount;
+    if (typeof amount !== "number" || isNaN(amount) || amount <= 0 || amount > 999999999.99) return null;
+
+    const reference = (input.reference || "").trim().slice(0, 140);
+    const bic = input.bic ? input.bic.replace(/\s/g, "").toUpperCase().slice(0, 11) : "";
 
     const lines = [
         "BCD", // Service tag
         "002", // Version 2 (BIC optional within EEA)
         "1", // UTF-8
         "SCT", // SEPA credit transfer
-        input.bic?.replace(/\s/g, "").toUpperCase() ?? "",
+        bic,
         name.slice(0, 70),
         iban,
-        `EUR${input.amount.toFixed(2)}`,
+        `EUR${amount.toFixed(2)}`,
         "", // Purpose code (unused)
         "", // Structured reference (unused — we use unstructured text)
-        input.reference.slice(0, 140),
+        reference,
     ];
 
     return lines.join("\n");

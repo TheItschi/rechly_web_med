@@ -68,6 +68,7 @@ function RechnungsGeneratorInner() {
     const [buyerName, setBuyerName] = useState("TechVenture GmbH");
     const [buyerStreet, setBuyerStreet] = useState("Maximilianstraße 45");
     const [buyerZipCity, setBuyerZipCity] = useState("80539 München");
+    const [buyerEmail, setBuyerEmail] = useState("buchhaltung@techventure.de");
     const [buyerVatId, setBuyerVatId] = useState("");
     const [leitwegId, setLeitwegId] = useState("");
 
@@ -248,6 +249,10 @@ function RechnungsGeneratorInner() {
                 ok: items.length > 0 && items.every((i) => i.description.trim() !== ""),
             },
             {
+                label: "Elektronische Adresse & Kontakt (BT-34 / PEPPOL-EN16931-R020)",
+                ok: Boolean(sellerEmail.trim() && sellerEmail.includes("@")),
+            },
+            {
                 label:
                     taxMode === "reverse_charge"
                         ? "USt-IdNr. des Leistungsempfängers (§ 13b UStG)"
@@ -263,6 +268,7 @@ function RechnungsGeneratorInner() {
         sellerName,
         sellerStreet,
         sellerZipCity,
+        sellerEmail,
         buyerName,
         buyerStreet,
         buyerZipCity,
@@ -415,12 +421,18 @@ function RechnungsGeneratorInner() {
       <ram:BuyerReference>${escapeXml(leitwegId || "XRECHNUNG")}</ram:BuyerReference>
       <ram:SellerTradeParty>
         <ram:Name>${escapeXml(sellerName)}</ram:Name>
+        <ram:DefinedTradeContact>
+          <ram:PersonName>${escapeXml(sellerName)}</ram:PersonName>
+          ${sellerPhone ? `<ram:TelephoneUniversalCommunication><ram:CompleteNumber>${escapeXml(sellerPhone)}</ram:CompleteNumber></ram:TelephoneUniversalCommunication>` : ""}
+          ${sellerEmail ? `<ram:EmailURIUniversalCommunication><ram:URIID>${escapeXml(sellerEmail)}</ram:URIID></ram:EmailURIUniversalCommunication>` : ""}
+        </ram:DefinedTradeContact>
         <ram:PostalTradeAddress>
           <ram:PostcodeCode>${escapeXml(sellerZip)}</ram:PostcodeCode>
           <ram:LineOne>${escapeXml(sellerStreet)}</ram:LineOne>
           <ram:CityName>${escapeXml(sellerCity)}</ram:CityName>
           <ram:CountryID>DE</ram:CountryID>
         </ram:PostalTradeAddress>
+        ${sellerEmail ? `<ram:URIUniversalCommunication><ram:URIID schemeID="EM">${escapeXml(sellerEmail)}</ram:URIID></ram:URIUniversalCommunication>` : ""}
         <ram:SpecifiedTaxRegistration>
           <ram:ID schemeID="${sellerTaxId.startsWith("DE") ? "VA" : "FC"}">${escapeXml(sellerTaxId)}</ram:ID>
         </ram:SpecifiedTaxRegistration>
@@ -433,6 +445,8 @@ function RechnungsGeneratorInner() {
           <ram:CityName>${escapeXml(buyerCity)}</ram:CityName>
           <ram:CountryID>DE</ram:CountryID>
         </ram:PostalTradeAddress>
+        ${buyerEmail ? `<ram:URIUniversalCommunication><ram:URIID schemeID="EM">${escapeXml(buyerEmail)}</ram:URIID></ram:URIUniversalCommunication>` : (leitwegId ? `<ram:URIUniversalCommunication><ram:URIID schemeID="0204">${escapeXml(leitwegId)}</ram:URIID></ram:URIUniversalCommunication>` : "")}
+        ${buyerVatId ? `<ram:SpecifiedTaxRegistration><ram:ID schemeID="VA">${escapeXml(buyerVatId)}</ram:ID></ram:SpecifiedTaxRegistration>` : ""}
       </ram:BuyerTradeParty>
     </ram:ApplicableHeaderTradeAgreement>
     <ram:ApplicableHeaderTradeDelivery />
@@ -678,6 +692,13 @@ function RechnungsGeneratorInner() {
                                 placeholder="PLZ & Ort"
                                 value={buyerZipCity}
                                 onChange={(e) => setBuyerZipCity(e.target.value)}
+                                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
+                            />
+                            <input
+                                type="email"
+                                placeholder="E-Mail des Kunden (für XRechnung BT-49)"
+                                value={buyerEmail}
+                                onChange={(e) => setBuyerEmail(e.target.value)}
                                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"
                             />
                             <input
@@ -1010,7 +1031,7 @@ function RechnungsGeneratorInner() {
             </div>
 
             {/* Printable DIN 5008 Invoice Sheet */}
-            <div className="bg-white border border-slate-300 shadow-lg rounded-2xl p-8 sm:p-12 max-w-4xl mx-auto print:shadow-none print:border-none print:p-0 print:max-w-none text-slate-900">
+            <div className="bg-white border border-slate-300 shadow-lg rounded-2xl p-4 sm:p-8 md:p-12 max-w-4xl mx-auto print:shadow-none print:border-none print:p-0 print:max-w-none text-slate-900">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-slate-200 pb-6">
                     <div>

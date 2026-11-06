@@ -67,6 +67,7 @@ export async function GET(
         const company = {
             id: companyDoc.$id,
             user_id: companyDoc.userId || "",
+            e_invoice: readEInvoiceData(companyDoc.eInvoiceData),
             name: companyDoc.name || "",
             address_line1: companyDoc.addressLine1 || companyDoc.address || "",
             address_line2: companyDoc.addressLine2 ?? undefined,

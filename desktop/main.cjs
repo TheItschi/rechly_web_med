@@ -173,10 +173,14 @@ async function createWindow(origin) {
             contextIsolation: true,
             nodeIntegration: false,
             sandbox: true,
+            plugins: true,
         },
     });
 
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        if (url.startsWith("blob:")) {
+            return { action: "allow" };
+        }
         if (url.startsWith("https://") || url.startsWith("mailto:")) {
             void shell.openExternal(url);
         }
@@ -184,6 +188,7 @@ async function createWindow(origin) {
     });
 
     mainWindow.webContents.on("will-navigate", (event, url) => {
+        if (url.startsWith("blob:")) return;
         if (!url.startsWith(origin)) {
             event.preventDefault();
             if (url.startsWith("https://") || url.startsWith("mailto:")) {

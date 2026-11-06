@@ -41,11 +41,11 @@ export function createPageMetadata({
         ...(keywords && keywords.length > 0 ? { keywords } : {}),
         ...(category ? { category } : {}),
         alternates: {
-            canonical: canonicalPath,
+            canonical: canonicalUrl,
             languages: {
-                "de-DE": canonicalPath,
-                de: canonicalPath,
-                "x-default": canonicalPath,
+                "de-DE": canonicalUrl,
+                de: canonicalUrl,
+                "x-default": canonicalUrl,
             },
         },
         openGraph: {

@@ -108,12 +108,27 @@ export function generateXRechnungXML(
     company: UserCompany,
     profile: "xrechnung" | "en16931" = "xrechnung",
 ): string {
-    const identifiers = parseEInvoiceData(invoice.e_invoice);
+    const invIdentifiers = parseEInvoiceData(invoice.e_invoice);
+    const compIdentifiers = parseEInvoiceData(company.e_invoice);
+    const identifiers = {
+        ...compIdentifiers,
+        ...invIdentifiers,
+        seller_identifier:
+            invIdentifiers.seller_identifier ||
+            compIdentifiers.seller_identifier,
+        buyer_identifier:
+            invIdentifiers.buyer_identifier ||
+            compIdentifiers.buyer_identifier,
+        delivery: invIdentifiers.delivery || compIdentifiers.delivery,
+    };
     const partyId = (id?: PartyIdentifier) => !id ? "" : id.scheme
         ? `<ram:GlobalID schemeID="${id.scheme}">${escapeXml(id.value)}</ram:GlobalID>`
         : `<ram:ID>${escapeXml(id.value)}</ram:ID>`;
     const delivery = identifiers.delivery;
     const client = invoice.client!;
+    const sellerEmail = (company.email || "").trim();
+    const sellerPhone = (company.phone || "").trim();
+    const clientEmail = (client.email || "").trim();
     // Appwrite datetime attributes come back as timestamps
     // (2026-10-09T00:00:00.000+00:00); format 102 needs YYYYMMDD.
     const issueDate = invoice.issue_date.slice(0, 10).replace(/-/g, "");
@@ -269,8 +284,8 @@ export function generateXRechnungXML(
         <ram:Name>${escapeXml(company.name)}</ram:Name>
         <ram:DefinedTradeContact>
           <ram:PersonName>${escapeXml(company.managing_directors || company.name)}</ram:PersonName>
-          ${company.phone ? `<ram:TelephoneUniversalCommunication><ram:CompleteNumber>${escapeXml(company.phone)}</ram:CompleteNumber></ram:TelephoneUniversalCommunication>` : ""}
-          ${company.email ? `<ram:EmailURIUniversalCommunication><ram:URIID>${escapeXml(company.email)}</ram:URIID></ram:EmailURIUniversalCommunication>` : ""}
+          ${sellerPhone ? `<ram:TelephoneUniversalCommunication><ram:CompleteNumber>${escapeXml(sellerPhone)}</ram:CompleteNumber></ram:TelephoneUniversalCommunication>` : ""}
+          ${sellerEmail ? `<ram:EmailURIUniversalCommunication><ram:URIID>${escapeXml(sellerEmail)}</ram:URIID></ram:EmailURIUniversalCommunication>` : ""}
         </ram:DefinedTradeContact>
         <ram:PostalTradeAddress>
           <ram:PostcodeCode>${escapeXml(company.postal_code || "")}</ram:PostcodeCode>
@@ -278,7 +293,7 @@ export function generateXRechnungXML(
           <ram:CityName>${escapeXml(company.city || "")}</ram:CityName>
           <ram:CountryID>${countryCode(company.country)}</ram:CountryID>
         </ram:PostalTradeAddress>
-        ${company.email ? `<ram:URIUniversalCommunication><ram:URIID schemeID="EM">${escapeXml(company.email)}</ram:URIID></ram:URIUniversalCommunication>` : ""}
+        ${sellerEmail ? `<ram:URIUniversalCommunication><ram:URIID schemeID="EM">${escapeXml(sellerEmail)}</ram:URIID></ram:URIUniversalCommunication>` : ""}
         <ram:SpecifiedTaxRegistration>
           ${sellerVatId ? `<ram:ID schemeID="VA">${escapeXml(sellerVatId)}</ram:ID>` : ""}
           ${!sellerVatId && sellerTaxNum ? `<ram:ID schemeID="FC">${escapeXml(sellerTaxNum)}</ram:ID>` : ""}
@@ -294,7 +309,7 @@ export function generateXRechnungXML(
           <ram:CityName>${escapeXml(client.city || "")}</ram:CityName>
           <ram:CountryID>${countryCode(client.country)}</ram:CountryID>
         </ram:PostalTradeAddress>
-        ${client.email ? `<ram:URIUniversalCommunication><ram:URIID schemeID="EM">${escapeXml(client.email)}</ram:URIID></ram:URIUniversalCommunication>` : ""}
+        ${clientEmail ? `<ram:URIUniversalCommunication><ram:URIID schemeID="EM">${escapeXml(clientEmail)}</ram:URIID></ram:URIUniversalCommunication>` : (client.leitweg_id ? `<ram:URIUniversalCommunication><ram:URIID schemeID="0204">${escapeXml(client.leitweg_id)}</ram:URIID></ram:URIUniversalCommunication>` : "")}
         ${client.vat_id ? `<ram:SpecifiedTaxRegistration><ram:ID schemeID="VA">${escapeXml(client.vat_id)}</ram:ID></ram:SpecifiedTaxRegistration>` : ""}
       </ram:BuyerTradeParty>
       ${invoice.purchase_order_ref ? `<ram:BuyerOrderReferencedDocument><ram:IssuerAssignedID>${escapeXml(invoice.purchase_order_ref)}</ram:IssuerAssignedID></ram:BuyerOrderReferencedDocument>` : ""}

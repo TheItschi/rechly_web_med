@@ -97,3 +97,16 @@ test("discounted XML net unit price reconciles with the unchanged line total", (
     assert.match(xml, /<ram:LineTotalAmount>90.00<\/ram:LineTotalAmount>/);
     assert.match(xml, /<ram:GrandTotalAmount>107.10<\/ram:GrandTotalAmount>/);
 });
+
+test("PEPPOL-EN16931-R020: Seller electronic address BT-34 and Buyer BT-49 are present with schemeID EM", () => {
+    const { invoice, company } = complianceCases().identifiers;
+    const xml = generateXRechnungXML(invoice, company);
+    assert.match(
+        xml,
+        /<ram:SellerTradeParty>[\s\S]*?<ram:URIUniversalCommunication><ram:URIID schemeID="EM">seller@example\.invalid<\/ram:URIID><\/ram:URIUniversalCommunication>[\s\S]*?<\/ram:SellerTradeParty>/
+    );
+    assert.match(
+        xml,
+        /<ram:BuyerTradeParty>[\s\S]*?<ram:URIUniversalCommunication><ram:URIID schemeID="EM">buyer@example\.invalid<\/ram:URIID><\/ram:URIUniversalCommunication>[\s\S]*?<\/ram:BuyerTradeParty>/
+    );
+});

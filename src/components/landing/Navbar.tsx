@@ -129,6 +129,7 @@ export default function Navbar({ showAuth = true }: NavbarProps) {
                         icon={<MenuOutlined style={{ fontSize: 20 }} />}
                         onClick={() => setMobileMenuOpen(true)}
                         style={{ padding: "4px 8px" }}
+                        aria-label="Hauptmenü öffnen"
                     />
                 </div>
 
@@ -211,20 +212,44 @@ export default function Navbar({ showAuth = true }: NavbarProps) {
                             onClick={() => setMobileMenuOpen(false)}
                             style={{ justifyContent: "flex-start", height: 44 }}
                         >
-                            Tools
+                            Tools & Rechner
                         </Button>
                         {language === "de" ? (
-                            <Button
-                                type="text"
-                                href="/rechnung-schreiben"
-                                onClick={() => setMobileMenuOpen(false)}
-                                style={{
-                                    justifyContent: "flex-start",
-                                    height: 44,
-                                }}
-                            >
-                                Ratgeber
-                            </Button>
+                            <>
+                                <Button
+                                    type="text"
+                                    href="/vorlagen"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    style={{
+                                        justifyContent: "flex-start",
+                                        height: 44,
+                                    }}
+                                >
+                                    Rechnungsvorlagen
+                                </Button>
+                                <Button
+                                    type="text"
+                                    href="/lexikon"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    style={{
+                                        justifyContent: "flex-start",
+                                        height: 44,
+                                    }}
+                                >
+                                    Steuer-Lexikon
+                                </Button>
+                                <Button
+                                    type="text"
+                                    href="/rechnung-schreiben"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    style={{
+                                        justifyContent: "flex-start",
+                                        height: 44,
+                                    }}
+                                >
+                                    Ratgeber
+                                </Button>
+                            </>
                         ) : null}
                         <Button
                             type="text"

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState } from "react";
 
-type Language = "de" | "en";
+export type Language = "de" | "en";
 
 interface LanguageContextType {
     language: Language;
@@ -14,7 +14,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
     undefined,
 );
 
-const translations: Record<Language, Record<string, string>> = {
+export const translations: Record<Language, Record<string, string>> = {
     de: {
         "appearance.label": "Darstellung",
         "appearance.light": "Hell",
@@ -387,6 +387,8 @@ const translations: Record<Language, Record<string, string>> = {
         "settings.bankDetails": "Bankverbindung",
         "settings.bankName": "Bank",
         "settings.iban": "IBAN",
+        "settings.ibanGirocodeHelp":
+            "Wird für die Bankverbindung und den automatischen GiroCode (SEPA-QR-Zahlungscode) auf Ihren Rechnungen verwendet.",
         "settings.bic": "BIC",
         "settings.invoiceSettings": "Rechnungseinstellungen",
         "settings.paymentTerms": "Standard-Zahlungsbedingungen",
@@ -1340,6 +1342,8 @@ const translations: Record<Language, Record<string, string>> = {
         "settings.bankDetails": "Bank Details",
         "settings.bankName": "Bank",
         "settings.iban": "IBAN",
+        "settings.ibanGirocodeHelp":
+            "Used for bank details and the automatic GiroCode (SEPA QR payment code) on your invoices.",
         "settings.bic": "BIC",
         "settings.invoiceSettings": "Invoice Settings",
         "settings.paymentTerms": "Default Payment Terms",
@@ -1949,6 +1953,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
             {children}
         </LanguageContext.Provider>
     );
+};
+
+export const getTranslation = (lang: Language, key: string): string => {
+    return translations[lang]?.[key] || translations.de[key] || key;
 };
 
 export const useLanguage = () => {

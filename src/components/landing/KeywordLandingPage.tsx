@@ -137,7 +137,7 @@ export default function KeywordLandingPage({
             <main>
                 <section
                     style={{
-                        padding: "136px 24px 56px",
+                        padding: "clamp(96px, 12vw, 136px) clamp(16px, 4vw, 24px) 48px",
                         background:
                             "linear-gradient(180deg, #eef6ff 0%, #ffffff 70%)",
                     }}
@@ -147,6 +147,7 @@ export default function KeywordLandingPage({
                             aria-label="Brotkrümelnavigation"
                             style={{
                                 display: "flex",
+                                flexWrap: "wrap",
                                 gap: 8,
                                 alignItems: "center",
                                 marginBottom: 24,
@@ -165,11 +166,13 @@ export default function KeywordLandingPage({
                             style={{
                                 marginTop: 18,
                                 marginBottom: 16,
-                                fontSize: 46,
-                                lineHeight: 1.1,
+                                fontSize: "clamp(1.85rem, 5.5vw, 2.75rem)",
+                                lineHeight: 1.15,
                                 color: "#0f172a",
                                 fontWeight: 800,
                                 maxWidth: 760,
+                                overflowWrap: "break-word",
+                                wordBreak: "break-word",
                             }}
                         >
                             {title}
@@ -247,11 +250,11 @@ export default function KeywordLandingPage({
                 </section>
 
                 {howTo ? (
-                    <section style={{ padding: "0 24px 48px" }}>
+                    <section style={{ padding: "0 clamp(16px, 4vw, 24px) 40px" }}>
                         <div style={{ maxWidth: 980, margin: "0 auto" }}>
                             <article
                                 style={{
-                                    padding: 28,
+                                    padding: "clamp(20px, 4vw, 28px)",
                                     borderRadius: 24,
                                     border: "1px solid rgba(15, 23, 42, 0.08)",
                                     background: "#ffffff",
@@ -262,7 +265,7 @@ export default function KeywordLandingPage({
                                 <h2
                                     style={{
                                         marginBottom: 20,
-                                        fontSize: 28,
+                                        fontSize: "clamp(1.35rem, 4vw, 1.75rem)",
                                         color: "#0f172a",
                                         fontWeight: 700,
                                     }}
@@ -334,7 +337,7 @@ export default function KeywordLandingPage({
                     </section>
                 ) : null}
 
-                <section style={{ padding: "0 24px 48px" }}>
+                <section style={{ padding: "0 clamp(16px, 4vw, 24px) 40px" }}>
                     <div style={{ maxWidth: 980, margin: "0 auto" }}>
                         <div
                             style={{
@@ -346,7 +349,7 @@ export default function KeywordLandingPage({
                                 <article
                                     key={section.title}
                                     style={{
-                                        padding: 28,
+                                        padding: "clamp(20px, 4vw, 28px)",
                                         borderRadius: 24,
                                         border: "1px solid rgba(15, 23, 42, 0.08)",
                                         background: "#ffffff",
@@ -357,7 +360,7 @@ export default function KeywordLandingPage({
                                     <h2
                                         style={{
                                             marginBottom: 16,
-                                            fontSize: 28,
+                                            fontSize: "clamp(1.35rem, 4vw, 1.75rem)",
                                             color: "#0f172a",
                                             fontWeight: 700,
                                         }}
@@ -398,11 +401,11 @@ export default function KeywordLandingPage({
                     </div>
                 </section>
 
-                <section style={{ padding: "0 24px 48px" }}>
+                <section style={{ padding: "0 clamp(16px, 4vw, 24px) 40px" }}>
                     <div style={{ maxWidth: 980, margin: "0 auto" }}>
                         <div
                             style={{
-                                padding: 30,
+                                padding: "clamp(24px, 5vw, 30px)",
                                 borderRadius: 26,
                                 background:
                                     "linear-gradient(160deg, #0f172a 0%, #1e3a8a 100%)",
@@ -411,7 +414,7 @@ export default function KeywordLandingPage({
                         >
                             <div
                                 style={{
-                                    fontSize: 28,
+                                    fontSize: "clamp(1.35rem, 4vw, 1.75rem)",
                                     fontWeight: 700,
                                     marginBottom: 10,
                                 }}
@@ -496,12 +499,12 @@ export default function KeywordLandingPage({
                     </div>
                 </section>
 
-                <section style={{ padding: "0 24px 80px" }}>
+                <section style={{ padding: "0 clamp(16px, 4vw, 24px) clamp(48px, 8vw, 80px)" }}>
                     <div style={{ maxWidth: 980, margin: "0 auto" }}>
                         <h2
                             style={{
                                 marginBottom: 18,
-                                fontSize: 30,
+                                fontSize: "clamp(1.35rem, 4vw, 1.875rem)",
                                 color: "#0f172a",
                                 fontWeight: 700,
                             }}

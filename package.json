@@ -20,6 +20,8 @@
     "desktop:build:web": "cross-env RECHLY_DESKTOP=1 NEXT_PUBLIC_RECHLY_DESKTOP=1 NEXT_PUBLIC_APPWRITE_ENDPOINT=http://127.0.0.1/desktop NEXT_PUBLIC_APPWRITE_PROJECT_ID=desktop-local npm run build",
     "desktop:pack": "npm run desktop:build:web && electron-builder --dir",
     "desktop:dist": "npm run desktop:build:web && electron-builder",
+    "test": "tsx --test tests/*.test.ts",
+    "test:girocode": "tsx --test tests/girocode.test.ts",
     "test:einvoice": "tsx --test tests/einvoice.test.ts",
     "migrate:einvoice": "node --env-file=.env.local scripts/migrate-einvoice.mjs"
   },

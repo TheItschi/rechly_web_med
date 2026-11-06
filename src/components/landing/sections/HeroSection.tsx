@@ -14,10 +14,10 @@ export default function HeroSection() {
     return (
         <section
             style={{
-                paddingTop: 140,
-                paddingBottom: 80,
-                paddingLeft: 24,
-                paddingRight: 24,
+                paddingTop: "clamp(96px, 12vw, 140px)",
+                paddingBottom: "clamp(48px, 8vw, 80px)",
+                paddingLeft: "clamp(16px, 4vw, 24px)",
+                paddingRight: "clamp(16px, 4vw, 24px)",
                 textAlign: "center",
                 maxWidth: 700,
                 margin: "0 auto",
@@ -47,11 +47,13 @@ export default function HeroSection() {
             {/* SEO-optimized H1 with target keywords */}
             <h1
                 style={{
-                    fontSize: 48,
+                    fontSize: "clamp(1.85rem, 5.5vw, 3rem)",
                     fontWeight: 700,
                     margin: "0 0 16px",
                     lineHeight: 1.2,
                     color: "#111",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
                 }}
             >
                 {t("hero.title")}

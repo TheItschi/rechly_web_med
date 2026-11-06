@@ -153,13 +153,13 @@ export default function ToolLayout({
             {/* Top Hero Section */}
             <header
                 style={{
-                    paddingTop: 110,
-                    paddingBottom: 40,
+                    paddingTop: "clamp(80px, 10vw, 110px)",
+                    paddingBottom: "clamp(24px, 5vw, 40px)",
                     background: "linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)",
                     borderBottom: "1px solid #e2e8f0",
                 }}
             >
-                <div style={{ maxWidth: 1040, margin: "0 auto", padding: "0 24px" }}>
+                <div style={{ maxWidth: 1040, margin: "0 auto", padding: "0 clamp(16px, 4vw, 24px)" }}>
                     {/* Breadcrumbs & Category */}
                     <div
                         style={{
@@ -290,14 +290,14 @@ export default function ToolLayout({
             </header>
 
             {/* Interactive Tool Main Area */}
-            <main style={{ maxWidth: 1040, margin: "0 auto", padding: "40px 24px" }}>
+            <main style={{ maxWidth: 1040, margin: "0 auto", padding: "clamp(20px, 4vw, 40px) clamp(12px, 3vw, 24px)" }}>
                 <div
                     style={{
                         background: "#ffffff",
                         borderRadius: 16,
                         boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03)",
                         border: "1px solid #e2e8f0",
-                        padding: "32px",
+                        padding: "clamp(16px, 3.5vw, 32px)",
                         marginBottom: 48,
                     }}
                 >
@@ -309,7 +309,7 @@ export default function ToolLayout({
                     style={{
                         background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
                         borderRadius: 16,
-                        padding: "36px 32px",
+                        padding: "clamp(20px, 4vw, 36px) clamp(16px, 3.5vw, 32px)",
                         color: "#ffffff",
                         marginBottom: 56,
                         boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.15)",

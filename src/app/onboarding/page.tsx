@@ -69,6 +69,8 @@ export default function OnboardingPage() {
             bankNamePlaceholder: "Sparkasse",
             iban: "IBAN",
             ibanPlaceholder: "DE89 3704 0044 0532 0130 00",
+            ibanHelp:
+                "Wird für den GiroCode (SEPA-QR-Zahlungscode) auf Ihren Rechnungen verwendet.",
             bic: "BIC",
             bicPlaceholder: "COBADEFFXXX",
             next: "Weiter",
@@ -113,6 +115,8 @@ export default function OnboardingPage() {
             bankNamePlaceholder: "Deutsche Bank",
             iban: "IBAN",
             ibanPlaceholder: "DE89 3704 0044 0532 0130 00",
+            ibanHelp:
+                "Used for the GiroCode (SEPA QR payment code) on your invoices.",
             bic: "BIC",
             bicPlaceholder: "COBADEFFXXX",
             next: "Next",
@@ -381,7 +385,11 @@ export default function OnboardingPage() {
                                 <Input placeholder={t.bankNamePlaceholder} />
                             </Form.Item>
 
-                            <Form.Item name="iban" label={t.iban}>
+                            <Form.Item
+                                name="iban"
+                                label={t.iban}
+                                extra={t.ibanHelp}
+                            >
                                 <Input placeholder={t.ibanPlaceholder} />
                             </Form.Item>
 

@@ -492,6 +492,7 @@ export default function SettingsPage() {
                     <Form.Item
                         name="bank_iban"
                         label={t("settings.iban")}
+                        extra={t("settings.ibanGirocodeHelp")}
                         rules={[
                             { required: true, message: t("settings.required") },
                         ]}

@@ -66,7 +66,7 @@ interface LineItem {
 
 export default function InvoiceCreatePage() {
     const router = useRouter();
-    const { t } = useLanguage();
+    const { language, t } = useLanguage();
 
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -808,6 +808,23 @@ export default function InvoiceCreatePage() {
                                     <Title level={4} style={{ margin: 0 }}>
                                         {formatCurrency(totals.totalGross)}
                                     </Title>
+                                </div>
+                                <div style={{ paddingTop: 8, borderTop: "1px solid #e5e7eb" }}>
+                                    {company?.bank_iban ? (
+                                        <Text type="secondary" style={{ fontSize: 12 }}>
+                                            <span style={{ color: "#16a34a", fontWeight: 600 }}>✓ GiroCode: </span>
+                                            {language === "en"
+                                                ? "SEPA QR code will be generated on invoice"
+                                                : "SEPA-QR-Code wird auf Rechnung generiert"}
+                                        </Text>
+                                    ) : (
+                                        <Text type="secondary" style={{ fontSize: 12 }}>
+                                            <span style={{ color: "#d97706", fontWeight: 600 }}>ℹ GiroCode: </span>
+                                            {language === "en"
+                                                ? "Add IBAN in Settings to enable payment QR code"
+                                                : "IBAN in Einstellungen hinterlegen für Zahlungs-QR-Code"}
+                                        </Text>
+                                    )}
                                 </div>
                             </Space>
                         </Card>

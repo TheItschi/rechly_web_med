@@ -1,13 +1,15 @@
 "use client";
 import { identifierSummary } from "@/lib/eRechnung/identifierSummary";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import { Button, Space, message, Spin, Card } from "antd";
+import { Button, Space, message, Spin, Card, Alert, Segmented } from "antd";
 import {
     ArrowLeftOutlined,
     DownloadOutlined,
     PrinterOutlined,
+    GlobalOutlined,
+    FileTextOutlined,
 } from "@ant-design/icons";
 import {
     Document,
@@ -25,7 +27,7 @@ import { getInvoiceById } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, getTranslation, Language } from "@/contexts/LanguageContext";
 import type { InvoiceWithDetails, UserCompany, InvoiceItem } from "@/types";
 
 const styles = StyleSheet.create({
@@ -240,9 +242,16 @@ interface InvoicePDFProps {
     company: UserCompany | null;
     t: (key: string) => string;
     girocodeUrl?: string | null;
+    language?: Language;
 }
 
-const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
+const InvoicePDF = ({
+    invoice,
+    company,
+    t,
+    girocodeUrl,
+    language = "de",
+}: InvoicePDFProps) => {
     const clientAddress = invoice.client
         ? `${invoice.client.address_line1}\n${invoice.client.postal_code} ${invoice.client.city}`
         : "";
@@ -425,7 +434,9 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                 {company?.is_small_business && (
                     <View style={styles.paymentTerms}>
                         <Text>
-                            Gemäß §19 UStG wird keine Umsatzsteuer berechnet.
+                            {language === "en"
+                                ? "No VAT is charged according to § 19 UStG (small business regulation)."
+                                : "Gemäß §19 UStG wird keine Umsatzsteuer berechnet."}
                         </Text>
                     </View>
                 )}
@@ -454,12 +465,14 @@ const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps) => {
                         />
                         <View style={{ maxWidth: 240 }}>
                             <Text style={{ fontSize: 8, fontWeight: 700 }}>
-                                Bequem bezahlen mit Girocode
+                                {language === "en"
+                                    ? "Convenient payment with GiroCode"
+                                    : "Bequem bezahlen mit Girocode"}
                             </Text>
                             <Text style={{ fontSize: 7, color: "#555555" }}>
-                                QR-Code mit Ihrer Banking-App scannen –
-                                Empfänger, Betrag und Verwendungszweck werden
-                                automatisch übernommen.
+                                {language === "en"
+                                    ? "Scan QR code with your banking app – recipient, amount and reference are transferred automatically."
+                                    : "QR-Code mit Ihrer Banking-App scannen – Empfänger, Betrag und Verwendungszweck werden automatisch übernommen."}
                             </Text>
                         </View>
                     </View>
@@ -512,7 +525,14 @@ export default function InvoicePDFPage() {
     const searchParams = useSearchParams();
     const invoiceId = params.id as string;
     const shouldPrint = searchParams.get("print") === "true";
-    const { t } = useLanguage();
+    const { language: currentLang } = useLanguage();
+    const [pdfLanguage, setPdfLanguage] = useState<Language>(
+        (currentLang as Language) || "de",
+    );
+    const t = useCallback(
+        (key: string) => getTranslation(pdfLanguage, key),
+        [pdfLanguage],
+    );
 
     const [loading, setLoading] = useState(true);
     const [invoice, setInvoice] = useState<InvoiceWithDetails | null>(null);
@@ -535,31 +555,6 @@ export default function InvoicePDFPage() {
             ]);
             setInvoice(invoiceData);
             setCompany(companyData);
-
-            // Girocode: only for regular invoices with a positive total
-            if (
-                invoiceData &&
-                companyData?.bank_iban &&
-                !invoiceData.correction_type
-            ) {
-                const payload = buildGirocodePayload({
-                    name: companyData.name,
-                    iban: companyData.bank_iban,
-                    bic: companyData.bank_bic,
-                    amount: invoiceData.total_gross,
-                    reference: `Rechnung ${invoiceData.invoice_number}`,
-                });
-                if (payload) {
-                    const url = await QRCode.toDataURL(payload, {
-                        errorCorrectionLevel: "M",
-                        margin: 1,
-                        width: 256,
-                    });
-                    setGirocodeUrl(url);
-                }
-            } else {
-                setGirocodeUrl(null);
-            }
         } catch (error) {
             console.error("Error loading data:", error);
             message.error(t("invoicePdf.loadError"));
@@ -568,6 +563,43 @@ export default function InvoicePDFPage() {
             setLoading(false);
         }
     };
+
+    // Regenerate GiroCode when invoice, company, or PDF language changes
+    useEffect(() => {
+        if (
+            !invoice ||
+            !company?.bank_iban ||
+            invoice.correction_type ||
+            invoice.total_gross <= 0
+        ) {
+            setGirocodeUrl(null);
+            return;
+        }
+
+        const refPrefix = pdfLanguage === "en" ? "Invoice" : "Rechnung";
+        const payload = buildGirocodePayload({
+            name: company.name,
+            iban: company.bank_iban,
+            bic: company.bank_bic,
+            amount: invoice.total_gross,
+            reference: `${refPrefix} ${invoice.invoice_number}`,
+        });
+
+        if (payload) {
+            QRCode.toDataURL(payload, {
+                errorCorrectionLevel: "M",
+                margin: 1,
+                width: 256,
+            })
+                .then((url) => setGirocodeUrl(url))
+                .catch((err) => {
+                    console.error("QR Code generation error:", err);
+                    setGirocodeUrl(null);
+                });
+        } else {
+            setGirocodeUrl(null);
+        }
+    }, [invoice, company, pdfLanguage]);
 
     const handlePrint = useCallback(() => {
         window.print();
@@ -593,8 +625,45 @@ export default function InvoicePDFPage() {
         return null;
     }
 
+    const downloadFileName = `${
+        pdfLanguage === "en" ? "Invoice" : "Rechnung"
+    }_${invoice.invoice_number}.pdf`;
+
     return (
         <div>
+            {/* Informative notice if IBAN is missing for GiroCode */}
+            {!company?.bank_iban && (
+                <Alert
+                    type="info"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                    className="no-print"
+                    message={
+                        pdfLanguage === "en"
+                            ? "GiroCode not included on this invoice"
+                            : "Kein GiroCode auf dieser Rechnung"
+                    }
+                    description={
+                        <span>
+                            {pdfLanguage === "en"
+                                ? "A GiroCode (SEPA QR payment code) could not be generated because no IBAN is configured in your company settings. Add your IBAN under Settings > Bank Details to automatically include a GiroCode on your invoices."
+                                : "Auf dieser Rechnung wird kein GiroCode (SEPA-QR-Code) angezeigt, da in den Unternehmenseinstellungen noch keine IBAN hinterlegt ist. Hinterlegen Sie Ihre IBAN in den Einstellungen unter Bankverbindung, um den GiroCode automatisch einzubinden."}
+                        </span>
+                    }
+                    action={
+                        <Button
+                            size="small"
+                            type="primary"
+                            onClick={() => router.push("/dashboard/settings")}
+                        >
+                            {pdfLanguage === "en"
+                                ? "Configure IBAN"
+                                : "IBAN hinterlegen"}
+                        </Button>
+                    }
+                />
+            )}
+
             {/* Toolbar - hidden when printing */}
             <Card
                 style={{ marginBottom: 16 }}
@@ -603,8 +672,9 @@ export default function InvoicePDFPage() {
             >
                 <Space
                     style={{ width: "100%", justifyContent: "space-between" }}
+                    wrap
                 >
-                    <Space>
+                    <Space wrap>
                         <Button
                             icon={<ArrowLeftOutlined />}
                             onClick={() =>
@@ -617,12 +687,41 @@ export default function InvoicePDFPage() {
                             PDF: {invoice.invoice_number}
                         </span>
                     </Space>
-                    <Space>
+
+                    <Space wrap>
+                        {/* Language Switcher for Invoice */}
+                        <Space size={6}>
+                            <GlobalOutlined style={{ color: "#666" }} />
+                            <span style={{ fontSize: 13, color: "#666" }}>
+                                {pdfLanguage === "en" ? "Language:" : "Sprache:"}
+                            </span>
+                            <Segmented<Language>
+                                value={pdfLanguage}
+                                onChange={(val) => setPdfLanguage(val)}
+                                options={[
+                                    { label: "Deutsch", value: "de" },
+                                    { label: "English", value: "en" },
+                                ]}
+                            />
+                        </Space>
+
                         <Button
                             icon={<PrinterOutlined />}
                             onClick={handlePrint}
                         >
                             {t("invoicePdf.print")}
+                        </Button>
+                        <Button
+                            icon={<FileTextOutlined />}
+                            onClick={() =>
+                                window.open(
+                                    `/api/invoices/${invoiceId}/xrechnung`,
+                                    "_blank",
+                                )
+                            }
+                            title="XRechnung 3.0 XML herunterladen"
+                        >
+                            XRechnung (XML)
                         </Button>
                         <PDFDownloadLink
                             document={
@@ -631,9 +730,10 @@ export default function InvoicePDFPage() {
                                     company={company}
                                     t={t}
                                     girocodeUrl={girocodeUrl}
+                                    language={pdfLanguage}
                                 />
                             }
-                            fileName={`Rechnung_${invoice.invoice_number}.pdf`}
+                            fileName={downloadFileName}
                         >
                             {({ loading: pdfLoading }) => (
                                 <Button
@@ -652,7 +752,13 @@ export default function InvoicePDFPage() {
             {/* PDF Viewer */}
             <div style={{ height: "calc(100vh - 200px)", minHeight: 600 }}>
                 <PDFViewer width="100%" height="100%" showToolbar={false}>
-                    <InvoicePDF invoice={invoice} company={company} t={t} girocodeUrl={girocodeUrl} />
+                    <InvoicePDF
+                        invoice={invoice}
+                        company={company}
+                        t={t}
+                        girocodeUrl={girocodeUrl}
+                        language={pdfLanguage}
+                    />
                 </PDFViewer>
             </div>
 

@@ -15,6 +15,7 @@ import {
     Dropdown,
     Spin,
     Modal,
+    Alert,
 } from "antd";
 import {
     ArrowLeftOutlined,
@@ -28,6 +29,9 @@ import {
     RobotOutlined,
     CopyOutlined,
     RollbackOutlined,
+    QrcodeOutlined,
+    DownloadOutlined,
+    FileTextOutlined,
 } from "@ant-design/icons";
 import {
     getInvoiceById,
@@ -40,6 +44,8 @@ import { runInvoiceAssistant } from "@/lib/aiService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import QRCode from "qrcode";
+import { buildGirocodePayload } from "@/lib/girocode";
 import type { InvoiceWithDetails, UserCompany } from "@/types";
 
 const { Title, Text } = Typography;
@@ -48,7 +54,7 @@ export default function InvoiceDetailPage() {
     const router = useRouter();
     const params = useParams();
     const invoiceId = params.id as string;
-    const { t } = useLanguage();
+    const { language, t } = useLanguage();
 
     const statusConfig: Record<
         string,
@@ -67,6 +73,7 @@ export default function InvoiceDetailPage() {
     const [loading, setLoading] = useState(true);
     const [invoice, setInvoice] = useState<InvoiceWithDetails | null>(null);
     const [company, setCompany] = useState<UserCompany | null>(null);
+    const [girocodeUrl, setGirocodeUrl] = useState<string | null>(null);
     const [draftingReminder, setDraftingReminder] = useState(false);
     const [reminderDraft, setReminderDraft] = useState("");
     const [reminderModalOpen, setReminderModalOpen] = useState(false);
@@ -87,6 +94,39 @@ export default function InvoiceDetailPage() {
             ]);
             setInvoice(data);
             setCompany(companyData);
+
+            if (
+                data &&
+                companyData?.bank_iban &&
+                !data.correction_type &&
+                data.total_gross > 0
+            ) {
+                const refPrefix = language === "en" ? "Invoice" : "Rechnung";
+                const payload = buildGirocodePayload({
+                    name: companyData.name,
+                    iban: companyData.bank_iban,
+                    bic: companyData.bank_bic,
+                    amount: data.total_gross,
+                    reference: `${refPrefix} ${data.invoice_number}`,
+                });
+                if (payload) {
+                    try {
+                        const url = await QRCode.toDataURL(payload, {
+                            errorCorrectionLevel: "M",
+                            margin: 1,
+                            width: 200,
+                        });
+                        setGirocodeUrl(url);
+                    } catch (err) {
+                        console.error("GiroCode error:", err);
+                        setGirocodeUrl(null);
+                    }
+                } else {
+                    setGirocodeUrl(null);
+                }
+            } else {
+                setGirocodeUrl(null);
+            }
         } catch (error) {
             console.error("Error loading invoice:", error);
             message.error(t("invoiceDetail.notFound"));
@@ -359,6 +399,18 @@ export default function InvoiceDetailPage() {
                         PDF
                     </Button>
                     <Button
+                        icon={<FileTextOutlined />}
+                        onClick={() =>
+                            window.open(
+                                `/api/invoices/${invoice.id}/xrechnung`,
+                                "_blank",
+                            )
+                        }
+                        title="XRechnung 3.0 (XML nach EN 16931) herunterladen"
+                    >
+                        XRechnung (XML)
+                    </Button>
+                    <Button
                         danger
                         icon={<DeleteOutlined />}
                         onClick={handleDelete}
@@ -481,6 +533,157 @@ export default function InvoiceDetailPage() {
                     </Text>
                 </Card>
             )}
+
+            {/* Payment & GiroCode Card */}
+            <Card
+                title={
+                    <Space>
+                        <QrcodeOutlined />
+                        <span>
+                            {language === "en"
+                                ? "Payment Details & GiroCode"
+                                : "Zahlungsinformationen & GiroCode"}
+                        </span>
+                    </Space>
+                }
+                style={{ marginTop: 24 }}
+            >
+                {company?.bank_iban ? (
+                    <div
+                        style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 24,
+                        }}
+                    >
+                        <div style={{ flex: 1, minWidth: 260 }}>
+                            <Descriptions column={1} size="small">
+                                {company.bank_name && (
+                                    <Descriptions.Item label={language === "en" ? "Bank" : "Bank"}>
+                                        <Text strong>{company.bank_name}</Text>
+                                    </Descriptions.Item>
+                                )}
+                                <Descriptions.Item label="IBAN">
+                                    <Text copyable strong>
+                                        {company.bank_iban}
+                                    </Text>
+                                </Descriptions.Item>
+                                {company.bank_bic && (
+                                    <Descriptions.Item label="BIC">
+                                        <Text copyable>{company.bank_bic}</Text>
+                                    </Descriptions.Item>
+                                )}
+                                <Descriptions.Item
+                                    label={
+                                        language === "en"
+                                            ? "Reference"
+                                            : "Verwendungszweck"
+                                    }
+                                >
+                                    <Text copyable>
+                                        {language === "en" ? `Invoice ${invoice.invoice_number}` : `Rechnung ${invoice.invoice_number}`}
+                                    </Text>
+                                </Descriptions.Item>
+                                <Descriptions.Item
+                                    label={
+                                        language === "en" ? "Amount" : "Betrag"
+                                    }
+                                >
+                                    <Text
+                                        strong
+                                        style={{
+                                            color: "#1976d2",
+                                            fontSize: 16,
+                                        }}
+                                    >
+                                        {formatCurrency(invoice.total_gross)}
+                                    </Text>
+                                </Descriptions.Item>
+                            </Descriptions>
+                        </div>
+
+                        {girocodeUrl && (
+                            <div
+                                style={{
+                                    textAlign: "center",
+                                    padding: 16,
+                                    background: "#f8fafc",
+                                    borderRadius: 8,
+                                    border: "1px solid #e2e8f0",
+                                }}
+                            >
+                                <img
+                                    src={girocodeUrl}
+                                    alt="SEPA GiroCode"
+                                    style={{
+                                        width: 140,
+                                        height: 140,
+                                        display: "block",
+                                        margin: "0 auto 8px",
+                                    }}
+                                />
+                                <Text
+                                    type="secondary"
+                                    style={{
+                                        fontSize: 11,
+                                        display: "block",
+                                        marginBottom: 10,
+                                        maxWidth: 180,
+                                    }}
+                                >
+                                    {language === "en"
+                                        ? "Scan with your banking app to prefill transfer"
+                                        : "Mit Banking-App scannen & sofort überweisen"}
+                                </Text>
+                                <Button
+                                    size="small"
+                                    icon={<DownloadOutlined />}
+                                    onClick={() => {
+                                        const a = document.createElement("a");
+                                        a.href = girocodeUrl;
+                                        a.download = `GiroCode_${invoice.invoice_number}.png`;
+                                        a.click();
+                                    }}
+                                >
+                                    {language === "en"
+                                        ? "Download QR"
+                                        : "QR herunterladen"}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <Alert
+                        type="warning"
+                        showIcon
+                        message={
+                            language === "en"
+                                ? "No IBAN configured"
+                                : "Keine IBAN hinterlegt"
+                        }
+                        description={
+                            <span>
+                                {language === "en"
+                                    ? "To automatically generate a GiroCode (SEPA payment QR code) on your invoices, please enter your IBAN under Settings > Bank Details."
+                                    : "Um automatisch einen GiroCode (SEPA-Zahlungs-QR-Code) für diese Rechnung zu erzeugen, hinterlegen Sie bitte Ihre IBAN in den Unternehmenseinstellungen unter Bankverbindung."}
+                            </span>
+                        }
+                        action={
+                            <Button
+                                size="small"
+                                type="primary"
+                                onClick={() => router.push("/dashboard/settings")}
+                            >
+                                {language === "en"
+                                    ? "Configure IBAN"
+                                    : "IBAN hinterlegen"}
+                            </Button>
+                        }
+                    />
+                )}
+            </Card>
 
             {/* Actions */}
             <Card title={t("invoiceDetail.actions")} style={{ marginTop: 24 }}>
