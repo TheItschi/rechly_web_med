@@ -24,9 +24,9 @@ const content = {
             "Rechnungsdaten (die du selbst eingibst)",
             "Kundendaten (die du selbst eingibst)",
         ],
-        section4Title: "4. Hosting",
+        section4Title: "4. Hosting und Auftragsverarbeiter",
         section4Text:
-            "Die Anwendung und Datenbank werden bei Appwrite in deutschen Rechenzentren (Frankfurt) gehostet. Alle Daten bleiben in der EU.",
+            "Die Rechly-Webanwendung wird auf der Infrastruktur von Vercel Inc. bereitgestellt. Die Anwendungsdaten (Accounts, Kunden, Rechnungen und Belege) werden in einer selbst betriebenen Appwrite-Instanz auf einem eigenen Server bei der Hetzner Online GmbH in Deutschland gespeichert. Alle Anwendungsdaten bleiben in der EU. Für den Versand transaktionaler E-Mails (z. B. Bestätigungs- und Passwort-zurücksetzen-E-Mails) nutzen wir Resend (EU-Region). Mit den genannten Anbietern bestehen Auftragsverarbeitungsverträge; Übermittlungen in Drittländer erfolgen allenfalls auf Grundlage geeigneter Garantien (z. B. EU-US Data Privacy Framework oder EU-Standardvertragsklauseln).",
         section5Title: "5. Cookies und optionale Analyse",
         section5Text:
             "Technisch notwendige Cookies werden für Authentifizierung und Grundfunktionen eingesetzt. Nur mit deiner ausdrücklichen Einwilligung nutzen wir Google Analytics (Google Ireland Limited) und Vercel Web Analytics (Vercel Inc.), um Seitenaufrufe und die technische Qualität des Angebots zu messen. Google Analytics kann Geräte- und Browserinformationen, aufgerufene Seiten, gekürzte IP-Informationen und Online-Kennungen verarbeiten. Das _ga-Cookie ist auf höchstens 13 Monate begrenzt; nutzer- und ereignisbezogene Daten werden bei Google Analytics höchstens 14 Monate aufbewahrt. Google-Signale und Werbepersonalisierung sind deaktiviert. Vercel Web Analytics arbeitet laut Anbieter ohne Cookies und ohne dauerhafte Zuordnung zu Personen oder IP-Adressen; der täglich gebildete Besucher-Hash wird nach 24 Stunden verworfen. Rechtsgrundlage ist deine Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Du kannst sie jederzeit mit Wirkung für die Zukunft in den Cookie-Einstellungen widerrufen; dann wird die Analyse gestoppt und verfügbare Analyse-Cookies werden gelöscht. Für mögliche Übermittlungen in die USA stützen sich Google und Vercel auf ihre Zertifizierungen nach dem EU-US Data Privacy Framework und, soweit erforderlich, auf EU-Standardvertragsklauseln.",
@@ -36,7 +36,7 @@ const content = {
         section7Title: "7. Selbstständige Konto- und Datenlöschung",
         section7Text:
             "Du kannst dein Konto und sämtliche zugehörigen Daten (Rechnungen, Angebote, Kunden, Produkte, Ausgaben, Belege und Einstellungen) jederzeit selbstständig in den Kontoeinstellungen („Einstellungen → Konto → Konto löschen“) mit einem Klick sofort und unwiderruflich löschen – ohne manuelle Prüfung oder Wartezeit.",
-        lastUpdated: "Stand: Oktober 2026",
+        lastUpdated: "Stand: November 2026",
     },
     en: {
         title: "Privacy Policy",
@@ -53,9 +53,9 @@ const content = {
             "Invoice data (that you enter yourself)",
             "Customer data (that you enter yourself)",
         ],
-        section4Title: "4. Hosting",
+        section4Title: "4. Hosting and Processors",
         section4Text:
-            "The application and database are hosted by Appwrite in German data centers (Frankfurt). All data remains in the EU.",
+            "The Rechly web application is served on infrastructure provided by Vercel Inc. Application data (accounts, customers, invoices and receipts) is stored in a self-operated Appwrite instance on our own server hosted by Hetzner Online GmbH in Germany. All application data remains in the EU. Transactional emails (e.g. verification and password-reset messages) are sent via Resend (EU region). Data processing agreements are in place with these providers; any transfers to third countries take place only on the basis of appropriate safeguards (e.g. the EU-US Data Privacy Framework or EU Standard Contractual Clauses).",
         section5Title: "5. Cookies and Optional Analytics",
         section5Text:
             "Technically necessary cookies are used for authentication and basic functions. Only with your explicit consent do we use Google Analytics (Google Ireland Limited) and Vercel Web Analytics (Vercel Inc.) to measure page views and the technical quality of the service. Google Analytics may process device and browser information, visited pages, shortened IP information, and online identifiers. The _ga cookie is limited to a maximum of 13 months; user- and event-related Google Analytics data is retained for no longer than 14 months. Google Signals and advertising personalization are disabled. According to Vercel, Web Analytics uses no cookies and does not permanently associate data with individuals or IP addresses; its daily visitor hash is discarded after 24 hours. Processing is based on your consent under Article 6(1)(a) GDPR and applicable cookie law. You can withdraw consent at any time with future effect in Cookie Settings; analytics will then stop and available analytics cookies will be deleted. For potential transfers to the United States, Google and Vercel rely on their EU-US Data Privacy Framework certifications and, where required, EU Standard Contractual Clauses.",
@@ -65,7 +65,7 @@ const content = {
         section7Title: "7. Self-Service Account and Data Deletion",
         section7Text:
             "You can immediately and permanently delete your account and all associated data (invoices, quotes, customers, products, expenses, receipts, and settings) yourself at any time in the account settings (\"Settings → Account → Delete Account\") with a single click, without manual review or waiting period.",
-        lastUpdated: "Last updated: October 2026",
+        lastUpdated: "Last updated: November 2026",
     },
 };
 
