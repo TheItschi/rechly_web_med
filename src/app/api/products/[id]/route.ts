@@ -41,6 +41,8 @@ export async function GET(
             id
         );
 
+        if (doc.userId !== user.$id) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
         const product = {
             id: doc.$id,
             name: doc.name,
@@ -91,6 +93,8 @@ export async function PUT(
             );
         }
 
+        const existing = await databases.getDocument(DATABASE_ID, COLLECTIONS.PRODUCTS, id);
+        if (existing.userId !== user.$id) return NextResponse.json({ error: "Not found" }, { status: 404 });
         const body = await request.json();
 
         // Update document
@@ -157,6 +161,8 @@ export async function DELETE(
             );
         }
 
+        const existing = await databases.getDocument(DATABASE_ID, COLLECTIONS.PRODUCTS, id);
+        if (existing.userId !== user.$id) return NextResponse.json({ error: "Not found" }, { status: 404 });
         await databases.deleteDocument(DATABASE_ID, COLLECTIONS.PRODUCTS, id);
 
         return NextResponse.json({ success: true });

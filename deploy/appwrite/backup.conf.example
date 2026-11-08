@@ -1,0 +1,20 @@
+# /opt/appwrite/backup/backup.conf (chmod 600 on host — never commit real values)
+
+# Public age recipient key (keep the matching AGE-SECRET-KEY-1... offline in a password manager)
+AGE_RECIPIENT="age1replace_with_public_key"
+
+# Local paths & retention
+APPWRITE_DIR="/opt/appwrite"
+BACKUP_DIR="/var/backups/appwrite"
+UPLOADS_VOLUME="appwrite_appwrite-uploads"
+RETENTION_DAYS=14
+
+# Optional off-site SFTP destination (dedicated Ed25519 key)
+SFTP_HOST=""
+SFTP_USER=""
+SFTP_PORT=22
+SFTP_KEY="/opt/appwrite/backup/id_ed25519_backup"
+SFTP_REMOTE_DIR="appwrite-backups"
+
+# Optional push heartbeat URL (alerts if daily cron misses or fails)
+HEARTBEAT_URL=""

@@ -1,0 +1,885 @@
+x-logging:
+  logging: &id001
+    driver: json-file
+    options:
+      max-file: '5'
+      max-size: 10m
+services:
+  appwrite:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    container_name: appwrite
+    restart: unless-stopped
+    networks:
+    - appwrite
+    - proxy
+    labels:
+    - traefik.enable=true
+    - traefik.constraint-label-stack=appwrite
+    - traefik.docker.network=proxy
+    - traefik.http.services.appwrite_api.loadbalancer.server.port=80
+    - traefik.http.routers.appwrite_api_http.entrypoints=http
+    - traefik.http.routers.appwrite_api_http.rule=Host(`${_APP_DOMAIN}`) && (PathPrefix(`/v1`) || PathPrefix(`/.well-known`))
+    - traefik.http.routers.appwrite_api_http.service=appwrite_api
+    - traefik.http.routers.appwrite_api_https.entrypoints=https
+    - traefik.http.routers.appwrite_api_https.rule=Host(`${_APP_DOMAIN}`) && (PathPrefix(`/v1`) || PathPrefix(`/.well-known`))
+    - traefik.http.routers.appwrite_api_https.service=appwrite_api
+    - traefik.http.routers.appwrite_api_https.tls=true
+    - traefik.http.routers.appwrite_api_https.tls.certresolver=letsencrypt
+    volumes:
+    - appwrite-uploads:/storage/uploads:rw
+    - appwrite-imports:/storage/imports:rw
+    - appwrite-cache:/storage/cache:rw
+    - appwrite-config:/storage/config:rw
+    - appwrite-certificates:/storage/certificates:rw
+    - appwrite-functions:/storage/functions:rw
+    - appwrite-sites:/storage/sites:rw
+    - appwrite-builds:/storage/builds:rw
+    depends_on:
+    - mariadb
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_LOCALE
+    - _APP_COMPRESSION_MIN_SIZE_BYTES
+    - _APP_CONSOLE_WHITELIST_ROOT
+    - _APP_CONSOLE_WHITELIST_EMAILS
+    - _APP_CONSOLE_SESSION_ALERTS
+    - _APP_CONSOLE_WHITELIST_IPS
+    - _APP_CONSOLE_HOSTNAMES
+    - _APP_SYSTEM_EMAIL_NAME
+    - _APP_SYSTEM_EMAIL_ADDRESS
+    - _APP_EMAIL_SECURITY
+    - _APP_SYSTEM_RESPONSE_FORMAT
+    - _APP_OPTIONS_ABUSE
+    - _APP_OPTIONS_ROUTER_PROTECTION
+    - _APP_OPTIONS_FORCE_HTTPS
+    - _APP_OPTIONS_ROUTER_FORCE_HTTPS
+    - _APP_OPENSSL_KEY_V1
+    - _APP_DOMAIN
+    - _APP_DOMAIN_TARGET_CNAME
+    - _APP_DOMAIN_TARGET_AAAA
+    - _APP_DOMAIN_TARGET_A
+    - _APP_DOMAIN_TARGET_CAA
+    - _APP_DNS
+    - _APP_DOMAIN_FUNCTIONS
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_SMTP_HOST
+    - _APP_SMTP_PORT
+    - _APP_SMTP_SECURE
+    - _APP_SMTP_USERNAME
+    - _APP_SMTP_PASSWORD
+    - _APP_USAGE_STATS
+    - _APP_STORAGE_LIMIT
+    - _APP_STORAGE_PREVIEW_LIMIT
+    - _APP_STORAGE_ANTIVIRUS
+    - _APP_STORAGE_ANTIVIRUS_HOST
+    - _APP_STORAGE_ANTIVIRUS_PORT
+    - _APP_STORAGE_DEVICE
+    - _APP_STORAGE_S3_ACCESS_KEY
+    - _APP_STORAGE_S3_SECRET
+    - _APP_STORAGE_S3_REGION
+    - _APP_STORAGE_S3_BUCKET
+    - _APP_STORAGE_S3_ENDPOINT
+    - _APP_STORAGE_DO_SPACES_ACCESS_KEY
+    - _APP_STORAGE_DO_SPACES_SECRET
+    - _APP_STORAGE_DO_SPACES_REGION
+    - _APP_STORAGE_DO_SPACES_BUCKET
+    - _APP_STORAGE_BACKBLAZE_ACCESS_KEY
+    - _APP_STORAGE_BACKBLAZE_SECRET
+    - _APP_STORAGE_BACKBLAZE_REGION
+    - _APP_STORAGE_BACKBLAZE_BUCKET
+    - _APP_STORAGE_LINODE_ACCESS_KEY
+    - _APP_STORAGE_LINODE_SECRET
+    - _APP_STORAGE_LINODE_REGION
+    - _APP_STORAGE_LINODE_BUCKET
+    - _APP_STORAGE_WASABI_ACCESS_KEY
+    - _APP_STORAGE_WASABI_SECRET
+    - _APP_STORAGE_WASABI_REGION
+    - _APP_STORAGE_WASABI_BUCKET
+    - _APP_COMPUTE_SIZE_LIMIT
+    - _APP_FUNCTIONS_TIMEOUT
+    - _APP_SITES_TIMEOUT
+    - _APP_COMPUTE_BUILD_TIMEOUT
+    - _APP_COMPUTE_CPUS
+    - _APP_COMPUTE_MEMORY
+    - _APP_FUNCTIONS_RUNTIMES
+    - _APP_SITES_RUNTIMES
+    - _APP_DOMAIN_SITES
+    - _APP_EXECUTOR_SECRET
+    - _APP_EXECUTOR_HOST
+    - _APP_LOGGING_CONFIG
+    - _APP_MAINTENANCE_INTERVAL
+    - _APP_MAINTENANCE_DELAY
+    - _APP_MAINTENANCE_START_TIME
+    - _APP_MAINTENANCE_RETENTION_EXECUTION
+    - _APP_MAINTENANCE_RETENTION_CACHE
+    - _APP_MAINTENANCE_RETENTION_ABUSE
+    - _APP_MAINTENANCE_RETENTION_AUDIT
+    - _APP_MAINTENANCE_RETENTION_AUDIT_CONSOLE
+    - _APP_MAINTENANCE_RETENTION_USAGE_HOURLY
+    - _APP_MAINTENANCE_RETENTION_SCHEDULES
+    - _APP_SMS_PROVIDER
+    - _APP_SMS_FROM
+    - _APP_GRAPHQL_MAX_BATCH_SIZE
+    - _APP_GRAPHQL_MAX_COMPLEXITY
+    - _APP_GRAPHQL_MAX_DEPTH
+    - _APP_VCS_GITHUB_APP_NAME
+    - _APP_VCS_GITHUB_PRIVATE_KEY
+    - _APP_VCS_GITHUB_APP_ID
+    - _APP_VCS_GITHUB_WEBHOOK_SECRET
+    - _APP_VCS_GITHUB_CLIENT_SECRET
+    - _APP_VCS_GITHUB_CLIENT_ID
+    - _APP_MIGRATIONS_FIREBASE_CLIENT_ID
+    - _APP_MIGRATIONS_FIREBASE_CLIENT_SECRET
+    - _APP_ASSISTANT_OPENAI_API_KEY
+    mem_limit: 1200m
+    cpus: '1.0'
+  appwrite-console:
+    logging: *id001
+    container_name: appwrite-console
+    image: appwrite/console:7.5.7
+    restart: unless-stopped
+    networks:
+    - appwrite
+    - proxy
+    labels:
+    - traefik.enable=true
+    - traefik.constraint-label-stack=appwrite
+    - traefik.docker.network=proxy
+    - traefik.http.services.appwrite_console.loadbalancer.server.port=80
+    - traefik.http.routers.appwrite_console_http.entrypoints=http
+    - traefik.http.routers.appwrite_console_http.rule=Host(`${_APP_DOMAIN}`) && !PathPrefix(`/v1`) && !PathPrefix(`/.well-known`)
+    - traefik.http.routers.appwrite_console_http.service=appwrite_console
+    - traefik.http.routers.appwrite_console_https.entrypoints=https
+    - traefik.http.routers.appwrite_console_https.rule=Host(`${_APP_DOMAIN}`) && !PathPrefix(`/v1`) && !PathPrefix(`/.well-known`)
+    - traefik.http.routers.appwrite_console_https.service=appwrite_console
+    - traefik.http.routers.appwrite_console_https.tls=true
+    - traefik.http.routers.appwrite_console_https.tls.certresolver=letsencrypt
+    mem_limit: 128m
+    cpus: '0.25'
+  appwrite-realtime:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: realtime
+    container_name: appwrite-realtime
+    restart: unless-stopped
+    labels:
+    - traefik.enable=true
+    - traefik.constraint-label-stack=appwrite
+    - traefik.docker.network=proxy
+    - traefik.http.services.appwrite_realtime.loadbalancer.server.port=80
+    - traefik.http.routers.appwrite_realtime_ws.entrypoints=http
+    - traefik.http.routers.appwrite_realtime_ws.rule=Host(`${_APP_DOMAIN}`) && PathPrefix(`/v1/realtime`)
+    - traefik.http.routers.appwrite_realtime_ws.service=appwrite_realtime
+    - traefik.http.routers.appwrite_realtime_wss.entrypoints=https
+    - traefik.http.routers.appwrite_realtime_wss.rule=Host(`${_APP_DOMAIN}`) && PathPrefix(`/v1/realtime`)
+    - traefik.http.routers.appwrite_realtime_wss.service=appwrite_realtime
+    - traefik.http.routers.appwrite_realtime_wss.tls=true
+    - traefik.http.routers.appwrite_realtime_wss.tls.certresolver=letsencrypt
+    networks:
+    - appwrite
+    - proxy
+    depends_on:
+    - mariadb
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPTIONS_ABUSE
+    - _APP_OPTIONS_ROUTER_PROTECTION
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_USAGE_STATS
+    - _APP_LOGGING_CONFIG
+    mem_limit: 256m
+    cpus: '0.25'
+  appwrite-worker-audits:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-audits
+    container_name: appwrite-worker-audits
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_LOGGING_CONFIG
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-webhooks:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-webhooks
+    container_name: appwrite-worker-webhooks
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_EMAIL_SECURITY
+    - _APP_SYSTEM_SECURITY_EMAIL_ADDRESS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_LOGGING_CONFIG
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-deletes:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-deletes
+    container_name: appwrite-worker-deletes
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    volumes:
+    - appwrite-uploads:/storage/uploads:rw
+    - appwrite-cache:/storage/cache:rw
+    - appwrite-functions:/storage/functions:rw
+    - appwrite-sites:/storage/sites:rw
+    - appwrite-builds:/storage/builds:rw
+    - appwrite-certificates:/storage/certificates:rw
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_STORAGE_DEVICE
+    - _APP_STORAGE_S3_ACCESS_KEY
+    - _APP_STORAGE_S3_SECRET
+    - _APP_STORAGE_S3_REGION
+    - _APP_STORAGE_S3_BUCKET
+    - _APP_STORAGE_S3_ENDPOINT
+    - _APP_STORAGE_DO_SPACES_ACCESS_KEY
+    - _APP_STORAGE_DO_SPACES_SECRET
+    - _APP_STORAGE_DO_SPACES_REGION
+    - _APP_STORAGE_DO_SPACES_BUCKET
+    - _APP_STORAGE_BACKBLAZE_ACCESS_KEY
+    - _APP_STORAGE_BACKBLAZE_SECRET
+    - _APP_STORAGE_BACKBLAZE_REGION
+    - _APP_STORAGE_BACKBLAZE_BUCKET
+    - _APP_STORAGE_LINODE_ACCESS_KEY
+    - _APP_STORAGE_LINODE_SECRET
+    - _APP_STORAGE_LINODE_REGION
+    - _APP_STORAGE_LINODE_BUCKET
+    - _APP_STORAGE_WASABI_ACCESS_KEY
+    - _APP_STORAGE_WASABI_SECRET
+    - _APP_STORAGE_WASABI_REGION
+    - _APP_STORAGE_WASABI_BUCKET
+    - _APP_LOGGING_CONFIG
+    - _APP_EXECUTOR_SECRET
+    - _APP_EXECUTOR_HOST
+    - _APP_MAINTENANCE_RETENTION_ABUSE
+    - _APP_MAINTENANCE_RETENTION_AUDIT
+    - _APP_MAINTENANCE_RETENTION_AUDIT_CONSOLE
+    - _APP_MAINTENANCE_RETENTION_EXECUTION
+    - _APP_SYSTEM_SECURITY_EMAIL_ADDRESS
+    - _APP_EMAIL_CERTIFICATES
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-databases:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-databases
+    container_name: appwrite-worker-databases
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_LOGGING_CONFIG
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-builds:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-builds
+    container_name: appwrite-worker-builds
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    volumes:
+    - appwrite-functions:/storage/functions:rw
+    - appwrite-sites:/storage/sites:rw
+    - appwrite-builds:/storage/builds:rw
+    - appwrite-uploads:/storage/uploads:rw
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_EXECUTOR_SECRET
+    - _APP_EXECUTOR_HOST
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_LOGGING_CONFIG
+    - _APP_VCS_GITHUB_APP_NAME
+    - _APP_VCS_GITHUB_PRIVATE_KEY
+    - _APP_VCS_GITHUB_APP_ID
+    - _APP_FUNCTIONS_TIMEOUT
+    - _APP_SITES_TIMEOUT
+    - _APP_COMPUTE_BUILD_TIMEOUT
+    - _APP_COMPUTE_CPUS
+    - _APP_COMPUTE_MEMORY
+    - _APP_COMPUTE_SIZE_LIMIT
+    - _APP_OPTIONS_FORCE_HTTPS
+    - _APP_OPTIONS_ROUTER_FORCE_HTTPS
+    - _APP_DOMAIN
+    - _APP_STORAGE_DEVICE
+    - _APP_STORAGE_S3_ACCESS_KEY
+    - _APP_STORAGE_S3_SECRET
+    - _APP_STORAGE_S3_REGION
+    - _APP_STORAGE_S3_BUCKET
+    - _APP_STORAGE_S3_ENDPOINT
+    - _APP_STORAGE_DO_SPACES_ACCESS_KEY
+    - _APP_STORAGE_DO_SPACES_SECRET
+    - _APP_STORAGE_DO_SPACES_REGION
+    - _APP_STORAGE_DO_SPACES_BUCKET
+    - _APP_STORAGE_BACKBLAZE_ACCESS_KEY
+    - _APP_STORAGE_BACKBLAZE_SECRET
+    - _APP_STORAGE_BACKBLAZE_REGION
+    - _APP_STORAGE_BACKBLAZE_BUCKET
+    - _APP_STORAGE_LINODE_ACCESS_KEY
+    - _APP_STORAGE_LINODE_SECRET
+    - _APP_STORAGE_LINODE_REGION
+    - _APP_STORAGE_LINODE_BUCKET
+    - _APP_STORAGE_WASABI_ACCESS_KEY
+    - _APP_STORAGE_WASABI_SECRET
+    - _APP_STORAGE_WASABI_REGION
+    - _APP_STORAGE_WASABI_BUCKET
+    - _APP_DOMAIN_SITES
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-certificates:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-certificates
+    container_name: appwrite-worker-certificates
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    volumes:
+    - appwrite-config:/storage/config:rw
+    - appwrite-certificates:/storage/certificates:rw
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_DOMAIN
+    - _APP_DOMAIN_TARGET_CNAME
+    - _APP_DOMAIN_TARGET_AAAA
+    - _APP_DOMAIN_TARGET_A
+    - _APP_DOMAIN_TARGET_CAA
+    - _APP_DNS
+    - _APP_DOMAIN_FUNCTIONS
+    - _APP_EMAIL_CERTIFICATES
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_LOGGING_CONFIG
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-functions:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-functions
+    container_name: appwrite-worker-functions
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_DOMAIN
+    - _APP_OPTIONS_FORCE_HTTPS
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_FUNCTIONS_TIMEOUT
+    - _APP_SITES_TIMEOUT
+    - _APP_COMPUTE_BUILD_TIMEOUT
+    - _APP_COMPUTE_CPUS
+    - _APP_COMPUTE_MEMORY
+    - _APP_EXECUTOR_SECRET
+    - _APP_EXECUTOR_HOST
+    - _APP_USAGE_STATS
+    - _APP_DOCKER_HUB_USERNAME
+    - _APP_DOCKER_HUB_PASSWORD
+    - _APP_LOGGING_CONFIG
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-mails:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-mails
+    container_name: appwrite-worker-mails
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_SYSTEM_EMAIL_NAME
+    - _APP_SYSTEM_EMAIL_ADDRESS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_SMTP_HOST
+    - _APP_SMTP_PORT
+    - _APP_SMTP_SECURE
+    - _APP_SMTP_USERNAME
+    - _APP_SMTP_PASSWORD
+    - _APP_LOGGING_CONFIG
+    - _APP_DOMAIN
+    - _APP_OPTIONS_FORCE_HTTPS
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-messaging:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-messaging
+    container_name: appwrite-worker-messaging
+    restart: unless-stopped
+    networks:
+    - appwrite
+    volumes:
+    - appwrite-uploads:/storage/uploads:rw
+    depends_on:
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_LOGGING_CONFIG
+    - _APP_SMS_FROM
+    - _APP_SMS_PROVIDER
+    - _APP_STORAGE_DEVICE
+    - _APP_STORAGE_S3_ACCESS_KEY
+    - _APP_STORAGE_S3_SECRET
+    - _APP_STORAGE_S3_REGION
+    - _APP_STORAGE_S3_BUCKET
+    - _APP_STORAGE_S3_ENDPOINT
+    - _APP_STORAGE_DO_SPACES_ACCESS_KEY
+    - _APP_STORAGE_DO_SPACES_SECRET
+    - _APP_STORAGE_DO_SPACES_REGION
+    - _APP_STORAGE_DO_SPACES_BUCKET
+    - _APP_STORAGE_BACKBLAZE_ACCESS_KEY
+    - _APP_STORAGE_BACKBLAZE_SECRET
+    - _APP_STORAGE_BACKBLAZE_REGION
+    - _APP_STORAGE_BACKBLAZE_BUCKET
+    - _APP_STORAGE_LINODE_ACCESS_KEY
+    - _APP_STORAGE_LINODE_SECRET
+    - _APP_STORAGE_LINODE_REGION
+    - _APP_STORAGE_LINODE_BUCKET
+    - _APP_STORAGE_WASABI_ACCESS_KEY
+    - _APP_STORAGE_WASABI_SECRET
+    - _APP_STORAGE_WASABI_REGION
+    - _APP_STORAGE_WASABI_BUCKET
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-migrations:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-migrations
+    container_name: appwrite-worker-migrations
+    restart: unless-stopped
+    networks:
+    - appwrite
+    volumes:
+    - appwrite-imports:/storage/imports:rw
+    depends_on:
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_DOMAIN
+    - _APP_DOMAIN_TARGET_CNAME
+    - _APP_DOMAIN_TARGET_AAAA
+    - _APP_DOMAIN_TARGET_A
+    - _APP_DOMAIN_TARGET_CAA
+    - _APP_DNS
+    - _APP_EMAIL_SECURITY
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_LOGGING_CONFIG
+    - _APP_MIGRATIONS_FIREBASE_CLIENT_ID
+    - _APP_MIGRATIONS_FIREBASE_CLIENT_SECRET
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-task-maintenance:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: maintenance
+    container_name: appwrite-task-maintenance
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_DOMAIN
+    - _APP_DOMAIN_TARGET_CNAME
+    - _APP_DOMAIN_TARGET_AAAA
+    - _APP_DOMAIN_TARGET_A
+    - _APP_DOMAIN_TARGET_CAA
+    - _APP_DNS
+    - _APP_DOMAIN_FUNCTIONS
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_MAINTENANCE_INTERVAL
+    - _APP_MAINTENANCE_RETENTION_EXECUTION
+    - _APP_MAINTENANCE_RETENTION_CACHE
+    - _APP_MAINTENANCE_RETENTION_ABUSE
+    - _APP_MAINTENANCE_RETENTION_AUDIT
+    - _APP_MAINTENANCE_RETENTION_AUDIT_CONSOLE
+    - _APP_MAINTENANCE_RETENTION_USAGE_HOURLY
+    - _APP_MAINTENANCE_RETENTION_SCHEDULES
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-task-stats-resources:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    container_name: appwrite-task-stats-resources
+    entrypoint: stats-resources
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_USAGE_STATS
+    - _APP_LOGGING_CONFIG
+    - _APP_DATABASE_SHARED_TABLES
+    - _APP_STATS_RESOURCES_INTERVAL
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-stats-resources:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-stats-resources
+    container_name: appwrite-worker-stats-resources
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_USAGE_STATS
+    - _APP_LOGGING_CONFIG
+    - _APP_STATS_RESOURCES_INTERVAL
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-worker-stats-usage:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: worker-stats-usage
+    container_name: appwrite-worker-stats-usage
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - redis
+    - mariadb
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_USAGE_STATS
+    - _APP_LOGGING_CONFIG
+    - _APP_USAGE_AGGREGATION_INTERVAL
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-task-scheduler-functions:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: schedule-functions
+    container_name: appwrite-task-scheduler-functions
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - mariadb
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-task-scheduler-executions:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: schedule-executions
+    container_name: appwrite-task-scheduler-executions
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - mariadb
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    mem_limit: 192m
+    cpus: '0.25'
+  appwrite-task-scheduler-messages:
+    logging: *id001
+    image: appwrite/appwrite:1.8.1
+    entrypoint: schedule-messages
+    container_name: appwrite-task-scheduler-messages
+    restart: unless-stopped
+    networks:
+    - appwrite
+    depends_on:
+    - mariadb
+    - redis
+    environment:
+    - _APP_ENV
+    - _APP_WORKER_PER_CORE
+    - _APP_OPENSSL_KEY_V1
+    - _APP_REDIS_HOST
+    - _APP_REDIS_PORT
+    - _APP_REDIS_USER
+    - _APP_REDIS_PASS
+    - _APP_DB_HOST
+    - _APP_DB_PORT
+    - _APP_DB_SCHEMA
+    - _APP_DB_USER
+    - _APP_DB_PASS
+    mem_limit: 192m
+    cpus: '0.25'
+  mariadb:
+    logging: *id001
+    image: mariadb:10.11
+    container_name: appwrite-mariadb
+    restart: unless-stopped
+    networks:
+    - appwrite
+    volumes:
+    - appwrite-mariadb:/var/lib/mysql:rw
+    environment:
+    - MYSQL_ROOT_PASSWORD=${_APP_DB_ROOT_PASS}
+    - MYSQL_DATABASE=${_APP_DB_SCHEMA}
+    - MYSQL_USER=${_APP_DB_USER}
+    - MYSQL_PASSWORD=${_APP_DB_PASS}
+    - MARIADB_AUTO_UPGRADE=1
+    command: mysqld --innodb-flush-method=fsync
+    mem_limit: 1024m
+    cpus: '1.0'
+  redis:
+    logging: *id001
+    image: redis:7.2.4-alpine
+    container_name: appwrite-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --maxmemory-samples 5
+    networks:
+    - appwrite
+    volumes:
+    - appwrite-redis:/data:rw
+    mem_limit: 300m
+    cpus: '0.25'
+networks:
+  appwrite:
+    name: appwrite
+  runtimes:
+    name: runtimes
+  proxy:
+    external: true
+    name: ${TRAEFIK_DOCKER_NETWORK:-proxy}
+volumes:
+  appwrite-mariadb: null
+  appwrite-redis: null
+  appwrite-cache: null
+  appwrite-uploads: null
+  appwrite-imports: null
+  appwrite-certificates: null
+  appwrite-functions: null
+  appwrite-sites: null
+  appwrite-builds: null
+  appwrite-config: null
