@@ -358,7 +358,9 @@ export async function createBooking(
             newId(),
             {
                 userId: store.userId,
-                kind: input.source === "manual" ? "booking_business" : "booking_confirm",
+                kind: status === "CONFIRMED"
+                    ? (input.source === "manual" ? "booking_business" : "booking_confirm")
+                    : "booking_request",
                 appointmentId,
                 payload: JSON.stringify({ appointmentId }),
                 status: "pending",

@@ -3,7 +3,7 @@ import { Query } from "node-appwrite";
 import { createAdminClient, DATABASE_ID } from "@/lib/appwrite-server";
 import { getOptionalEnv } from "@/lib/env";
 import { DB, T, TermineStore } from "@/lib/termine/store";
-import { confirmationEmail, markOutboxFailed, markOutboxSent, resendSender, type OutboxRow } from "@/lib/termine/notify";
+import { confirmationEmail, bookingRequestEmail, markOutboxFailed, markOutboxSent, resendSender, type OutboxRow } from "@/lib/termine/notify";
 import type { AppointmentRow } from "@/lib/termine/booking";
 
 function unauthorized() {
@@ -49,6 +49,9 @@ export async function POST(request: NextRequest) {
                     if (job.kind === "booking_confirm" || job.kind === "booking_business") {
                         const manageUrl = `https://${process.env.NEXT_PUBLIC_APP_URL ?? "rechly.de"}`;
                         await sender.send(confirmationEmail(appt, name, manageUrl, lang));
+                    } else if (job.kind === "booking_request") {
+                        const manageUrl = `https://${process.env.NEXT_PUBLIC_APP_URL ?? "rechly.de"}`;
+                        await sender.send(bookingRequestEmail(appt, name, manageUrl, lang));
                     } else {
                         // Other kinds reuse the confirmation template shape for now; specific
                         // cancel/reschedule templates are rendered on the manage page itself.

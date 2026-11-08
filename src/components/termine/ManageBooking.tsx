@@ -101,6 +101,15 @@ export default function ManageBooking({ token }: { token: string }) {
                         <Descriptions.Item label="Termin">{when} Uhr ({appt.durationMinutes} Min)</Descriptions.Item>
                         <Descriptions.Item label="Status"><Tag color={cancelled ? "error" : appt.status === "CONFIRMED" ? "success" : "processing"}>{STATUS_LABEL[appt.status] ?? appt.status}</Tag></Descriptions.Item>
                     </Descriptions>
+                    {appt.status === "PENDING" && (
+                        <Alert
+                            type="info"
+                            showIcon
+                            style={{ marginBottom: 12 }}
+                            message="Buchungsanfrage wird geprüft"
+                            description="Ihre Anfrage liegt dem Unternehmen zur Prüfung vor. Sobald der Termin bestätigt wurde, erhalten Sie eine Benachrichtigung mit Kalendereintrag per E-Mail."
+                        />
+                    )}
                     {!cancelled && appt.status !== "COMPLETED" && (
                         <Space wrap>
                             <Button danger onClick={() => void cancel()}>Termin stornieren</Button>

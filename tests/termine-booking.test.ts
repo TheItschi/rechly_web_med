@@ -9,7 +9,7 @@ import { DB, T, TermineStore, recordId } from "../src/lib/termine/store";
 import { createBooking, rescheduleBooking, cancelBooking } from "../src/lib/termine/booking";
 import { wallToUtc } from "../src/lib/termine/time";
 import { createDraftFromAppointment } from "../src/lib/termine/invoices";
-import { confirmationEmail, buildIcs } from "../src/lib/termine/notify";
+import { confirmationEmail, bookingRequestEmail, newBookingRequestOwnerNotification, buildIcs } from "../src/lib/termine/notify";
 import { WorkspaceStore } from "../src/lib/workspace/store";
 import { calendarSnapshot } from "../src/lib/workspace/calendar-service";
 
@@ -141,6 +141,29 @@ test("confirmation email and ICS are well-formed", () => {
     assert.ok(msg.ics?.content.includes("BEGIN:VCALENDAR"));
     const ics = buildIcs({ uid: "x1", startUtc: appt.startUtc, endUtc: appt.endUtc, summary: "Test" });
     assert.ok(ics.includes("DTSTART:20260112T080000Z"));
+});
+
+test("booking request email notifies customer without ICS and notifies business owner", () => {
+    const appt = {
+        $id: "a2", serviceId: "s", staffId: "st", customerName: "Sarah",
+        customerEmail: "sarah@example.de", customerPhone: "+4912345678", customerNote: "Bitte ruhig arbeiten",
+        startUtc: "2026-01-12T09:00:00.000Z", endUtc: "2026-01-12T09:30:00.000Z",
+        businessTimezone: TZ, durationMinutes: 30, serviceNameSnapshot: "Massage",
+        servicePriceCents: 5000, currency: "EUR", status: "PENDING", source: "public",
+    } as unknown as Parameters<typeof bookingRequestEmail>[0];
+
+    const customerMsg = bookingRequestEmail(appt, "Wellness Studio", "https://wellness.rechly.de/buchen/verwalten/tok2", "de");
+    assert.equal(customerMsg.to, "sarah@example.de");
+    assert.ok(customerMsg.subject.includes("Buchungsanfrage erhalten"));
+    assert.ok(customerMsg.text.includes("Massage"));
+    assert.ok(customerMsg.text.includes("wird derzeit geprüft"));
+    assert.equal(customerMsg.ics, undefined, "Pending booking request must not include calendar .ics");
+
+    const ownerMsg = newBookingRequestOwnerNotification(appt, "owner@wellness.de", "Wellness Studio", "https://rechly.de/dashboard/calendar", "de");
+    assert.equal(ownerMsg.to, "owner@wellness.de");
+    assert.ok(ownerMsg.subject.includes("Neue Terminanfrage von Sarah"));
+    assert.ok(ownerMsg.text.includes("Massage"));
+    assert.ok(ownerMsg.text.includes("Bitte ruhig arbeiten"));
 });
 
 test("booking links to Rechly clients CRM and reuses existing customer by email", async () => {

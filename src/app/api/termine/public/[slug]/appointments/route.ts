@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { T, TermineError, TermineStore } from "@/lib/termine/store";
 import { resolvePublicBusiness } from "@/lib/termine/public";
 import { createBooking, type ServiceRow } from "@/lib/termine/booking";
-import { confirmationEmail, resendSender } from "@/lib/termine/notify";
+import { confirmationEmail, bookingRequestEmail, newBookingRequestOwnerNotification, resendSender } from "@/lib/termine/notify";
 import { clientIp, rateLimit, PUBLIC_LIMITS } from "@/lib/termine/ratelimit";
 
 function fail(error: unknown) {
@@ -25,7 +25,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         if (typeof body.serviceId !== "string" || typeof body.startUtc !== "string") {
             return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
         }
-        const { db, settings } = await resolvePublicBusiness(slug);
+        const { db, settings, companyDefaults } = await resolvePublicBusiness(slug);
         const store = new TermineStore(db, settings.userId);
         const { appointment, manageToken } = await createBooking(store, settings, {
             serviceId: body.serviceId,
@@ -41,11 +41,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
         const service = await store.own<ServiceRow>(T.SERVICES, appointment.serviceId);
         void service;
-        // Best effort: confirmation email now; the outbox job retries on failure.
+        // Best effort: email notifications now; outbox covers background retries.
         try {
             const manageUrl = `${new URL(request.url).origin}/buchen/verwalten/${manageToken}`;
             const sender = resendSender(process.env.RESEND_API_KEY);
-            await sender.send(confirmationEmail(appointment as never, settings.displayName, manageUrl, settings.language === "en" ? "en" : "de"));
+            const lang = settings.language === "en" ? "en" : "de";
+            if (appointment.status === "CONFIRMED") {
+                await sender.send(confirmationEmail(appointment as never, settings.displayName, manageUrl, lang));
+            } else {
+                await sender.send(bookingRequestEmail(appointment as never, settings.displayName, manageUrl, lang));
+                const ownerEmail = (settings as unknown as { contactEmail?: string }).contactEmail || companyDefaults.contactEmail;
+                if (ownerEmail) {
+                    const dashboardUrl = `${new URL(request.url).origin}/dashboard/calendar`;
+                    await sender.send(newBookingRequestOwnerNotification(appointment as never, ownerEmail, settings.displayName, dashboardUrl, lang));
+                }
+            }
         } catch {
             /* Outbox retry covers this. */
         }

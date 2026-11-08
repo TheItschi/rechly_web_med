@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, Button, Card, Descriptions, Form, Input, Steps, Typography, message } from "antd";
-import { ArrowLeftOutlined, ArrowRightOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, ArrowRightOutlined, CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -16,6 +16,7 @@ export interface PublicStaff {
 export interface PublicBusiness {
     slug: string; displayName: string; description?: string; timezone: string;
     allowAnyStaff: boolean; showPrices: boolean; currency: string;
+    confirmationMode?: string;
     contactEmail?: string; contactPhone?: string; address?: string; website?: string;
 }
 
@@ -34,7 +35,7 @@ export default function PublicBooking({ business, services, staff }: { business:
     const [loadingSlots, setLoadingSlots] = useState(false);
     const [day, setDay] = useState<string | null>(null);
     const [startUtc, setStartUtc] = useState<string | null>(null);
-    const [confirmed, setConfirmed] = useState<{ manageToken: string; startUtc: string } | null>(null);
+    const [confirmed, setConfirmed] = useState<{ manageToken: string; startUtc: string; status?: string } | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [form] = Form.useForm();
 
@@ -106,7 +107,7 @@ export default function PublicBooking({ business, services, staff }: { business:
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Buchung fehlgeschlagen.");
-            setConfirmed({ manageToken: data.manageToken, startUtc: data.startUtc });
+            setConfirmed({ manageToken: data.manageToken, startUtc: data.startUtc, status: data.status });
             setStep(5);
             window.scrollTo({ top: 0 });
         } catch (e) {
@@ -139,14 +140,32 @@ export default function PublicBooking({ business, services, staff }: { business:
                 {confirmed ? (
                     <Card className="buchen-card">
                         <div style={{ textAlign: "center", padding: 16 }}>
-                            <CheckCircleOutlined style={{ fontSize: 48, color: "#10b981" }} />
-                            <Title level={3} style={{ marginTop: 16 }}>Termin bestätigt</Title>
-                            <Text>
-                                {service?.name} am {fmtDay(confirmed.startUtc.slice(0, 10))} um {fmtTime(confirmed.startUtc)} Uhr
-                            </Text>
-                            <p style={{ marginTop: 12 }}>
-                                Eine Bestätigung wurde per E-Mail versendet. Über den folgenden Link können Sie den Termin verwalten oder stornieren:
-                            </p>
+                            {confirmed.status === "PENDING" ? (
+                                <>
+                                    <ClockCircleOutlined style={{ fontSize: 48, color: "#faad14" }} />
+                                    <Title level={3} style={{ marginTop: 16 }}>Buchungsanfrage eingegangen</Title>
+                                    <Text>
+                                        {service?.name} am {fmtDay(confirmed.startUtc.slice(0, 10))} um {fmtTime(confirmed.startUtc)} Uhr
+                                    </Text>
+                                    <p style={{ marginTop: 12, color: "#475569" }}>
+                                        Vielen Dank! Ihre Buchungsanfrage ist eingegangen und wird derzeit vom Unternehmen geprüft. Sobald der Termin bestätigt wurde, erhalten Sie eine verbindliche Bestätigung mit Kalendereintrag per E-Mail.
+                                    </p>
+                                    <p style={{ marginTop: 8, fontSize: 13, color: "#64748b" }}>
+                                        Über den folgenden Link können Sie den aktuellen Status Ihrer Anfrage einsehen:
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircleOutlined style={{ fontSize: 48, color: "#10b981" }} />
+                                    <Title level={3} style={{ marginTop: 16 }}>Termin bestätigt</Title>
+                                    <Text>
+                                        {service?.name} am {fmtDay(confirmed.startUtc.slice(0, 10))} um {fmtTime(confirmed.startUtc)} Uhr
+                                    </Text>
+                                    <p style={{ marginTop: 12, color: "#475569" }}>
+                                        Eine Bestätigung mit Kalendereintrag wurde per E-Mail versendet. Über den folgenden Link können Sie den Termin verwalten oder stornieren:
+                                    </p>
+                                </>
+                            )}
                             <Input.Search
                                 readOnly
                                 value={`${typeof window !== "undefined" ? window.location.origin : ""}/buchen/verwalten/${confirmed.manageToken}`}
@@ -281,7 +300,7 @@ export default function PublicBooking({ business, services, staff }: { business:
                                     <div style={{ display: "flex", gap: 8 }}>
                                         <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(timeStep)}>Zurück</Button>
                                         <Button type="primary" htmlType="submit" loading={submitting} icon={<ArrowRightOutlined />}>
-                                            Verbindlich buchen
+                                            {business.confirmationMode === "manual" ? "Terminanfrage senden" : "Verbindlich buchen"}
                                         </Button>
                                     </div>
                                 </Form>

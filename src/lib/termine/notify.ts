@@ -101,6 +101,49 @@ export function confirmationEmail(
     };
 }
 
+export function bookingRequestEmail(
+    appt: AppointmentRow,
+    businessName: string,
+    manageUrl: string,
+    lang: "de" | "en" = "de",
+): EmailMessage {
+    const when = fmtDateTime(appt.startUtc, appt.businessTimezone, lang);
+    const subject = lang === "de"
+        ? `Buchungsanfrage erhalten: ${appt.serviceNameSnapshot} am ${when}`
+        : `Booking request received: ${appt.serviceNameSnapshot} on ${when}`;
+    const body = lang === "de"
+        ? `Guten Tag ${appt.customerName},\n\nvielen Dank für Ihre Terminanfrage bei ${businessName}.\n\nAngefragter Termin: ${appt.serviceNameSnapshot}\nDatum & Uhrzeit: ${when}\nDauer: ${appt.durationMinutes} Minuten\n\nIhre Anfrage wird derzeit geprüft. Sobald der Termin vom Inhaber bestätigt wurde, erhalten Sie eine verbindliche Bestätigung mit Kalendereintrag per E-Mail.\n\nStatus der Buchung verfolgen: ${manageUrl}\n\nMit freundlichen Grüßen\n${businessName}`
+        : `Hello ${appt.customerName},\n\nThank you for your booking request with ${businessName}.\n\nRequested appointment: ${appt.serviceNameSnapshot}\nDate & Time: ${when}\nDuration: ${appt.durationMinutes} minutes\n\nYour request is being reviewed. Once approved, you will receive a confirmation with calendar invite by email.\n\nTrack booking status: ${manageUrl}\n\nBest regards\n${businessName}`;
+    return {
+        to: appt.customerEmail,
+        subject,
+        text: body,
+        html: `<p>${esc(body).replace(/\n/g, "<br>")}</p>`,
+    };
+}
+
+export function newBookingRequestOwnerNotification(
+    appt: AppointmentRow,
+    ownerEmail: string,
+    businessName: string,
+    dashboardUrl: string,
+    lang: "de" | "en" = "de",
+): EmailMessage {
+    const when = fmtDateTime(appt.startUtc, appt.businessTimezone, lang);
+    const subject = lang === "de"
+        ? `Neue Terminanfrage von ${appt.customerName} (${appt.serviceNameSnapshot})`
+        : `New booking request from ${appt.customerName} (${appt.serviceNameSnapshot})`;
+    const body = lang === "de"
+        ? `Guten Tag,\n\nSie haben eine neue Terminanfrage über Ihre Buchungsseite erhalten:\n\nKunde: ${appt.customerName}\nE-Mail: ${appt.customerEmail}${appt.customerPhone ? `\nTelefon: ${appt.customerPhone}` : ""}\nLeistung: ${appt.serviceNameSnapshot}\nTermin: ${when} (${appt.durationMinutes} Min)${appt.customerNote ? `\nAnmerkung des Kunden: ${appt.customerNote}` : ""}\n\nBitte prüfen und bestätigen Sie die Anfrage in Ihrem Rechly Dashboard:\n${dashboardUrl}\n\nMit freundlichen Grüßen\nRechly`
+        : `Hello,\n\nYou have received a new booking request on your booking page:\n\nCustomer: ${appt.customerName}\nEmail: ${appt.customerEmail}${appt.customerPhone ? `\nPhone: ${appt.customerPhone}` : ""}\nService: ${appt.serviceNameSnapshot}\nAppointment: ${when} (${appt.durationMinutes} min)${appt.customerNote ? `\nCustomer note: ${appt.customerNote}` : ""}\n\nPlease review and confirm the request in your Rechly Dashboard:\n${dashboardUrl}\n\nBest regards\nRechly`;
+    return {
+        to: ownerEmail,
+        subject,
+        text: body,
+        html: `<p>${esc(body).replace(/\n/g, "<br>")}</p>`,
+    };
+}
+
 export interface MailSender {
     send(msg: EmailMessage): Promise<void>;
 }

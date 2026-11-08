@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../../_lib";
-import { DB, T, TermineError, newToken, tokenHash } from "@/lib/termine/store";
+import { DB, T, TermineError, newId, newToken, tokenHash } from "@/lib/termine/store";
+import { addMinutesUtc } from "@/lib/termine/time";
 import { canTransition, type TermineStatus } from "@/lib/termine/types";
 import { cancelBooking, loadSettings, type AppointmentRow } from "@/lib/termine/booking";
 import { confirmationEmail, resendSender } from "@/lib/termine/notify";
@@ -9,6 +10,7 @@ function fail(error: unknown, fallback: string) {
     const auth = authFail(error);
     if (auth) return auth;
     if (error instanceof TermineError) return NextResponse.json({ error: error.message }, { status: error.status });
+    console.error("Termine appointment PATCH error:", error);
     return NextResponse.json({ error: fallback }, { status: 500 });
 }
 
@@ -53,8 +55,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             if (next === "COMPLETED") patch.completedAt = new Date().toISOString();
             if (appt.status === "PENDING" && next === "CONFIRMED") {
                 const manageToken = newToken();
-                patch.manageTokenHash = tokenHash(manageToken);
-                (patch as Record<string, unknown>)._sendToken = manageToken;
+                try {
+                    await store.db.createDocument(
+                        DB,
+                        T.TOKENS,
+                        newId(),
+                        {
+                            userId: store.userId,
+                            appointmentId: id,
+                            purpose: "manage",
+                            tokenHash: tokenHash(manageToken),
+                            expiresAt: addMinutesUtc(appt.startUtc, 60 * 24 * 90),
+                        },
+                        store.perms(),
+                    );
+                    (patch as Record<string, unknown>)._sendToken = manageToken;
+                } catch (tokenErr) {
+                    console.error("Failed to persist manage token on confirmation:", tokenErr);
+                }
             }
         }
         if (typeof body.internalNote === "string") patch.internalNote = body.internalNote.slice(0, 1000);
