@@ -21,6 +21,8 @@
     "desktop:pack": "npm run desktop:build:web && electron-builder --dir",
     "desktop:dist": "npm run desktop:build:web && electron-builder",
     "test": "tsx --test tests/*.test.ts",
+    "test:integration": "RECHLY_DATA_DIR=/tmp/rechly-web-integration tsx tests/einvoice.integration.ts",
+    "test:all": "npm test && echo 'integration requires running server on :3102 — run npm run test:integration separately'",
     "test:girocode": "tsx --test tests/girocode.test.ts",
     "test:einvoice": "tsx --test tests/einvoice.test.ts",
     "migrate:einvoice": "node --env-file=.env.local scripts/migrate-einvoice.mjs"

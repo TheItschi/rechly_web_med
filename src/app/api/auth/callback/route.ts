@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
     createSessionFromOAuth,
     createSessionClient,
@@ -31,14 +32,14 @@ export async function GET(request: NextRequest) {
     const origin = getOrigin(request);
 
     try {
-        console.log("OAuth callback origin:", origin);
+        logger.debug("OAuth callback origin:", origin);
 
         const { searchParams } = request.nextUrl;
         const userId = searchParams.get("userId");
         const secret = searchParams.get("secret");
         const error = searchParams.get("error");
 
-        console.log("OAuth callback received:", {
+        logger.debug("OAuth callback received:", {
             userId: !!userId,
             secret: !!secret,
             error,
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest) {
         // Create session from OAuth token
         try {
             await createSessionFromOAuth(userId, secret);
-            console.log("Session created for user:", userId);
+            logger.debug("Session created for user:", userId);
         } catch (sessionError: unknown) {
             console.error("Session creation error:", sessionError);
 
@@ -122,7 +123,7 @@ export async function GET(request: NextRequest) {
 
             // Get user preferences or check company info
             // For now, redirect to callback page which handles this check
-            console.log("User authenticated:", user.$id);
+            logger.debug("User authenticated:", user.$id);
 
             // Redirect to the client-side callback to check onboarding status
             return NextResponse.redirect(`${origin}/auth/callback?from=ssr`);

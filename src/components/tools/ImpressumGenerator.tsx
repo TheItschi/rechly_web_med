@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Form, Input, Select, Radio, Button, Card, Typography, Tabs, Alert } from "antd";
+import { Input, Select, Button, Tabs } from "antd";
 import {
     CopyOutlined,
     CheckOutlined,
-    SafetyCertificateOutlined,
-    FileTextOutlined,
-} from "@ant-design/icons";
+    SafetyCertificateOutlined } from "@ant-design/icons";
 
-const { Text } = Typography;
 
 export default function ImpressumGenerator() {
     const [legalForm, setLegalForm] = useState<string>("einzelunternehmen");
@@ -23,9 +20,9 @@ export default function ImpressumGenerator() {
     const [vatId, setVatId] = useState<string>("DE123456789");
     const [commercialRegister, setCommercialRegister] = useState<string>("");
     const [registerCourt, setRegisterCourt] = useState<string>("");
-    const [managingDirector, setManagingDirector] = useState<string>("");
-    const [chamber, setChamber] = useState<string>("");
-    const [jobTitle, setJobTitle] = useState<string>("");
+    const [managingDirector] = useState<string>("");
+    const [chamber] = useState<string>("");
+    const [jobTitle] = useState<string>("");
 
     const [copiedHtml, setCopiedHtml] = useState(false);
     const [copiedText, setCopiedText] = useState(false);
@@ -178,8 +175,7 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>`;
                     marginBottom: 24,
                     display: "flex",
                     alignItems: "center",
-                    gap: 12,
-                }}
+                    gap: 12 }}
             >
                 <SafetyCertificateOutlined style={{ fontSize: 24, color: "#16a34a" }} />
                 <div style={{ fontSize: 14, color: "#166534", lineHeight: 1.5 }}>
@@ -348,8 +344,7 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>`;
                                         color: "#1e293b",
                                         whiteSpace: "pre-wrap",
                                         maxHeight: 450,
-                                        overflow: "auto",
-                                    }}
+                                        overflow: "auto" }}
                                 >
                                     {impressumText}
                                 </pre>
@@ -360,12 +355,11 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>`;
                                         onClick={copyText}
                                         style={{ background: "#2563eb" }}
                                     >
-                                        {copiedText ? "Text kopiert!" : "Klartext kopieren"}
+                                        {copiedText ? " kopiert!" : "Klartext kopieren"}
                                     </Button>
                                 </div>
                             </div>
-                        ),
-                    },
+                        ) },
                     {
                         key: "html",
                         label: "HTML-Code",
@@ -382,8 +376,7 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>`;
                                         lineHeight: 1.5,
                                         whiteSpace: "pre-wrap",
                                         maxHeight: 450,
-                                        overflow: "auto",
-                                    }}
+                                        overflow: "auto" }}
                                 >
                                     {impressumHtml}
                                 </pre>
@@ -398,8 +391,7 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>`;
                                     </Button>
                                 </div>
                             </div>
-                        ),
-                    },
+                        ) },
                 ]}
             />
         </div>

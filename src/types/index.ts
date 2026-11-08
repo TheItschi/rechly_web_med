@@ -63,6 +63,8 @@ export interface Product {
     updated_at: number;
 }
 
+export type InvoiceStatus = "draft" | "sent" | "paid" | "cancelled";
+
 export interface Invoice {
     e_invoice?: EInvoiceData;
     id?: string;
@@ -73,7 +75,7 @@ export interface Invoice {
     subtotal: number;
     total_vat: number;
     total_gross: number;
-    status: "draft" | "sent" | "paid" | "cancelled";
+    status: InvoiceStatus;
     notes?: string;
     purchase_order_ref?: string;
     delivery_date?: string;

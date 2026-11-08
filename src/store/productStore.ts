@@ -1,4 +1,12 @@
 import { create } from "zustand";
+import {
+    getAllProducts,
+    getProductById as apiGetProduct,
+    createProduct as apiCreateProduct,
+    updateProduct as apiUpdateProduct,
+    deleteProduct as apiDeleteProduct,
+} from "@/lib/productService";
+import { isCacheValid } from "./cache";
 import type { Product, ProductFormData } from "@/types";
 
 interface ProductStore {
@@ -19,67 +27,6 @@ interface ProductStore {
     clearCache: () => void;
 }
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-// API helper functions that use server-side routes
-const apiGetProducts = async (): Promise<Product[]> => {
-    const res = await fetch("/api/products");
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to fetch products");
-    }
-    return res.json();
-};
-
-const apiGetProduct = async (id: string): Promise<Product | null> => {
-    const res = await fetch(`/api/products/${id}`);
-    if (res.status === 404) return null;
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to fetch product");
-    }
-    return res.json();
-};
-
-const apiCreateProduct = async (data: ProductFormData): Promise<Product> => {
-    const res = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to create product");
-    }
-    return res.json();
-};
-
-const apiUpdateProduct = async (
-    id: string,
-    data: Partial<ProductFormData>
-): Promise<Product> => {
-    const res = await fetch(`/api/products/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to update product");
-    }
-    return res.json();
-};
-
-const apiDeleteProduct = async (id: string): Promise<void> => {
-    const res = await fetch(`/api/products/${id}`, {
-        method: "DELETE",
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to delete product");
-    }
-};
-
 export const useProductStore = create<ProductStore>((set, get) => ({
     products: [],
     loading: false,
@@ -93,17 +40,13 @@ export const useProductStore = create<ProductStore>((set, get) => ({
         if (loading) return;
 
         // Skip if cache is still valid (unless forced)
-        if (
-            !force &&
-            lastFetched &&
-            Date.now() - lastFetched < CACHE_DURATION
-        ) {
+        if (isCacheValid(lastFetched, force)) {
             return;
         }
 
         set({ loading: true, error: null });
         try {
-            const products = await apiGetProducts();
+            const products = await getAllProducts();
             set({ products, loading: false, lastFetched: Date.now() });
         } catch (error) {
             set({
@@ -138,7 +81,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
         const updatedProduct = await apiUpdateProduct(id, data);
         set((state) => ({
             products: state.products.map((p) =>
-                p.id === id ? updatedProduct : p
+                p.id === id ? updatedProduct : p,
             ),
         }));
         return updatedProduct;

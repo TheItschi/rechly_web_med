@@ -1,28 +1,23 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Form, Input, InputNumber, Radio, Card, Button, Typography, Space, Switch, Divider, message } from "antd";
+import { Input, InputNumber, Radio, Card, Button, Switch, message } from "antd";
 import {
     CopyOutlined,
     PrinterOutlined,
-    ExclamationCircleOutlined,
-    CheckOutlined,
-    DollarOutlined,
-} from "@ant-design/icons";
+    CheckOutlined } from "@ant-design/icons";
 import { calculateDunning, DunningLevel, DunningInput } from "@/lib/tools/dunning";
 import Link from "next/link";
 
-const { Text } = Typography;
 
 export default function MahnungGenerator() {
-    const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
 
-    // Form states
+    //  states
     const [creditorName, setCreditorName] = useState<string>("Max Mustermann IT-Services");
     const [creditorAddress, setCreditorAddress] = useState<string>("Musterstraße 12\n10115 Berlin");
     const [creditorIban, setCreditorIban] = useState<string>("DE89 3704 0044 0532 0130 00");
     const [creditorBic, setCreditorBic] = useState<string>("COBADEFFXXX");
-    const [creditorBankName, setCreditorBankName] = useState<string>("Commerzbank");
+    const [creditorBankName] = useState<string>("Commerzbank");
 
     const [debtorName, setDebtorName] = useState<string>("Beispiel GmbH & Co. KG");
     const [debtorAddress, setDebtorAddress] = useState<string>("Industriestraße 45\n80331 München");
@@ -55,8 +50,7 @@ export default function MahnungGenerator() {
             dunningLevel,
             isB2B,
             customMahngebuehr,
-            customGraceDays,
-        };
+            customGraceDays };
         return calculateDunning(input);
     }, [
         creditorName,
@@ -121,7 +115,7 @@ ${creditorName}`;
     return (
         <div style={{ maxWidth: 1080, margin: "0 auto", padding: "16px 8px" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
-                {/* Form Controls Column */}
+                {/*  Controls Column */}
                 <div>
                     <Card
                         title="1. Mahndaten & Verzugsstatus"
@@ -299,7 +293,7 @@ ${creditorName}`;
                             onClick={copyText}
                             style={{ flex: 1, background: "#2563eb", borderColor: "#2563eb" }}
                         >
-                            {copied ? "Kopiert!" : "Text kopieren"}
+                            {copied ? "Kopiert!" : " kopieren"}
                         </Button>
                         <Button icon={<PrinterOutlined />} onClick={printLetter}>
                             Drucken / PDF
@@ -318,8 +312,7 @@ ${creditorName}`;
                             fontFamily: "Arial, sans-serif",
                             fontSize: 13,
                             lineHeight: 1.6,
-                            color: "#1e293b",
-                        }}
+                            color: "#1e293b" }}
                     >
                         {/* Sender Return Address Line */}
                         <div style={{ fontSize: 10, color: "#64748b", borderBottom: "1px solid #e2e8f0", paddingBottom: 4, marginBottom: 20 }}>

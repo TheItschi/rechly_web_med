@@ -1,4 +1,6 @@
 import type { Client, ClientFormData } from "@/types";
+import { apiDelete, apiFetch, apiGet, apiPost, apiPut } from "./apiClient";
+import { logger } from "./logger";
 
 /**
  * Client Service - CRUD operations via API routes
@@ -7,21 +9,14 @@ import type { Client, ClientFormData } from "@/types";
  */
 
 /**
- * Get all clients for the current user
+ * Get all clients for the current user.
+ * Returns [] on 401 (logged-out) so pages can render empty state.
  */
 export const getAllClients = async (): Promise<Client[]> => {
     try {
-        const res = await fetch("/api/clients");
-        if (!res.ok) {
-            if (res.status === 401) {
-                console.log("Not authenticated, returning empty clients");
-                return [];
-            }
-            throw new Error("Failed to fetch clients");
-        }
-        return res.json();
+        return await apiGet<Client[]>("/api/clients", "Failed to fetch clients");
     } catch (error) {
-        console.error("Error fetching clients:", error);
+        logger.error("Error fetching clients:", error);
         throw error;
     }
 };
@@ -31,14 +26,13 @@ export const getAllClients = async (): Promise<Client[]> => {
  */
 export const getClientById = async (id: string): Promise<Client | null> => {
     try {
-        const res = await fetch(`/api/clients/${id}`);
-        if (res.status === 404) return null;
-        if (!res.ok) {
-            throw new Error("Failed to fetch client");
-        }
-        return res.json();
+        return await apiFetch<Client | null>(
+            `/api/clients/${id}`,
+            { allow404: true },
+            "Failed to fetch client",
+        );
     } catch (error) {
-        console.error("Error fetching client:", error);
+        logger.error("Error fetching client:", error);
         return null;
     }
 };
@@ -48,20 +42,9 @@ export const getClientById = async (id: string): Promise<Client | null> => {
  */
 export const createClient = async (data: ClientFormData): Promise<Client> => {
     try {
-        const res = await fetch("/api/clients", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to create client");
-        }
-
-        return res.json();
+        return await apiPost<Client>("/api/clients", data, "Failed to create client");
     } catch (error) {
-        console.error("Error creating client:", error);
+        logger.error("Error creating client:", error);
         throw error;
     }
 };
@@ -71,23 +54,16 @@ export const createClient = async (data: ClientFormData): Promise<Client> => {
  */
 export const updateClient = async (
     id: string,
-    data: Partial<ClientFormData>
+    data: Partial<ClientFormData>,
 ): Promise<Client> => {
     try {
-        const res = await fetch(`/api/clients/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to update client");
-        }
-
-        return res.json();
+        return await apiPut<Client>(
+            `/api/clients/${id}`,
+            data,
+            "Failed to update client",
+        );
     } catch (error) {
-        console.error("Error updating client:", error);
+        logger.error("Error updating client:", error);
         throw error;
     }
 };
@@ -97,16 +73,9 @@ export const updateClient = async (
  */
 export const deleteClient = async (id: string): Promise<void> => {
     try {
-        const res = await fetch(`/api/clients/${id}`, {
-            method: "DELETE",
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to delete client");
-        }
+        await apiDelete(`/api/clients/${id}`, "Failed to delete client");
     } catch (error) {
-        console.error("Error deleting client:", error);
+        logger.error("Error deleting client:", error);
         throw error;
     }
 };

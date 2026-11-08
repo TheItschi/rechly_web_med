@@ -1,15 +1,11 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { InputNumber, Radio, DatePicker, Button, Table, Card, Typography, Alert, Tabs } from "antd";
+import { InputNumber, Radio, DatePicker, Button, Table, Card, Typography, Tabs } from "antd";
 import {
-    DollarOutlined,
     CopyOutlined,
     CheckOutlined,
-    FileTextOutlined,
-    CalendarOutlined,
-    SafetyCertificateOutlined,
-} from "@ant-design/icons";
+    FileTextOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { calculateVerzugszinsen, BUNDESBANK_BASE_RATES } from "@/lib/tools/verzugszinsen";
 import Link from "next/link";
@@ -76,33 +72,28 @@ export default function VerzugszinsenRechner() {
         {
             title: "Zeitraum",
             dataIndex: "periodLabel",
-            key: "periodLabel",
-        },
+            key: "periodLabel" },
         {
             title: "Basiszinssatz",
             dataIndex: "baseRate",
             key: "baseRate",
-            render: (val: number) => `${val.toFixed(2)} %`,
-        },
+            render: (val: number) => `${val.toFixed(2)} %` },
         {
             title: "Zinssatz p.a.",
             dataIndex: "applicableRate",
             key: "applicableRate",
             render: (val: number) => (
                 <span style={{ fontWeight: 700, color: "#2563eb" }}>{val.toFixed(2)} %</span>
-            ),
-        },
+            ) },
         {
             title: "Tage",
             dataIndex: "days",
-            key: "days",
-        },
+            key: "days" },
         {
             title: "Zinsbetrag",
             dataIndex: "periodInterest",
             key: "periodInterest",
-            render: (val: number) => <strong>{val.toFixed(2)} €</strong>,
-        },
+            render: (val: number) => <strong>{val.toFixed(2)} €</strong> },
     ];
 
     return (
@@ -113,8 +104,7 @@ export default function VerzugszinsenRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                     gap: 20,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#334155" }}>
@@ -185,8 +175,7 @@ export default function VerzugszinsenRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                     gap: 16,
-                    marginBottom: 32,
-                }}
+                    marginBottom: 32 }}
             >
                 <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
@@ -222,8 +211,7 @@ export default function VerzugszinsenRechner() {
                     style={{
                         borderRadius: 10,
                         border: "2px solid #2563eb",
-                        background: "#eff6ff",
-                    }}
+                        background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Gesamtforderung
@@ -255,8 +243,7 @@ export default function VerzugszinsenRechner() {
                                     Der aktuelle Bundesbank-Basiszinssatz beträgt {BUNDESBANK_BASE_RATES[0].rate.toFixed(2)} %.
                                 </div>
                             </div>
-                        ),
-                    },
+                        ) },
                     {
                         key: "dunning",
                         label: "Fertiges Mahnschreiben (Vorlage)",
@@ -275,8 +262,7 @@ export default function VerzugszinsenRechner() {
                                                 width: "100%",
                                                 padding: "6px 12px",
                                                 borderRadius: 6,
-                                                border: "1px solid #cbd5e1",
-                                            }}
+                                                border: "1px solid #cbd5e1" }}
                                         />
                                     </div>
                                     <div>
@@ -291,8 +277,7 @@ export default function VerzugszinsenRechner() {
                                                 width: "100%",
                                                 padding: "6px 12px",
                                                 borderRadius: 6,
-                                                border: "1px solid #cbd5e1",
-                                            }}
+                                                border: "1px solid #cbd5e1" }}
                                         />
                                     </div>
                                 </div>
@@ -306,8 +291,7 @@ export default function VerzugszinsenRechner() {
                                         fontSize: 13,
                                         lineHeight: 1.6,
                                         color: "#1e293b",
-                                        whiteSpace: "pre-wrap",
-                                    }}
+                                        whiteSpace: "pre-wrap" }}
                                 >
                                     {dunningLetterText}
                                 </pre>
@@ -328,8 +312,7 @@ export default function VerzugszinsenRechner() {
                                     </Link>
                                 </div>
                             </div>
-                        ),
-                    },
+                        ) },
                 ]}
             />
         </div>

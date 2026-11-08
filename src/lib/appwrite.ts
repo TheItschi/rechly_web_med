@@ -8,6 +8,7 @@ import {
     Role,
 } from "appwrite";
 import { getAppwriteEndpoint, getAppwriteProjectId } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 /**
  * Appwrite Cloud Configuration
@@ -98,7 +99,7 @@ export const getCurrentUser = async () => {
     try {
         return await account.get();
     } catch {
-        console.log("No active session");
+        logger.debug("No active session");
         return null;
     }
 };
@@ -113,7 +114,7 @@ export const registerWithEmail = async (
 ) => {
     try {
         const user = await account.create(ID.unique(), email, password, name);
-        console.log("✓ User registered:", user.$id);
+        logger.debug("User registered:", user.$id);
         // Auto-login after registration
         await loginWithEmail(email, password);
         return user;
@@ -132,7 +133,7 @@ export const loginWithEmail = async (email: string, password: string) => {
             email,
             password,
         );
-        console.log("✓ Logged in:", session.userId);
+        logger.debug("Logged in:", session.userId);
         return session;
     } catch (error) {
         console.error("Login failed:", error);
@@ -147,13 +148,13 @@ export const createAnonymousSession = async () => {
     try {
         const currentUser = await getCurrentUser();
         if (currentUser) {
-            console.log("Already authenticated:", currentUser.$id);
+            logger.debug("Already authenticated:", currentUser.$id);
             return currentUser;
         }
 
-        console.log("Creating anonymous session...");
+        logger.debug("Creating anonymous session...");
         const session = await account.createAnonymousSession();
-        console.log("✓ Anonymous session created:", session.userId);
+        logger.debug("Anonymous session created:", session.userId);
         return session;
     } catch (error) {
         console.error("Failed to create anonymous session:", error);
@@ -179,7 +180,7 @@ export const isAuthenticated = async (): Promise<boolean> => {
 export const logout = async () => {
     try {
         await account.deleteSession("current");
-        console.log("✓ Logged out");
+        logger.debug("Logged out");
     } catch (error) {
         console.error("Logout error:", error);
     }

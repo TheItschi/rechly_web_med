@@ -1,19 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input, Button, Card, Typography, Alert, Tag, Space, Divider } from "antd";
+import { Input, Button, Card, Typography, Alert, Tag, Divider } from "antd";
 import {
     SearchOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
     PrinterOutlined,
-    SafetyCertificateOutlined,
     FileProtectOutlined,
-    UserAddOutlined,
-} from "@ant-design/icons";
+    UserAddOutlined } from "@ant-design/icons";
 import Link from "next/link";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface VatValidationResponse {
     valid: boolean;
@@ -48,8 +46,7 @@ export default function VatIdChecker() {
             const res = await fetch("/api/public/validate-vat-id", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ vat_id: clean }),
-            });
+                body: JSON.stringify({ vat_id: clean }) });
 
             const data: VatValidationResponse = await res.json();
             if (!res.ok) {
@@ -123,8 +120,7 @@ export default function VatIdChecker() {
                             borderRadius: 12,
                             border: result.valid ? "2px solid #10b981" : "2px solid #ef4444",
                             background: result.valid ? "#f0fdf4" : "#fef2f2",
-                            boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
-                        }}
+                            boxShadow: "0 4px 14px rgba(0,0,0,0.04)" }}
                     >
                         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -210,8 +206,7 @@ export default function VatIdChecker() {
                                         color: "#334155",
                                         display: "flex",
                                         alignItems: "center",
-                                        gap: 10,
-                                    }}
+                                        gap: 10 }}
                                 >
                                     <FileProtectOutlined style={{ fontSize: 20, color: "#2563eb" }} />
                                     <span>
@@ -236,8 +231,7 @@ export default function VatIdChecker() {
                                 justifyContent: "space-between",
                                 alignItems: "center",
                                 flexWrap: "wrap",
-                                gap: 12,
-                            }}
+                                gap: 12 }}
                         >
                             <div>
                                 <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0f172a" }}>

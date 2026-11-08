@@ -1,18 +1,11 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Card, InputNumber, Button, Typography, Tag, Table, Divider } from "antd";
+import { Card, InputNumber, Button, Tag } from "antd";
 import {
-    AccountBookOutlined,
-    DownloadOutlined,
-    PlusOutlined,
-    DeleteOutlined,
-    InfoCircleOutlined,
-    CheckCircleOutlined,
-} from "@ant-design/icons";
+    DownloadOutlined } from "@ant-design/icons";
 import { calculateEuer, EuerRevenueCategory, EuerExpenseCategory } from "@/lib/tools/euer";
 
-const { Text } = Typography;
 
 export default function EuerRechner() {
     const [rev19, setRev19] = useState<number>(45000);

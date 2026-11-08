@@ -1,15 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input, InputNumber, Button, Card, Typography, DatePicker, Select, Radio } from "antd";
+import { Input, InputNumber, Button, Card, DatePicker, Select } from "antd";
 import {
-    PrinterOutlined,
-    FileDoneOutlined,
-    SafetyCertificateOutlined,
-} from "@ant-design/icons";
+    PrinterOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const { Text } = Typography;
 
 export default function KassenbuchEigenbeleg() {
     const [receiptDate, setReceiptDate] = useState<string>(dayjs().format("YYYY-MM-DD"));
@@ -23,8 +19,7 @@ export default function KassenbuchEigenbeleg() {
         automat_ohne_quittung: "Automat / Parkuhr hat keine Quittung ausgestellt",
         beleg_verloren: "Originalbeleg verloren / verlegt",
         trinkgeld_bar: "Bar gegebenes Trinkgeld ohne gesonderten Ausweis",
-        telefon_porto: "Porto / Briefmarken / Telefon ohne Beleg",
-    };
+        telefon_porto: "Porto / Briefmarken / Telefon ohne Beleg" };
 
     const handlePrint = () => {
         if (typeof window !== "undefined") {
@@ -40,8 +35,7 @@ export default function KassenbuchEigenbeleg() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                     gap: 20,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#334155" }}>
@@ -142,8 +136,7 @@ export default function KassenbuchEigenbeleg() {
                         padding: 28,
                         borderRadius: 8,
                         background: "#ffffff",
-                        color: "#0f172a",
-                    }}
+                        color: "#0f172a" }}
                 >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #0f172a", paddingBottom: 12, marginBottom: 20 }}>
                         <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>
@@ -180,8 +173,7 @@ export default function KassenbuchEigenbeleg() {
                             marginBottom: 24,
                             display: "flex",
                             justifyContent: "space-between",
-                            alignItems: "center",
-                        }}
+                            alignItems: "center" }}
                     >
                         <span style={{ fontSize: 16, fontWeight: 700 }}>Tatsächlich aufgewendeter Betrag:</span>
                         <span style={{ fontSize: 24, fontWeight: 900, color: "#0f172a" }}>

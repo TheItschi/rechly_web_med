@@ -1,17 +1,12 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Select, InputNumber, Card, Button, Typography, Tag, Table, Radio } from "antd";
+import { Select, InputNumber, Card, Button, Tag, Table } from "antd";
 import {
-    CalculatorOutlined,
     DownloadOutlined,
-    InfoCircleOutlined,
-    CheckCircleOutlined,
-    DollarOutlined,
-} from "@ant-design/icons";
-import { calculateAfa, BMF_ASSET_PRESETS, AfaScheduleRow } from "@/lib/tools/afa";
+    InfoCircleOutlined } from "@ant-design/icons";
+import { calculateAfa, BMF_ASSET_PRESETS } from "@/lib/tools/afa";
 
-const { Text } = Typography;
 
 export default function AfaRechner() {
     const currentYear = new Date().getFullYear();
@@ -22,7 +17,7 @@ export default function AfaRechner() {
     const [purchaseMonth, setPurchaseMonth] = useState<number>(currentMonth);
     const [purchaseYear, setPurchaseYear] = useState<number>(currentYear >= 2026 ? currentYear : 2026);
     const [usefulLifeYears, setUsefulLifeYears] = useState<number>(1);
-    const [marginalTaxRate, setMarginalTaxRate] = useState<number>(35);
+    const [marginalTaxRate] = useState<number>(35);
 
     const handlePresetChange = (presetId: string) => {
         setSelectedPreset(presetId);
@@ -38,8 +33,7 @@ export default function AfaRechner() {
             purchaseMonth,
             purchaseYear,
             usefulLifeYears: usefulLifeYears || 1,
-            marginalTaxRatePercent: marginalTaxRate || 35,
-        });
+            marginalTaxRatePercent: marginalTaxRate || 35 });
     }, [netCost, purchaseMonth, purchaseYear, usefulLifeYears, marginalTaxRate]);
 
     const exportCsv = () => {
@@ -67,14 +61,12 @@ export default function AfaRechner() {
             title: "Wirtschaftsjahr",
             dataIndex: "year",
             key: "year",
-            render: (year: number) => <strong>{year}</strong>,
-        },
+            render: (year: number) => <strong>{year}</strong> },
         {
             title: "Buchwert Beginn",
             dataIndex: "openingBookValue",
             key: "openingBookValue",
-            render: (val: number) => `${val.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €`,
-        },
+            render: (val: number) => `${val.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €` },
         {
             title: "AfA-Betrag",
             dataIndex: "depreciationAmount",
@@ -83,8 +75,7 @@ export default function AfaRechner() {
                 <span style={{ fontWeight: 700, color: "#2563eb" }}>
                     {val.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €
                 </span>
-            ),
-        },
+            ) },
         {
             title: "Restbuchwert zum 31.12.",
             dataIndex: "closingBookValue",
@@ -93,14 +84,12 @@ export default function AfaRechner() {
                 <span style={{ color: val === 0 ? "#16a34a" : "#0f172a" }}>
                     {val.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €
                 </span>
-            ),
-        },
+            ) },
         {
             title: "Monate",
             dataIndex: "monthsDepreciated",
             key: "monthsDepreciated",
-            render: (val: number) => <Tag color={val === 12 ? "blue" : "orange"}>{val} / 12</Tag>,
-        },
+            render: (val: number) => <Tag color={val === 12 ? "blue" : "orange"}>{val} / 12</Tag> },
     ];
 
     const monthOptions = [
@@ -180,8 +169,7 @@ export default function AfaRechner() {
                             options={[
                                 ...BMF_ASSET_PRESETS.map((p) => ({
                                     label: `${p.name} (${p.usefulLifeYears} ${p.usefulLifeYears === 1 ? "Jahr" : "Jahre"})`,
-                                    value: p.id,
-                                })),
+                                    value: p.id })),
                                 { label: "Individuelle Nutzungsdauer eingeben", value: "custom" },
                             ]}
                         />

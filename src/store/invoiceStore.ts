@@ -1,11 +1,22 @@
 import { create } from "zustand";
+import {
+    getAllInvoices,
+    getInvoiceById,
+    createInvoice as apiCreateInvoice,
+    updateInvoiceStatus as apiUpdateStatus,
+    deleteInvoice as apiDeleteInvoice,
+    getInvoiceStats as apiGetStats,
+} from "@/lib/invoiceService";
+import { isCacheValid } from "./cache";
+import { logger } from "@/lib/logger";
 import type {
+    InvoiceStatus,
     InvoiceWithClient,
     InvoiceWithDetails,
     InvoiceFormData,
 } from "@/types";
 
-// Invoice stats type
+// Invoice stats type (re-exported for backwards compat)
 export interface InvoiceStats {
     total: number;
     draft: number;
@@ -28,82 +39,10 @@ interface InvoiceStore {
     fetchStats: (force?: boolean) => Promise<void>;
     getInvoice: (id: string) => Promise<InvoiceWithDetails | null>;
     addInvoice: (data: InvoiceFormData) => Promise<string>;
-    updateStatus: (id: string, status: string) => Promise<void>;
+    updateStatus: (id: string, status: InvoiceStatus) => Promise<void>;
     removeInvoice: (id: string) => Promise<void>;
     clearCache: () => void;
 }
-
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-// API helper functions that use server-side routes
-const apiGetInvoices = async (): Promise<InvoiceWithClient[]> => {
-    const res = await fetch("/api/invoices");
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to fetch invoices");
-    }
-    return res.json();
-};
-
-const apiGetInvoice = async (
-    id: string
-): Promise<InvoiceWithDetails | null> => {
-    const res = await fetch(`/api/invoices/${id}`);
-    if (res.status === 404) return null;
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to fetch invoice");
-    }
-    return res.json();
-};
-
-const apiCreateInvoice = async (data: InvoiceFormData): Promise<string> => {
-    const res = await fetch("/api/invoices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to create invoice");
-    }
-    const result = await res.json();
-    return result.id;
-};
-
-const apiUpdateInvoiceStatus = async (
-    id: string,
-    status: string
-): Promise<void> => {
-    const res = await fetch(`/api/invoices/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to update invoice");
-    }
-};
-
-const apiDeleteInvoice = async (id: string): Promise<void> => {
-    const res = await fetch(`/api/invoices/${id}`, {
-        method: "DELETE",
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to delete invoice");
-    }
-};
-
-const apiGetInvoiceStats = async (): Promise<InvoiceStats> => {
-    const res = await fetch("/api/invoices/stats");
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to fetch invoice stats");
-    }
-    return res.json();
-};
 
 export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
     invoices: [],
@@ -119,17 +58,13 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
         if (loading) return;
 
         // Skip if cache is still valid (unless forced)
-        if (
-            !force &&
-            lastFetched &&
-            Date.now() - lastFetched < CACHE_DURATION
-        ) {
+        if (isCacheValid(lastFetched, force)) {
             return;
         }
 
         set({ loading: true, error: null });
         try {
-            const invoices = await apiGetInvoices();
+            const invoices = await getAllInvoices();
             set({ invoices, loading: false, lastFetched: Date.now() });
         } catch (error) {
             set({
@@ -146,26 +81,21 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
         const { stats, lastFetched } = get();
 
         // Skip if cache is still valid (unless forced)
-        if (
-            !force &&
-            stats &&
-            lastFetched &&
-            Date.now() - lastFetched < CACHE_DURATION
-        ) {
+        if (!force && stats && isCacheValid(lastFetched)) {
             return;
         }
 
         try {
-            const newStats = await apiGetInvoiceStats();
+            const newStats = await apiGetStats();
             set({ stats: newStats });
         } catch (error) {
-            console.error("Failed to fetch invoice stats:", error);
+            logger.error("Failed to fetch invoice stats:", error);
         }
     },
 
     getInvoice: async (id: string) => {
         // Always fetch fresh details since it includes items
-        return await apiGetInvoice(id);
+        return await getInvoiceById(id);
     },
 
     addInvoice: async (data: InvoiceFormData) => {
@@ -175,20 +105,16 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
         return invoiceId;
     },
 
-    updateStatus: async (id: string, status: string) => {
-        await apiUpdateInvoiceStatus(id, status);
+    updateStatus: async (id: string, status: InvoiceStatus) => {
+        await apiUpdateStatus(id, status);
         set((state) => ({
             invoices: state.invoices.map((inv) =>
                 inv.id === id
                     ? {
                           ...inv,
-                          status: status as
-                              | "draft"
-                              | "sent"
-                              | "paid"
-                              | "cancelled",
+                          status,
                       }
-                    : inv
+                    : inv,
             ),
             stats: null, // Invalidate stats cache
         }));

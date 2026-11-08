@@ -1,20 +1,16 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Radio, Card, Input, InputNumber, Button, Typography, Tag, Table, Space, message, Alert } from "antd";
+import { Radio, Card, Input, InputNumber, Button, Tag, Space, message } from "antd";
 import {
-    BankOutlined,
     DownloadOutlined,
     PlusOutlined,
     DeleteOutlined,
-    CheckCircleOutlined,
     SafetyCertificateOutlined,
     CopyOutlined,
-    CheckOutlined,
-} from "@ant-design/icons";
+    CheckOutlined } from "@ant-design/icons";
 import { generateSepaXml, SepaTransaction, SepaXmlInput } from "@/lib/tools/sepaXml";
 
-const { Text } = Typography;
 
 export default function SepaXmlGenerator() {
     const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
@@ -35,8 +31,7 @@ export default function SepaXmlGenerator() {
             amount: 850.0,
             remittanceInfo: "Rechnung RE-2026-104",
             mandateId: "MANDAT-001",
-            mandateDate: "2025-05-10",
-        },
+            mandateDate: "2025-05-10" },
         {
             id: "tx-2",
             recipientName: "Cloud Server Hosting GmbH",
@@ -45,8 +40,7 @@ export default function SepaXmlGenerator() {
             amount: 129.5,
             remittanceInfo: "Server Miete März 2026",
             mandateId: "MANDAT-002",
-            mandateDate: "2025-06-15",
-        },
+            mandateDate: "2025-06-15" },
     ]);
 
     const [copiedXml, setCopiedXml] = useState<boolean>(false);
@@ -59,8 +53,7 @@ export default function SepaXmlGenerator() {
             senderBic,
             creditorId: type === "pain.008" ? creditorId : undefined,
             executionDate,
-            transactions,
-        };
+            transactions };
         return generateSepaXml(input);
     }, [type, initiatorName, senderIban, senderBic, creditorId, executionDate, transactions]);
 
@@ -72,8 +65,7 @@ export default function SepaXmlGenerator() {
             amount: 100.0,
             remittanceInfo: "Rechnung",
             mandateId: `MANDAT-${transactions.length + 1}`,
-            mandateDate: executionDate,
-        };
+            mandateDate: executionDate };
         setTransactions([...transactions, newTx]);
     };
 
@@ -128,8 +120,7 @@ export default function SepaXmlGenerator() {
                     borderRadius: 8,
                     marginBottom: 20,
                     fontSize: 13,
-                    color: "#166534",
-                }}
+                    color: "#166534" }}
             >
                 <SafetyCertificateOutlined style={{ fontSize: 20, color: "#16a34a" }} />
                 <span>
@@ -217,7 +208,7 @@ export default function SepaXmlGenerator() {
                 style={{ borderRadius: 12, border: "1px solid #e2e8f0", marginBottom: 20 }}
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {transactions.map((tx, idx) => (
+                    {transactions.map((tx) => (
                         <div
                             key={tx.id}
                             style={{
@@ -228,8 +219,7 @@ export default function SepaXmlGenerator() {
                                 padding: 12,
                                 background: "#f8fafc",
                                 borderRadius: 8,
-                                border: "1px solid #e2e8f0",
-                            }}
+                                border: "1px solid #e2e8f0" }}
                         >
                             <div>
                                 <label style={{ fontSize: 11, color: "#64748b" }}>Empfänger / Zahlungspflichtiger</label>
@@ -342,8 +332,7 @@ export default function SepaXmlGenerator() {
                         fontFamily: "monospace",
                         fontSize: 12,
                         lineHeight: 1.5,
-                        whiteSpace: "pre-wrap",
-                    }}
+                        whiteSpace: "pre-wrap" }}
                 >
                     {sepaResult.xml}
                 </div>

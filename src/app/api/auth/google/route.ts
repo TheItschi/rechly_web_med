@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGoogleOAuthURL } from "@/lib/appwrite-server";
+import { logger } from "@/lib/logger";
 
 /**
  * GET /api/auth/google
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
             origin = request.nextUrl.origin;
         }
 
-        console.log("OAuth origin detection:", { forwardedHost, host, origin });
+        logger.debug("OAuth origin detection:", { forwardedHost, host, origin });
 
         // Use api/auth/callback for both success and failure to properly handle errors
         const successUrl = `${origin}/api/auth/callback`;

@@ -1,24 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { Upload, Button, Tag, Table, Alert, Card, Typography, Modal } from "antd";
+import { Upload, Button, Alert, Card, Typography, Modal } from "antd";
 import {
     InboxOutlined,
     FileTextOutlined,
     QrcodeOutlined,
     DownloadOutlined,
-    CheckCircleOutlined,
-    ExclamationCircleOutlined,
-} from "@ant-design/icons";
+    CheckCircleOutlined } from "@ant-design/icons";
 import { parseEInvoiceXml, extractZugferdXmlFromPdfBytes } from "@/lib/eInvoiceParserClient";
 import type { ParsedEInvoice } from "@/lib/eInvoiceParser";
 import Link from "next/link";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { Dragger } = Upload;
 
 export default function ERechnungViewer() {
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
     const [fileName, setFileName] = useState<string>("");
     const [parsedData, setParsedData] = useState<ParsedEInvoice | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -104,8 +102,7 @@ export default function ERechnungViewer() {
                     background: "#f8fafc",
                     border: "2px dashed #cbd5e1",
                     borderRadius: 12,
-                    marginBottom: 24,
-                }}
+                    marginBottom: 24 }}
             >
                 <p className="ant-upload-drag-icon" style={{ marginBottom: 12 }}>
                     <InboxOutlined style={{ fontSize: 44, color: "#2563eb" }} />
@@ -141,8 +138,7 @@ export default function ERechnungViewer() {
                             background: "#ecfdf5",
                             padding: "16px 20px",
                             borderRadius: 10,
-                            border: "1px solid #a7f3d0",
-                        }}
+                            border: "1px solid #a7f3d0" }}
                     >
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             <CheckCircleOutlined style={{ color: "#059669", fontSize: 20 }} />
@@ -169,8 +165,7 @@ export default function ERechnungViewer() {
                         style={{
                             display: "grid",
                             gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                            gap: 16,
-                        }}
+                            gap: 16 }}
                     >
                         <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
                             <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
@@ -213,7 +208,7 @@ export default function ERechnungViewer() {
                         </Card>
                     </div>
 
-                    {/* Details Table */}
+                    {/* Details  */}
                     <Card
                         title="Rechnungsdetails & Pflichtangaben (§ 14 UStG / EN 16931)"
                         style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}
@@ -271,8 +266,7 @@ export default function ERechnungViewer() {
                                     alignItems: "center",
                                     justifyContent: "space-between",
                                     flexWrap: "wrap",
-                                    gap: 12,
-                                }}
+                                    gap: 12 }}
                             >
                                 <div>
                                     <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0f172a" }}>
@@ -319,8 +313,7 @@ export default function ERechnungViewer() {
                         maxHeight: 500,
                         overflow: "auto",
                         fontSize: 12,
-                        lineHeight: 1.5,
-                    }}
+                        lineHeight: 1.5 }}
                 >
                     {rawXml}
                 </pre>

@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Input, InputNumber, Radio, Button, Card, Typography, DatePicker, Alert } from "antd";
+import { Input, InputNumber, Radio, Button, Card, Typography, DatePicker } from "antd";
 import {
-    PrinterOutlined,
-    FileDoneOutlined,
-    InfoCircleOutlined,
-    DollarOutlined,
-} from "@ant-design/icons";
+    PrinterOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const { Text } = Typography;
@@ -43,8 +39,7 @@ export default function BewirtungsbelegRechner() {
             deductibleExpenses70,
             nonDeductibleExpenses30,
             fullVatDeduction,
-            totalTaxRelief: Math.round(totalTaxRelief * 100) / 100,
-        };
+            totalTaxRelief: Math.round(totalTaxRelief * 100) / 100 };
     }, [foodGross, tipAmount, vatRate]);
 
     const handlePrint = () => {
@@ -61,8 +56,7 @@ export default function BewirtungsbelegRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                     gap: 20,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#334155" }}>
@@ -169,8 +163,7 @@ export default function BewirtungsbelegRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                     gap: 16,
-                    marginBottom: 32,
-                }}
+                    marginBottom: 32 }}
             >
                 <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
@@ -186,8 +179,7 @@ export default function BewirtungsbelegRechner() {
                     style={{
                         borderRadius: 10,
                         border: "2px solid #16a34a",
-                        background: "#f0fdf4",
-                    }}
+                        background: "#f0fdf4" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#166534" }}>
                         70 % Betriebsausgabe (§ 4 EStG)
@@ -241,8 +233,7 @@ export default function BewirtungsbelegRechner() {
                         padding: 24,
                         borderRadius: 8,
                         background: "#ffffff",
-                        color: "#0f172a",
-                    }}
+                        color: "#0f172a" }}
                 >
                     <h3 style={{ margin: "0 0 16px 0", fontSize: 18, borderBottom: "1px solid #cbd5e1", paddingBottom: 8 }}>
                         BEWIRTUNGSBELEG (Eigenbeleg zum Gaststättenbeleg nach § 4 Abs. 5 Nr. 2 EStG)
@@ -272,8 +263,7 @@ export default function BewirtungsbelegRechner() {
                             borderRadius: 6,
                             border: "1px solid #e2e8f0",
                             fontSize: 14,
-                            marginBottom: 20,
-                        }}
+                            marginBottom: 20 }}
                     >
                         <div>Rechnungsbetrag Speisen/Getränke: {foodGross.toFixed(2)} € (inkl. {vatRate}% USt)</div>
                         <div>Trinkgeld (gesondert quittiert): {tipAmount.toFixed(2)} €</div>

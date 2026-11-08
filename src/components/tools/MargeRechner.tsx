@@ -20,7 +20,7 @@ export function MargeRechner() {
     const [shippingCostStr, setShippingCostStr] = useState("4.50");
     const [overheadPct, setOverheadPct] = useState("25");
     const [profitMarkupPct, setProfitMarkupPct] = useState("20");
-    const [customerSkontoPct, setCustomerSkontoPct] = useState("2");
+    const [customerSkontoPct] = useState("2");
     const [customerRabattPct, setCustomerRabattPct] = useState("5");
 
     // Quick Margin vs Markup

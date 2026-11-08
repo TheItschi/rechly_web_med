@@ -1,21 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Form, Input, InputNumber, Button, Card, Typography, Alert, Space } from "antd";
+import React, { useState, useEffect, useMemo } from "react";
+import { Input, InputNumber, Button, Card, Typography, Alert, Space } from "antd";
 import {
     QrcodeOutlined,
     DownloadOutlined,
     CopyOutlined,
-    PrinterOutlined,
     CheckOutlined,
-    LinkOutlined,
-} from "@ant-design/icons";
+    LinkOutlined } from "@ant-design/icons";
 import QRCode from "qrcode";
 import { buildGirocodePayload, GirocodeInput } from "@/lib/girocode";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 export default function GiroCodeGenerator() {
     const searchParams = useSearchParams();
@@ -28,7 +25,7 @@ export default function GiroCodeGenerator() {
     const [reference, setReference] = useState(searchParams?.get("reference") || "Rechnung RE-2026-001");
     const [qrDataUrl, setQrDataUrl] = useState<string>("");
     const [copied, setCopied] = useState(false);
-    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [errorMsg] = useState<string | null>(null);
 
     // Format IBAN with spaces
     const formatIban = (val: string) => {
@@ -55,15 +52,13 @@ export default function GiroCodeGenerator() {
             iban: cleanIban,
             bic: bic || undefined,
             amount,
-            reference,
-        };
+            reference };
 
         const payload = buildGirocodePayload(input);
         if (!payload) {
             return {
                 payload: null,
-                error: "GiroCode-Payload konnte nicht erzeugt werden. Bitte Angaben prüfen.",
-            };
+                error: "GiroCode-Payload konnte nicht erzeugt werden. Bitte Angaben prüfen." };
         }
 
         return { payload, error: null };
@@ -87,9 +82,7 @@ export default function GiroCodeGenerator() {
             width: 320,
             color: {
                 dark: "#0f172a",
-                light: "#ffffff",
-            },
-        })
+                light: "#ffffff" } })
             .then((url) => {
                 if (isCurrent) setQrDataUrl(url);
             })
@@ -125,7 +118,7 @@ export default function GiroCodeGenerator() {
 
     return (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32 }}>
-            {/* Form Column */}
+            {/*  Column */}
             <div>
                 <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, color: "#0f172a" }}>
                     Überweisungsdaten eingeben
@@ -225,8 +218,7 @@ export default function GiroCodeGenerator() {
                         borderRadius: 14,
                         border: "1px solid #e2e8f0",
                         boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
-                        background: "#ffffff",
-                    }}
+                        background: "#ffffff" }}
                 >
                     <div
                         style={{
@@ -237,14 +229,15 @@ export default function GiroCodeGenerator() {
                             margin: "-24px -24px 20px -24px",
                             fontSize: 13,
                             fontWeight: 700,
-                            letterSpacing: 0.5,
-                        }}
+                            letterSpacing: 0.5 }}
                     >
                         EPC-QR-CODE (GiroCode)
                     </div>
 
                     {qrDataUrl ? (
                         <div>
+                            {/* next/image can't optimize runtime-generated QR data URLs */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={qrDataUrl}
                                 alt="GiroCode für SEPA Überweisung"
@@ -255,8 +248,7 @@ export default function GiroCodeGenerator() {
                                     border: "1px solid #e2e8f0",
                                     borderRadius: 8,
                                     padding: 8,
-                                    background: "#ffffff",
-                                }}
+                                    background: "#ffffff" }}
                             />
 
                             <div style={{ fontSize: 13, color: "#475569", marginBottom: 16 }}>
@@ -294,8 +286,7 @@ export default function GiroCodeGenerator() {
                                 display: "flex",
                                 flexDirection: "column",
                                 alignItems: "center",
-                                gap: 12,
-                            }}
+                                gap: 12 }}
                         >
                             <QrcodeOutlined style={{ fontSize: 64, color: "#cbd5e1" }} />
                             <Text type="secondary">
@@ -317,8 +308,7 @@ export default function GiroCodeGenerator() {
                         maxWidth: 380,
                         display: "flex",
                         alignItems: "center",
-                        gap: 10,
-                    }}
+                        gap: 10 }}
                 >
                     <LinkOutlined style={{ fontSize: 18 }} />
                     <span>

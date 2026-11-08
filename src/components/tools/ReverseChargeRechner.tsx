@@ -1,30 +1,23 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Radio, Card, Button, Typography, Tag, Alert, message, Select } from "antd";
+import { Radio, Card, Button, Tag, Alert, message } from "antd";
 import {
-    GlobalOutlined,
     CopyOutlined,
-    CheckOutlined,
-    SafetyCertificateOutlined,
-    InfoCircleOutlined,
-    ArrowRightOutlined,
-} from "@ant-design/icons";
+    CheckOutlined } from "@ant-design/icons";
 import {
     evaluateReverseCharge,
     RecipientLocation,
     RecipientType,
-    ServiceType,
-} from "@/lib/tools/reverseCharge";
+    ServiceType } from "@/lib/tools/reverseCharge";
 import Link from "next/link";
 
-const { Text } = Typography;
 
 export default function ReverseChargeRechner() {
     const [recipientLocation, setRecipientLocation] = useState<RecipientLocation>("eu");
     const [recipientType, setRecipientType] = useState<RecipientType>("b2b");
     const [serviceType, setServiceType] = useState<ServiceType>("digital_consulting");
-    const [countryName, setCountryName] = useState<string>("Frankreich");
+    const [countryName] = useState<string>("Frankreich");
     const [copiedDe, setCopiedDe] = useState<boolean>(false);
     const [copiedEn, setCopiedEn] = useState<boolean>(false);
 
@@ -33,8 +26,7 @@ export default function ReverseChargeRechner() {
             recipientLocation,
             recipientType,
             serviceType,
-            countryName,
-        });
+            countryName });
     }, [recipientLocation, recipientType, serviceType, countryName]);
 
     const copyDe = () => {
@@ -124,8 +116,7 @@ export default function ReverseChargeRechner() {
                     borderRadius: 12,
                     border: evaluation.vatRatePercent === 0 ? "1px solid #bbf7d0" : "1px solid #bfdbfe",
                     background: evaluation.vatRatePercent === 0 ? "#f0fdf4" : "#eff6ff",
-                    marginBottom: 24,
-                }}
+                    marginBottom: 24 }}
             >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
                     <div>

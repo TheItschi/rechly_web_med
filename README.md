@@ -29,7 +29,7 @@ Prefer running everything locally without cloud or account requirements? **[Rech
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 24+ (required for desktop SQLite development; web-only also works on Node 20+, but 24 is recommended)
 - npm
 - An Appwrite project with the database and collections used by the app
 
@@ -81,7 +81,15 @@ npm run dev
 npm run build
 npm run start
 npm run lint
+npm run test
 npm run test:einvoice
+```
+
+Integration (`tests/einvoice.integration.ts`) is a manual script, not part of
+`npm test` — it needs an isolated desktop-backed Next server on `:3102`:
+
+```bash
+npm run test:integration
 ```
 
 ## Account Deletion
@@ -134,7 +142,9 @@ installers still need platform signing before distribution.
 
 ## Current Gaps
 
-- Appwrite infrastructure is documented but not auto-provisioned.
+- Appwrite infrastructure is documented but not auto-provisioned. `appwrite.config.json` is the source of truth — apply it with the Appwrite CLI (`npx appwrite deploy` / `appwrite init`, see skill `appwrite-cli`) or create the `rechly-db` tables manually to match `src/lib/appwrite.ts`.
+- `invoices/create/page.tsx` (~1000 lines) and `MigrationWizard.tsx` (~1500 lines) still need component/hook extraction (stateful UI — refactor with running app + Playwright coverage).
+- Release installers need platform signing before distribution.
 
 ## License
 

@@ -614,6 +614,8 @@ export default function InvoiceDetailPage() {
                                     border: "1px solid #e2e8f0",
                                 }}
                             >
+                                {/* next/image can't optimize runtime-generated QR data URLs */}
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={girocodeUrl}
                                     alt="SEPA GiroCode"

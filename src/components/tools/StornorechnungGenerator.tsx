@@ -41,7 +41,7 @@ export function StornorechnungGenerator() {
     );
     const [netAmountStr, setNetAmountStr] = useState("1200.00");
     const [vatRate, setVatRate] = useState<0 | 7 | 19>(19);
-    const [payoutMethod, setPayoutMethod] = useState(
+    const [payoutMethod] = useState(
         "Der Korrekturbetrag wird mit Ihrer nächsten Rechnung verrechnet bzw. auf Ihr Bankkonto erstattet.",
     );
 

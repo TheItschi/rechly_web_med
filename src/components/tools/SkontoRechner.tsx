@@ -1,14 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { InputNumber, Radio, Card, Typography, Alert, Progress } from "antd";
+import { InputNumber, Radio, Card, Typography } from "antd";
 import {
-    PercentageOutlined,
-    CheckCircleOutlined,
-    InfoCircleOutlined,
-    DollarCircleOutlined,
-    RiseOutlined,
-} from "@ant-design/icons";
+    } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -32,8 +27,6 @@ export default function SkontoRechner() {
                 : 0;
 
         // VAT / Vorsteuer correction under § 17 UStG
-        const netBaseAmount = grossAmount / (1 + vatRate / 100);
-        const vatTotal = grossAmount - netBaseAmount;
         const netDiscount = discountAmount / (1 + vatRate / 100);
         const vatDiscount = discountAmount - netDiscount;
 
@@ -50,8 +43,7 @@ export default function SkontoRechner() {
             vatDiscount: Math.round(vatDiscount * 100) / 100,
             bankInterestCost: Math.round(bankInterestCost * 100) / 100,
             netProfitTakingCredit: Math.round(netProfitTakingCredit * 100) / 100,
-            worthBankCredit: netProfitTakingCredit > 0,
-        };
+            worthBankCredit: netProfitTakingCredit > 0 };
     }, [grossAmount, skontoPercent, skontoDays, netDays, vatRate, bankInterestRate]);
 
     return (
@@ -62,8 +54,7 @@ export default function SkontoRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
                     gap: 20,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#334155" }}>
@@ -134,8 +125,7 @@ export default function SkontoRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                     gap: 16,
-                    marginBottom: 32,
-                }}
+                    marginBottom: 32 }}
             >
                 <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
@@ -166,8 +156,7 @@ export default function SkontoRechner() {
                     style={{
                         borderRadius: 10,
                         border: "2px solid #2563eb",
-                        background: "#eff6ff",
-                    }}
+                        background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Effektiver Jahreszins (p. a.)
@@ -209,8 +198,7 @@ export default function SkontoRechner() {
                             border: calc.worthBankCredit ? "1px solid #86efac" : "1px solid #fca5a5",
                             borderRadius: 8,
                             padding: "16px",
-                            marginBottom: 16,
-                        }}
+                            marginBottom: 16 }}
                     >
                         <div style={{ fontWeight: 800, fontSize: 16, color: calc.worthBankCredit ? "#15803d" : "#b91c1c" }}>
                             {calc.worthBankCredit
@@ -264,8 +252,7 @@ export default function SkontoRechner() {
                                 display: "flex",
                                 justifyContent: "space-between",
                                 borderTop: "1px solid #e2e8f0",
-                                paddingTop: 8,
-                            }}
+                                paddingTop: 8 }}
                         >
                             <span style={{ fontWeight: 700, color: "#0f172a" }}>Gesamte Entlastung:</span>
                             <span style={{ fontWeight: 800, color: "#059669" }}>- {calc.discountAmount.toFixed(2)} €</span>

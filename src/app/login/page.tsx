@@ -26,6 +26,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import Link from "next/link";
+import { logger } from "@/lib/logger";
 
 const { Title, Text } = Typography;
 
@@ -43,12 +44,12 @@ function LoginForm() {
         // Log all URL params for debugging
         const allParams = Object.fromEntries(searchParams.entries());
         if (Object.keys(allParams).length > 0) {
-            console.log("Login page URL params:", allParams);
+            logger.debug("Login page URL params:", allParams);
         }
 
         const errorParam = searchParams.get("error");
         if (errorParam) {
-            console.log("OAuth error param:", errorParam);
+            logger.debug("OAuth error param:", errorParam);
             try {
                 const decodedError = decodeURIComponent(errorParam);
                 // Try to parse as JSON first

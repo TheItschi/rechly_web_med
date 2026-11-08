@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { InputNumber, Radio, Select, Card, Typography, Alert, Tag } from "antd";
+import { InputNumber, Select, Card, Typography } from "antd";
 import {
-    DollarOutlined,
-    CheckCircleOutlined,
-    InfoCircleOutlined,
-    BankOutlined,
-} from "@ant-design/icons";
+    } from "@ant-design/icons";
 import { TOP_MUNICIPALITIES, calculateGewerbesteuer, GewerbesteuerResult } from "@/lib/tools/taxRates";
 
 const { Text } = Typography;
@@ -40,8 +36,7 @@ export default function GewerbesteuerRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                     gap: 20,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#334155" }}>
@@ -88,8 +83,7 @@ export default function GewerbesteuerRechner() {
                         showSearch
                         options={TOP_MUNICIPALITIES.map((m) => ({
                             value: m.city,
-                            label: `${m.city} (${m.hebesatz} %)`,
-                        }))}
+                            label: `${m.city} (${m.hebesatz} %)` }))}
                     />
                 </div>
 
@@ -115,8 +109,7 @@ export default function GewerbesteuerRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                     gap: 16,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
@@ -150,8 +143,7 @@ export default function GewerbesteuerRechner() {
                     style={{
                         borderRadius: 10,
                         border: "2px solid #2563eb",
-                        background: "#eff6ff",
-                    }}
+                        background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Effektive Steuerbelastung

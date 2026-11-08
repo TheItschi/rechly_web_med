@@ -1,14 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { InputNumber, Slider, Card, Typography, Alert, Divider, Button } from "antd";
+import { InputNumber, Slider, Card, Typography, Button } from "antd";
 import {
-    DollarOutlined,
-    ClockCircleOutlined,
-    UserOutlined,
-    FileProtectOutlined,
-    ArrowRightOutlined,
-} from "@ant-design/icons";
+    ArrowRightOutlined } from "@ant-design/icons";
 import Link from "next/link";
 
 const { Text } = Typography;
@@ -24,7 +19,7 @@ export default function StundensatzRechner() {
     const [vacationDaysYearly, setVacationDaysYearly] = useState<number>(28);
     const [sickDaysYearly, setSickDaysYearly] = useState<number>(10);
     const [adminDaysYearly, setAdminDaysYearly] = useState<number>(15); // Akquise, Buchhaltung, Fortbildung
-    const [dailyWorkingHours, setDailyWorkingHours] = useState<number>(8);
+    const [dailyWorkingHours] = useState<number>(8);
     const [billableRatioPercent, setBillableRatioPercent] = useState<number>(65); // 65% direkt abrechenbare Zeit
 
     const calc = useMemo(() => {
@@ -65,8 +60,7 @@ export default function StundensatzRechner() {
             billableHoursMonthly,
             minimumHourlyRate: Math.round(minimumHourlyRate),
             recommendedHourlyRate: Math.round(recommendedHourlyRate),
-            dayRate: Math.round(dayRate),
-        };
+            dayRate: Math.round(dayRate) };
     }, [
         desiredNetIncomeMonthly,
         businessOverheadMonthly,
@@ -232,16 +226,14 @@ export default function StundensatzRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                     gap: 16,
-                    marginBottom: 32,
-                }}
+                    marginBottom: 32 }}
             >
                 <Card
                     size="small"
                     style={{
                         borderRadius: 12,
                         border: "2px solid #2563eb",
-                        background: "#eff6ff",
-                    }}
+                        background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Empfohlener Stundensatz
@@ -306,8 +298,7 @@ export default function StundensatzRechner() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     flexWrap: "wrap",
-                    gap: 16,
-                }}
+                    gap: 16 }}
             >
                 <div>
                     <h4 style={{ margin: "0 0 4px 0", fontSize: 15, fontWeight: 700, color: "#0f172a" }}>

@@ -1,16 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input, InputNumber, Button, Card, Typography, DatePicker, Select } from "antd";
+import { Input, InputNumber, Button, Card, DatePicker } from "antd";
 import {
-    PrinterOutlined,
-    FileDoneOutlined,
-    ToolOutlined,
-    CloudOutlined,
-} from "@ant-design/icons";
+    PrinterOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const { Text } = Typography;
 
 export default function BautagebuchBuilder() {
     const [project, setProject] = useState<string>("Sanierung Bürogebäude Alexanderplatz 12");
@@ -41,8 +36,7 @@ export default function BautagebuchBuilder() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                     gap: 20,
-                    marginBottom: 24,
-                }}
+                    marginBottom: 24 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#334155" }}>
@@ -169,8 +163,7 @@ export default function BautagebuchBuilder() {
                         padding: 24,
                         borderRadius: 8,
                         background: "#ffffff",
-                        color: "#0f172a",
-                    }}
+                        color: "#0f172a" }}
                 >
                     <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #0f172a", paddingBottom: 10, marginBottom: 16 }}>
                         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>

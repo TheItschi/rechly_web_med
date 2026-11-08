@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Select, Radio, InputNumber, Table, Card, Typography, Tag, Button } from "antd";
+import { Select, InputNumber, Table, Card, Typography, Tag, Button } from "antd";
 import {
-    CalendarOutlined,
-    DownloadOutlined,
-    PrinterOutlined,
-    RiseOutlined,
-} from "@ant-design/icons";
+    DownloadOutlined } from "@ant-design/icons";
 import { GERMAN_STATES, calculateStateWorkdays, YearWorkdayStats, MonthWorkdayStats } from "@/lib/tools/holidays";
 
 const { Text } = Typography;
@@ -50,19 +46,16 @@ export default function ArbeitstageRechner() {
             title: "Monat",
             dataIndex: "monthName",
             key: "monthName",
-            render: (text: string) => <strong>{text}</strong>,
-        },
+            render: (text: string) => <strong>{text}</strong> },
         {
             title: "Tage gesamt",
             dataIndex: "totalDays",
-            key: "totalDays",
-        },
+            key: "totalDays" },
         {
             title: "Wochenende",
             dataIndex: "weekendDays",
             key: "weekendDays",
-            render: (val: number) => <span style={{ color: "#64748b" }}>{val}</span>,
-        },
+            render: (val: number) => <span style={{ color: "#64748b" }}>{val}</span> },
         {
             title: "Feiertage (Mo-Fr)",
             dataIndex: "holidayDays",
@@ -79,16 +72,14 @@ export default function ArbeitstageRechner() {
                     </div>
                 ) : (
                     <span>0</span>
-                ),
-        },
+                ) },
         {
             title: "Arbeitstage",
             dataIndex: "workdays",
             key: "workdays",
             render: (val: number) => (
                 <span style={{ fontSize: 16, fontWeight: 800, color: "#2563eb" }}>{val}</span>
-            ),
-        },
+            ) },
         {
             title: "Umsatzpotenzial",
             key: "revenue",
@@ -99,8 +90,7 @@ export default function ArbeitstageRechner() {
                         {monthRevenue.toLocaleString("de-DE")} €
                     </span>
                 );
-            },
-        },
+            } },
     ];
 
     return (
@@ -115,8 +105,7 @@ export default function ArbeitstageRechner() {
                     background: "#f8fafc",
                     padding: 20,
                     borderRadius: 12,
-                    border: "1px solid #e2e8f0",
-                }}
+                    border: "1px solid #e2e8f0" }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#334155" }}>
@@ -185,16 +174,14 @@ export default function ArbeitstageRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                     gap: 16,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <Card
                     size="small"
                     style={{
                         borderRadius: 10,
                         border: "2px solid #2563eb",
-                        background: "#eff6ff",
-                    }}
+                        background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Arbeitstage in {stats.stateName}

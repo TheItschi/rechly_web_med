@@ -1,18 +1,15 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Radio, Card, Tag, Button, Typography, Switch, Space, Table } from "antd";
+import { Radio, Card, Tag, Button, Switch, Space, Table } from "antd";
 import {
-    CalendarOutlined,
     DownloadOutlined,
     ClockCircleOutlined,
     CheckCircleOutlined,
     ExclamationCircleOutlined,
-    InfoCircleOutlined,
-} from "@ant-design/icons";
+    InfoCircleOutlined } from "@ant-design/icons";
 import { getTaxDeadlines2026, generateIcsCalendar, TaxDeadline } from "@/lib/tools/taxDeadlines";
 
-const { Text } = Typography;
 
 export default function SteuerkalenderRechner() {
     const [ustInterval, setUstInterval] = useState<"month" | "quarter" | "none">("quarter");
@@ -26,8 +23,7 @@ export default function SteuerkalenderRechner() {
             ustInterval,
             hasDauerfristverlaengerung,
             isEmployer,
-            isGmbH,
-        });
+            isGmbH });
     }, [ustInterval, hasDauerfristverlaengerung, isEmployer, isGmbH]);
 
     const filteredDeadlines = useMemo(() => {
@@ -101,8 +97,7 @@ export default function SteuerkalenderRechner() {
                         </div>
                     )}
                 </div>
-            ),
-        },
+            ) },
         {
             title: "Steuerart & Bezeichnung",
             key: "title",
@@ -117,8 +112,7 @@ export default function SteuerkalenderRechner() {
                         Rechtsgrundlage: {record.legalBasis}
                     </div>
                 </div>
-            ),
-        },
+            ) },
         {
             title: "Schonfrist (§ 240 AO)",
             dataIndex: "schonfristDate",
@@ -131,15 +125,13 @@ export default function SteuerkalenderRechner() {
                     </div>
                     <div style={{ fontSize: 11, color: "#64748b" }}>Überweisungsgutschrift</div>
                 </div>
-            ),
-        },
+            ) },
         {
             title: "Status",
             dataIndex: "dueDate",
             key: "status",
             width: 140,
-            render: (dueDate: string) => getStatusTag(dueDate),
-        },
+            render: (dueDate: string) => getStatusTag(dueDate) },
     ];
 
     return (
@@ -210,8 +202,7 @@ export default function SteuerkalenderRechner() {
                     alignItems: "center",
                     flexWrap: "wrap",
                     gap: 12,
-                    marginBottom: 16,
-                }}
+                    marginBottom: 16 }}
             >
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     <Button
@@ -284,8 +275,7 @@ export default function SteuerkalenderRechner() {
                     fontSize: 13,
                     color: "#166534",
                     display: "flex",
-                    gap: 12,
-                }}
+                    gap: 12 }}
             >
                 <InfoCircleOutlined style={{ fontSize: 18, color: "#16a34a", marginTop: 2 }} />
                 <div>

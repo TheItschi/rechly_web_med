@@ -1,14 +1,10 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Input, Button, Card, Typography, Alert, Tag } from "antd";
+import { Input, Button, Card, Typography, Tag } from "antd";
 import {
     CheckCircleOutlined,
-    CloseCircleOutlined,
-    SafetyCertificateOutlined,
-    CalculatorOutlined,
-    LinkOutlined,
-} from "@ant-design/icons";
+    CloseCircleOutlined } from "@ant-design/icons";
 import { validateLeitwegId, LeitwegIdValidationResult } from "@/lib/tools/leitwegId";
 import Link from "next/link";
 
@@ -46,8 +42,7 @@ export default function LeitwegIdValidator() {
                     borderRadius: 12,
                     border: result.isValid ? "2px solid #10b981" : "2px solid #f59e0b",
                     background: result.isValid ? "#f0fdf4" : "#fffbeb",
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
                     {result.isValid ? (
@@ -93,8 +88,7 @@ export default function LeitwegIdValidator() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
                     gap: 16,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
@@ -156,8 +150,7 @@ export default function LeitwegIdValidator() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     flexWrap: "wrap",
-                    gap: 16,
-                }}
+                    gap: 16 }}
             >
                 <div>
                     <h4 style={{ margin: "0 0 4px 0", fontSize: 15, fontWeight: 700, color: "#0f172a" }}>

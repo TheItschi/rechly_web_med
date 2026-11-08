@@ -2,23 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { Typography, Card, Tag, Button } from "antd";
+import { Card, Tag, Button } from "antd";
 import {
     AppstoreOutlined,
     ArrowRightOutlined,
-    QrcodeOutlined,
-    FileSearchOutlined,
-    DollarOutlined,
-    PercentageOutlined,
-    CalculatorOutlined,
-    SafetyCertificateOutlined,
-    ShopOutlined,
-    CalendarOutlined,
-    CheckCircleOutlined,
-} from "@ant-design/icons";
+    CheckCircleOutlined } from "@ant-design/icons";
 import { TOOLS_CATALOG } from "@/lib/tools/catalog";
 
-const { Text } = Typography;
 
 export default function ToolsSection() {
     // Select top 9 high-demand tools & generators for the homepage showcase
@@ -44,8 +34,7 @@ export default function ToolsSection() {
                 padding: "80px 24px",
                 background: "#f8fafc",
                 borderTop: "1px solid #e2e8f0",
-                borderBottom: "1px solid #e2e8f0",
-            }}
+                borderBottom: "1px solid #e2e8f0" }}
         >
             <div style={{ maxWidth: 1040, margin: "0 auto" }}>
                 {/* Header */}
@@ -61,8 +50,7 @@ export default function ToolsSection() {
                             borderRadius: 20,
                             fontWeight: 700,
                             fontSize: 13,
-                            marginBottom: 16,
-                        }}
+                            marginBottom: 16 }}
                     >
                         <AppstoreOutlined />
                         KOSTENLOSE BUSINESS-SUPERAPP
@@ -74,8 +62,7 @@ export default function ToolsSection() {
                             fontWeight: 900,
                             color: "#0f172a",
                             margin: "0 0 16px 0",
-                            letterSpacing: "-0.02em",
-                        }}
+                            letterSpacing: "-0.02em" }}
                     >
                         Praktische Werkzeuge für dein tägliches Geschäft
                     </h2>
@@ -86,8 +73,7 @@ export default function ToolsSection() {
                             color: "#64748b",
                             maxWidth: 680,
                             margin: "0 auto 20px auto",
-                            lineHeight: 1.6,
-                        }}
+                            lineHeight: 1.6 }}
                     >
                         Keine Registrierung erforderlich. 100% kostenlos und datensicher im Browser berechnet.
                     </p>
@@ -100,8 +86,7 @@ export default function ToolsSection() {
                             fontSize: 13,
                             color: "#059669",
                             fontWeight: 600,
-                            flexWrap: "wrap",
-                        }}
+                            flexWrap: "wrap" }}
                     >
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                             <CheckCircleOutlined /> Sofort startklar
@@ -121,8 +106,7 @@ export default function ToolsSection() {
                         display: "grid",
                         gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
                         gap: 24,
-                        marginBottom: 40,
-                    }}
+                        marginBottom: 40 }}
                 >
                     {featuredTools.map((tool) => (
                         <Link
@@ -139,17 +123,14 @@ export default function ToolsSection() {
                                     boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
                                     display: "flex",
                                     flexDirection: "column",
-                                    justifyContent: "space-between",
-                                }}
+                                    justifyContent: "space-between" }}
                                 styles={{
                                     body: {
                                         padding: 24,
                                         height: "100%",
                                         display: "flex",
                                         flexDirection: "column",
-                                        justifyContent: "space-between",
-                                    },
-                                }}
+                                        justifyContent: "space-between" } }}
                             >
                                 <div>
                                     <div
@@ -157,8 +138,7 @@ export default function ToolsSection() {
                                             display: "flex",
                                             justifyContent: "space-between",
                                             alignItems: "center",
-                                            marginBottom: 12,
-                                        }}
+                                            marginBottom: 12 }}
                                     >
                                         <span style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", background: "#eff6ff", padding: "2px 8px", borderRadius: 8 }}>
                                             {tool.category}
@@ -190,8 +170,7 @@ export default function ToolsSection() {
                                         color: "#2563eb",
                                         fontWeight: 700,
                                         fontSize: 13,
-                                        gap: 4,
-                                    }}
+                                        gap: 4 }}
                                 >
                                     Kostenlos nutzen <ArrowRightOutlined style={{ fontSize: 11 }} />
                                 </div>
@@ -214,8 +193,7 @@ export default function ToolsSection() {
                                 fontSize: 15,
                                 fontWeight: 700,
                                 borderRadius: 8,
-                                boxShadow: "0 4px 14px rgba(37,99,235,0.3)",
-                            }}
+                                boxShadow: "0 4px 14px rgba(37,99,235,0.3)" }}
                         >
                             Alle {TOOLS_CATALOG.length} kostenlosen Tools & Rechner ansehen
                         </Button>
@@ -228,8 +206,7 @@ export default function ToolsSection() {
                                 padding: "0 22px",
                                 fontSize: 14,
                                 fontWeight: 700,
-                                borderRadius: 8,
-                            }}
+                                borderRadius: 8 }}
                         >
                             14 Branchen-Rechnungsvorlagen
                         </Button>
@@ -242,8 +219,7 @@ export default function ToolsSection() {
                                 padding: "0 22px",
                                 fontSize: 14,
                                 fontWeight: 700,
-                                borderRadius: 8,
-                            }}
+                                borderRadius: 8 }}
                         >
                             Steuer- & Rechnungs-Lexikon
                         </Button>

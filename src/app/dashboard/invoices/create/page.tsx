@@ -1,9 +1,14 @@
 "use client";
 import { InvoiceIdentifierEditor } from "@/components/dashboard/EInvoiceFields";
-import { type EInvoiceData, parseEInvoiceData, parseGTIN } from "@/lib/eRechnung/identifiers";
+import { type EInvoiceData } from "@/lib/eRechnung/identifiers";
+import {
+    buildInvoiceFormData,
+    validateInvoiceDraft,
+    type InvoiceLineItem as LineItem,
+} from "@/lib/invoiceForm";
 import { defaultVatRate } from "@/lib/vatDefaults";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
     Card,
@@ -45,24 +50,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type {
     Client,
     Product,
-    InvoiceFormData,
-    InvoiceItemFormData,
     UserCompany,
 } from "@/types";
 
 const { Title, Text } = Typography;
-
-interface LineItem {
-    gtin?: string;
-    key: string;
-    description: string;
-    service_summary?: string;
-    quantity: number;
-    unit_of_measure: string;
-    price: number;
-    tax_rate_percent: number;
-    discount_percent: number;
-}
 
 export default function InvoiceCreatePage() {
     const router = useRouter();
@@ -96,12 +87,7 @@ export default function InvoiceCreatePage() {
         null,
     );
 
-    useEffect(() => {
-        loadData();
-        generateInvoiceNumber();
-    }, []);
-
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         try {
             setLoading(true);
             const [clientsData, productsData, companyData] = await Promise.all([
@@ -119,16 +105,21 @@ export default function InvoiceCreatePage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [t]);
 
-    const generateInvoiceNumber = () => {
+    const generateInvoiceNumber = useCallback(() => {
         const year = dayjs().format("YYYY");
         const month = dayjs().format("MM");
         const random = Math.floor(Math.random() * 1000)
             .toString()
             .padStart(3, "0");
         setInvoiceNumber(`RE-${year}${month}-${random}`);
-    };
+    }, []);
+
+    useEffect(() => {
+        loadData();
+        generateInvoiceNumber();
+    }, [loadData, generateInvoiceNumber]);
 
     const addLineItem = () => {
         const newItem: LineItem = {
@@ -190,41 +181,28 @@ export default function InvoiceCreatePage() {
     );
 
     const handleCreateInvoice = async () => {
-        if (!selectedClient || !selectedClient.id) {
+        const draftError = validateInvoiceDraft(selectedClient?.id, lineItems.length);
+        if (draftError === "missing-client") {
             message.error(t("invoiceCreate.selectClientError"));
             return;
         }
-        if (lineItems.length === 0) {
+        if (draftError === "missing-items") {
             message.error(t("invoiceCreate.addItemsError"));
             return;
         }
 
         setSaving(true);
         try {
-            const items: InvoiceItemFormData[] = lineItems.map((item) => ({
-                gtin: parseGTIN(item.gtin),
-                description: item.description,
-                quantity: item.quantity,
-                unit_of_measure: item.unit_of_measure,
-                price: item.price,
-                tax_rate_percent: item.tax_rate_percent,
-                discount_percent: item.discount_percent,
-            }));
-
-            const invoiceData: InvoiceFormData = {
-                client_id: selectedClient.id,
-                e_invoice: eInvoice === undefined ? undefined : {
-                    ...parseEInvoiceData(eInvoice),
-                    // An explicitly cleared buyer ID must not reapply the customer default.
-                    ...(Object.hasOwn(eInvoice, "buyer_identifier") ? { buyer_identifier: eInvoice.buyer_identifier || { value: "" } } : {}),
-                },
-                invoice_number: invoiceNumber,
-                issue_date: invoiceDate.format("YYYY-MM-DD"),
-                due_date: dueDate.format("YYYY-MM-DD"),
-                notes: notes || undefined,
-                payment_terms: paymentTerms || undefined,
-                items,
-            };
+            const invoiceData = buildInvoiceFormData({
+                clientId: selectedClient!.id!,
+                eInvoice,
+                invoiceNumber,
+                issueDate: invoiceDate.format("YYYY-MM-DD"),
+                dueDate: dueDate.format("YYYY-MM-DD"),
+                notes,
+                paymentTerms,
+                lineItems,
+            });
 
             const newInvoiceId = await createInvoice(invoiceData);
 

@@ -59,7 +59,7 @@ export function AngebotsGenerator() {
     const [sellerStreet, setSellerStreet] = useState("Industriestraße 18");
     const [sellerZipCity, setSellerZipCity] = useState("50667 Köln");
     const [sellerTaxId, setSellerTaxId] = useState("DE298374651");
-    const [sellerIban, setSellerIban] = useState("DE89 3704 0044 0532 0130 00");
+    const [sellerIban] = useState("DE89 3704 0044 0532 0130 00");
 
     // Buyer
     const [buyerName, setBuyerName] = useState("Immobilienverwaltung Rhein-West GmbH");

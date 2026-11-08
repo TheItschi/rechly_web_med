@@ -18,13 +18,11 @@ import {
     Tabs,
     Tag,
     Typography,
-    message,
-} from "antd";
+    message } from "antd";
 import {
     CheckCircleOutlined,
     CloudDownloadOutlined,
     CloudUploadOutlined,
-    CustomerServiceOutlined,
     DeleteOutlined,
     DownloadOutlined,
     FileExcelOutlined,
@@ -37,43 +35,24 @@ import {
     ShoppingOutlined,
     SwapOutlined,
     TeamOutlined,
-    WalletOutlined,
-} from "@ant-design/icons";
+    WalletOutlined } from "@ant-design/icons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
     MIGRATION_SOURCES,
+    aggregateMigrationInputs,
     autoDetectColumnMapping,
     decodeFileBuffer,
     generateSampleCsvTemplate,
     getFieldDefinitions,
-    mapRowsToClients,
-    mapRowsToExpenses,
-    mapRowsToInvoices,
-    mapRowsToProducts,
-    normalizeExpenseCategory,
     parseCsvTextToRows,
     type MigrationEntityType,
     type MigrationSourceId,
-    type NormalizedMigrationClient,
-    type NormalizedMigrationExpense,
-    type NormalizedMigrationInvoice,
-    type NormalizedMigrationProduct,
+    type ParsedCsvFileEntry,
     type ParsedMigrationEInvoice,
-    type RechlyBackupBundle,
-} from "@/lib/migration/importer";
+    type RechlyBackupBundle } from "@/lib/migration/importer";
 import type { MigrationImportResult } from "@/app/api/migration/import/route";
 
 const { Title, Text, Paragraph } = Typography;
-
-interface ParsedCsvFileEntry {
-    id: string;
-    fileName: string;
-    headers: string[];
-    rows: Record<string, string>[];
-    detectedSource: MigrationSourceId;
-    entityType: Exclude<MigrationEntityType, "full_backup">;
-    mapping: Record<string, string>;
-}
 
 interface MigrationWizardProps {
     initialSource?: MigrationSourceId;
@@ -84,8 +63,7 @@ interface MigrationWizardProps {
 export default function MigrationWizard({
     initialSource = "lexoffice",
     compact = false,
-    onImportComplete,
-}: MigrationWizardProps) {
+    onImportComplete }: MigrationWizardProps) {
     const { language } = useLanguage();
     const isDe = language === "de";
 
@@ -116,99 +94,10 @@ export default function MigrationWizard({
     );
 
     // Compute combined normalized entities from all loaded CSVs, E-Invoices, and Backup JSON
-    const aggregated = useMemo(() => {
-        const clients: NormalizedMigrationClient[] = [];
-        const products: NormalizedMigrationProduct[] = [];
-        const invoices: NormalizedMigrationInvoice[] = [];
-        const expenses: NormalizedMigrationExpense[] = [];
-
-        // 1. From CSV files
-        for (const csv of csvFiles) {
-            if (csv.entityType === "clients") {
-                clients.push(...mapRowsToClients(csv.rows, csv.mapping));
-            } else if (csv.entityType === "products") {
-                products.push(...mapRowsToProducts(csv.rows, csv.mapping));
-            } else if (csv.entityType === "invoices") {
-                invoices.push(...mapRowsToInvoices(csv.rows, csv.mapping));
-            } else if (csv.entityType === "expenses") {
-                expenses.push(...mapRowsToExpenses(csv.rows, csv.mapping));
-            }
-        }
-
-        // 2. From E-Invoice XML / ZUGFeRD PDF files
-        for (const einv of eInvoices) {
-            if (eInvoiceMode === "outgoing") {
-                if (einv.buyer?.name && einv.buyer.name !== "Unbekannt") {
-                    clients.push(einv.buyer);
-                }
-                invoices.push({
-                    invoice_number: einv.invoiceNumber,
-                    issue_date: einv.issueDate,
-                    due_date: einv.dueDate,
-                    status: "paid",
-                    client_name: einv.buyer?.name || "Importierter Kunde",
-                    client_email: einv.buyer?.email,
-                    client_address: einv.buyer?.address_line1,
-                    client_postal_code: einv.buyer?.postal_code,
-                    client_city: einv.buyer?.city,
-                    client_country: einv.buyer?.country,
-                    client_vat_id: einv.buyer?.vat_id,
-                    client_leitweg_id: einv.buyer?.leitweg_id,
-                    subtotal: einv.subtotal,
-                    total_vat: einv.totalVat,
-                    total_gross: einv.totalGross,
-                    items: einv.items,
-                });
-            } else {
-                const desc =
-                    einv.items.map((i) => i.description).join(", ") ||
-                    `Rechnung ${einv.invoiceNumber}`;
-                expenses.push({
-                    date: einv.issueDate,
-                    vendor_name: einv.seller?.name || "Lieferant",
-                    description: desc.slice(0, 240),
-                    category: normalizeExpenseCategory("", desc),
-                    amount_net: einv.subtotal,
-                    vat_rate_percent: einv.taxRatePercent,
-                    vat_amount: einv.totalVat,
-                    amount_gross: einv.totalGross,
-                    payment_method: "bank_transfer",
-                    invoice_number: einv.invoiceNumber,
-                });
-            }
-        }
-
-        // 3. From Rechly Full Backup JSON
-        if (backupBundle) {
-            if (Array.isArray(backupBundle.clients)) {
-                clients.push(...backupBundle.clients);
-            }
-            if (Array.isArray(backupBundle.products)) {
-                products.push(...backupBundle.products);
-            }
-            if (Array.isArray(backupBundle.invoices)) {
-                invoices.push(...backupBundle.invoices);
-            }
-            if (Array.isArray(backupBundle.expenses)) {
-                expenses.push(...backupBundle.expenses);
-            }
-        }
-
-        return {
-            clients,
-            products,
-            invoices,
-            expenses,
-            offersCount: backupBundle?.offers?.length || 0,
-            hasCompany: Boolean(backupBundle?.company?.name),
-            totalItems:
-                clients.length +
-                products.length +
-                invoices.length +
-                expenses.length +
-                (backupBundle?.offers?.length || 0),
-        };
-    }, [csvFiles, eInvoices, eInvoiceMode, backupBundle]);
+    const aggregated = useMemo(
+        () => aggregateMigrationInputs(csvFiles, eInvoices, eInvoiceMode, backupBundle),
+        [csvFiles, eInvoices, eInvoiceMode, backupBundle],
+    );
 
     const handleDownloadFullBackup = async () => {
         setDownloadingBackup(true);
@@ -247,8 +136,7 @@ export default function MigrationWizard({
     ) => {
         const csvContent = "\uFEFF" + generateSampleCsvTemplate(entityType);
         const blob = new Blob([csvContent], {
-            type: "text/csv;charset=utf-8;",
-        });
+            type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -329,8 +217,7 @@ export default function MigrationWizard({
                     rows: parsedCsv.rows,
                     detectedSource: parsedCsv.detectedSource,
                     entityType: parsedCsv.detectedEntityType,
-                    mapping,
-                });
+                    mapping });
             }
 
             if (newCsvEntries.length > 0) {
@@ -344,8 +231,7 @@ export default function MigrationWizard({
                 }
                 const res = await fetch("/api/migration/parse-einvoice", {
                     method: "POST",
-                    body: formData,
-                });
+                    body: formData });
                 if (res.ok) {
                     const data = await res.json();
                     if (
@@ -401,8 +287,7 @@ export default function MigrationWizard({
                 return {
                     ...entry,
                     entityType: newType,
-                    mapping: autoDetectColumnMapping(entry.headers, newType),
-                };
+                    mapping: autoDetectColumnMapping(entry.headers, newType) };
             }),
         );
     };
@@ -423,8 +308,7 @@ export default function MigrationWizard({
                 }
                 return {
                     ...entry,
-                    mapping: nextMapping,
-                };
+                    mapping: nextMapping };
             }),
         );
     };
@@ -462,9 +346,7 @@ export default function MigrationWizard({
                     products: aggregated.products,
                     invoices: aggregated.invoices,
                     expenses: aggregated.expenses,
-                    offers: backupBundle?.offers || [],
-                }),
-            });
+                    offers: backupBundle?.offers || [] }) });
 
             if (!res.ok) {
                 throw new Error("Import request failed");
@@ -786,26 +668,22 @@ export default function MigrationWizard({
                                                         value: "clients",
                                                         label: isDe
                                                             ? "Kunden / Kontakte"
-                                                            : "Clients / Contacts",
-                                                    },
+                                                            : "Clients / Contacts" },
                                                     {
                                                         value: "products",
                                                         label: isDe
                                                             ? "Produkte / Leistungen"
-                                                            : "Products / Services",
-                                                    },
+                                                            : "Products / Services" },
                                                     {
                                                         value: "invoices",
                                                         label: isDe
                                                             ? "Ausgangsrechnungen"
-                                                            : "Outgoing Invoices",
-                                                    },
+                                                            : "Outgoing Invoices" },
                                                     {
                                                         value: "expenses",
                                                         label: isDe
                                                             ? "Ausgaben / Belege"
-                                                            : "Expenses / Bills",
-                                                    },
+                                                            : "Expenses / Bills" },
                                                 ]}
                                                 style={{ width: 190 }}
                                             />
@@ -882,16 +760,14 @@ export default function MigrationWizard({
                                                                                 h,
                                                                             ) => ({
                                                                                 value: h,
-                                                                                label: h,
-                                                                            }),
+                                                                                label: h }),
                                                                         )}
                                                                     />
                                                                 </div>
                                                             ),
                                                         )}
                                                     </div>
-                                                ),
-                                            },
+                                                ) },
                                         ]}
                                     />
                                 </Card>
@@ -1058,39 +934,33 @@ export default function MigrationWizard({
                                                             <Text strong>
                                                                 {v}
                                                             </Text>
-                                                        ),
-                                                    },
+                                                        ) },
                                                     {
                                                         title: isDe
                                                             ? "Ansprechpartner"
                                                             : "Contact",
                                                         dataIndex:
                                                             "contact_person",
-                                                        render: (v) => v || "—",
-                                                    },
+                                                        render: (v) => v || "—" },
                                                     {
                                                         title: isDe
                                                             ? "Adresse"
                                                             : "Address",
                                                         render: (_, r) =>
-                                                            `${r.address_line1}, ${r.postal_code} ${r.city}`,
-                                                    },
+                                                            `${r.address_line1}, ${r.postal_code} ${r.city}` },
                                                     {
                                                         title: "E-Mail",
                                                         dataIndex: "email",
-                                                        render: (v) => v || "—",
-                                                    },
+                                                        render: (v) => v || "—" },
                                                     {
                                                         title: "USt-IdNr. / Leitweg-ID",
                                                         render: (_, r) =>
                                                             r.vat_id ||
                                                             r.leitweg_id ||
-                                                            "—",
-                                                    },
+                                                            "—" },
                                                 ]}
                                             />
-                                        ),
-                                },
+                                        ) },
                                 {
                                     key: "products",
                                     label: (
@@ -1141,24 +1011,21 @@ export default function MigrationWizard({
                                                             <Text strong>
                                                                 {v}
                                                             </Text>
-                                                        ),
-                                                    },
+                                                        ) },
                                                     {
                                                         title: isDe
                                                             ? "Beschreibung"
                                                             : "Description",
                                                         dataIndex:
                                                             "description",
-                                                        render: (v) => v || "—",
-                                                    },
+                                                        render: (v) => v || "—" },
                                                     {
                                                         title: isDe
                                                             ? "Nettopreis"
                                                             : "Net Price",
                                                         dataIndex: "price",
                                                         render: (v: number) =>
-                                                            `${Number(v).toFixed(2)} €`,
-                                                    },
+                                                            `${Number(v).toFixed(2)} €` },
                                                     {
                                                         title: isDe
                                                             ? "MwSt."
@@ -1166,19 +1033,16 @@ export default function MigrationWizard({
                                                         dataIndex:
                                                             "tax_rate_percent",
                                                         render: (v: number) =>
-                                                            `${v} %`,
-                                                    },
+                                                            `${v} %` },
                                                     {
                                                         title: isDe
                                                             ? "Einheit"
                                                             : "Unit",
                                                         dataIndex:
-                                                            "unit_of_measure",
-                                                    },
+                                                            "unit_of_measure" },
                                                 ]}
                                             />
-                                        ),
-                                },
+                                        ) },
                                 {
                                     key: "invoices",
                                     label: (
@@ -1244,22 +1108,19 @@ export default function MigrationWizard({
                                                                 <Text strong>
                                                                     {v}
                                                                 </Text>
-                                                            ),
-                                                        },
+                                                            ) },
                                                         {
                                                             title: isDe
                                                                 ? "Datum"
                                                                 : "Date",
                                                             dataIndex:
-                                                                "issue_date",
-                                                        },
+                                                                "issue_date" },
                                                         {
                                                             title: isDe
                                                                 ? "Kunde"
                                                                 : "Client",
                                                             dataIndex:
-                                                                "client_name",
-                                                        },
+                                                                "client_name" },
                                                         {
                                                             title: isDe
                                                                 ? "Netto"
@@ -1269,8 +1130,7 @@ export default function MigrationWizard({
                                                             render: (
                                                                 v: number,
                                                             ) =>
-                                                                `${Number(v).toFixed(2)} €`,
-                                                        },
+                                                                `${Number(v).toFixed(2)} €` },
                                                         {
                                                             title: isDe
                                                                 ? "MwSt."
@@ -1280,8 +1140,7 @@ export default function MigrationWizard({
                                                             render: (
                                                                 v: number,
                                                             ) =>
-                                                                `${Number(v).toFixed(2)} €`,
-                                                        },
+                                                                `${Number(v).toFixed(2)} €` },
                                                         {
                                                             title: isDe
                                                                 ? "Brutto"
@@ -1299,8 +1158,7 @@ export default function MigrationWizard({
                                                                     )}{" "}
                                                                     €
                                                                 </Text>
-                                                            ),
-                                                        },
+                                                            ) },
                                                         {
                                                             title: "Status",
                                                             dataIndex: "status",
@@ -1320,13 +1178,11 @@ export default function MigrationWizard({
                                                                 >
                                                                     {s}
                                                                 </Tag>
-                                                            ),
-                                                        },
+                                                            ) },
                                                     ]}
                                                 />
                                             </div>
-                                        ),
-                                },
+                                        ) },
                                 {
                                     key: "expenses",
                                     label: (
@@ -1372,8 +1228,7 @@ export default function MigrationWizard({
                                                         title: isDe
                                                             ? "Datum"
                                                             : "Date",
-                                                        dataIndex: "date",
-                                                    },
+                                                        dataIndex: "date" },
                                                     {
                                                         title: isDe
                                                             ? "Lieferant"
@@ -1384,15 +1239,13 @@ export default function MigrationWizard({
                                                             <Text strong>
                                                                 {v}
                                                             </Text>
-                                                        ),
-                                                    },
+                                                        ) },
                                                     {
                                                         title: isDe
                                                             ? "Beschreibung"
                                                             : "Description",
                                                         dataIndex:
-                                                            "description",
-                                                    },
+                                                            "description" },
                                                     {
                                                         title: isDe
                                                             ? "Kategorie"
@@ -1400,16 +1253,14 @@ export default function MigrationWizard({
                                                         dataIndex: "category",
                                                         render: (c) => (
                                                             <Tag>{c}</Tag>
-                                                        ),
-                                                    },
+                                                        ) },
                                                     {
                                                         title: isDe
                                                             ? "Netto"
                                                             : "Net",
                                                         dataIndex: "amount_net",
                                                         render: (v: number) =>
-                                                            `${Number(v).toFixed(2)} €`,
-                                                    },
+                                                            `${Number(v).toFixed(2)} €` },
                                                     {
                                                         title: isDe
                                                             ? "Brutto"
@@ -1423,12 +1274,10 @@ export default function MigrationWizard({
                                                                 ).toFixed(2)}{" "}
                                                                 €
                                                             </Text>
-                                                        ),
-                                                    },
+                                                        ) },
                                                 ]}
                                             />
-                                        ),
-                                },
+                                        ) },
                             ]}
                         />
                     </div>

@@ -1,7 +1,7 @@
 "use client";
 import { identifierSummary } from "@/lib/eRechnung/identifierSummary";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { Button, Space, message, Spin, Card, Alert, Segmented } from "antd";
 import {

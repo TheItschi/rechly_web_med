@@ -1,4 +1,6 @@
-import type { Product, ProductFormData } from "@/types";
+import type { Product, ProductFormData, ProductBulkUploadResult } from "@/types";
+import { apiDelete, apiFetch, apiGet, apiPost, apiPut } from "./apiClient";
+import { logger } from "./logger";
 
 /**
  * Product Service - CRUD operations via API routes
@@ -11,17 +13,9 @@ import type { Product, ProductFormData } from "@/types";
  */
 export const getAllProducts = async (): Promise<Product[]> => {
     try {
-        const res = await fetch("/api/products");
-        if (!res.ok) {
-            if (res.status === 401) {
-                console.log("Not authenticated, returning empty products");
-                return [];
-            }
-            throw new Error("Failed to fetch products");
-        }
-        return res.json();
+        return await apiGet<Product[]>("/api/products", "Failed to fetch products");
     } catch (error) {
-        console.error("Error fetching products:", error);
+        logger.error("Error fetching products:", error);
         throw error;
     }
 };
@@ -31,14 +25,13 @@ export const getAllProducts = async (): Promise<Product[]> => {
  */
 export const getProductById = async (id: string): Promise<Product | null> => {
     try {
-        const res = await fetch(`/api/products/${id}`);
-        if (res.status === 404) return null;
-        if (!res.ok) {
-            throw new Error("Failed to fetch product");
-        }
-        return res.json();
+        return await apiFetch<Product | null>(
+            `/api/products/${id}`,
+            { allow404: true },
+            "Failed to fetch product",
+        );
     } catch (error) {
-        console.error("Error fetching product:", error);
+        logger.error("Error fetching product:", error);
         return null;
     }
 };
@@ -46,24 +39,11 @@ export const getProductById = async (id: string): Promise<Product | null> => {
 /**
  * Create new product
  */
-export const createProduct = async (
-    data: ProductFormData,
-): Promise<Product> => {
+export const createProduct = async (data: ProductFormData): Promise<Product> => {
     try {
-        const res = await fetch("/api/products", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to create product");
-        }
-
-        return res.json();
+        return await apiPost<Product>("/api/products", data, "Failed to create product");
     } catch (error) {
-        console.error("Error creating product:", error);
+        logger.error("Error creating product:", error);
         throw error;
     }
 };
@@ -76,20 +56,13 @@ export const updateProduct = async (
     data: Partial<ProductFormData>,
 ): Promise<Product> => {
     try {
-        const res = await fetch(`/api/products/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to update product");
-        }
-
-        return res.json();
+        return await apiPut<Product>(
+            `/api/products/${id}`,
+            data,
+            "Failed to update product",
+        );
     } catch (error) {
-        console.error("Error updating product:", error);
+        logger.error("Error updating product:", error);
         throw error;
     }
 };
@@ -99,23 +72,14 @@ export const updateProduct = async (
  */
 export const deleteProduct = async (id: string): Promise<void> => {
     try {
-        const res = await fetch(`/api/products/${id}`, {
-            method: "DELETE",
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to delete product");
-        }
+        await apiDelete(`/api/products/${id}`, "Failed to delete product");
     } catch (error) {
-        console.error("Error deleting product:", error);
+        logger.error("Error deleting product:", error);
         throw error;
     }
 };
 
-export const bulkUploadProducts = async (
-    file: File,
-): Promise<import("@/types").ProductBulkUploadResult> => {
+export const bulkUploadProducts = async (file: File): Promise<ProductBulkUploadResult> => {
     const formData = new FormData();
     formData.append("file", file);
 

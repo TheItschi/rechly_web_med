@@ -1,4 +1,12 @@
 import { create } from "zustand";
+import {
+    getAllClients,
+    getClientById as apiGetClient,
+    createClient as apiCreateClient,
+    updateClient as apiUpdateClient,
+    deleteClient as apiDeleteClient,
+} from "@/lib/clientService";
+import { isCacheValid } from "./cache";
 import type { Client, ClientFormData } from "@/types";
 
 interface ClientStore {
@@ -16,67 +24,6 @@ interface ClientStore {
     clearCache: () => void;
 }
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-// API helper functions that use server-side routes
-const apiGetClients = async (): Promise<Client[]> => {
-    const res = await fetch("/api/clients");
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to fetch clients");
-    }
-    return res.json();
-};
-
-const apiGetClient = async (id: string): Promise<Client | null> => {
-    const res = await fetch(`/api/clients/${id}`);
-    if (res.status === 404) return null;
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to fetch client");
-    }
-    return res.json();
-};
-
-const apiCreateClient = async (data: ClientFormData): Promise<Client> => {
-    const res = await fetch("/api/clients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to create client");
-    }
-    return res.json();
-};
-
-const apiUpdateClient = async (
-    id: string,
-    data: Partial<ClientFormData>
-): Promise<Client> => {
-    const res = await fetch(`/api/clients/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to update client");
-    }
-    return res.json();
-};
-
-const apiDeleteClient = async (id: string): Promise<void> => {
-    const res = await fetch(`/api/clients/${id}`, {
-        method: "DELETE",
-    });
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to delete client");
-    }
-};
-
 export const useClientStore = create<ClientStore>((set, get) => ({
     clients: [],
     loading: false,
@@ -90,17 +37,13 @@ export const useClientStore = create<ClientStore>((set, get) => ({
         if (loading) return;
 
         // Skip if cache is still valid (unless forced)
-        if (
-            !force &&
-            lastFetched &&
-            Date.now() - lastFetched < CACHE_DURATION
-        ) {
+        if (isCacheValid(lastFetched, force)) {
             return;
         }
 
         set({ loading: true, error: null });
         try {
-            const clients = await apiGetClients();
+            const clients = await getAllClients();
             set({ clients, loading: false, lastFetched: Date.now() });
         } catch (error) {
             set({
@@ -135,7 +78,7 @@ export const useClientStore = create<ClientStore>((set, get) => ({
         const updatedClient = await apiUpdateClient(id, data);
         set((state) => ({
             clients: state.clients.map((c) =>
-                c.id === id ? updatedClient : c
+                c.id === id ? updatedClient : c,
             ),
         }));
         return updatedClient;

@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Select, InputNumber, Checkbox, Button, Card, Typography, DatePicker } from "antd";
+import { Select, InputNumber, Checkbox, Button, Card, Typography } from "antd";
 import {
-    PrinterOutlined,
-    CompassOutlined,
-    CheckCircleOutlined,
-} from "@ant-design/icons";
-import dayjs from "dayjs";
+    PrinterOutlined } from "@ant-design/icons";
 import { POPULAR_PER_DIEMS, CountryPerDiem } from "@/lib/tools/taxRates";
 
 const { Text } = Typography;
@@ -20,8 +16,6 @@ export default function SpesenRechner() {
     const [breakfastCount, setBreakfastCount] = useState<number>(2);
     const [lunchCount, setLunchCount] = useState<number>(1);
     const [dinnerCount, setDinnerCount] = useState<number>(0);
-    const [tripReason, setTripReason] = useState<string>("Kundenberatung & Vor-Ort-Installation");
-    const [startDate, setStartDate] = useState<string>(dayjs().format("YYYY-MM-DD"));
 
     const currentRates: CountryPerDiem = useMemo(() => {
         return POPULAR_PER_DIEMS.find((d) => d.country === destination) || POPULAR_PER_DIEMS[0];
@@ -53,8 +47,7 @@ export default function SpesenRechner() {
             lunchDeduction: Math.round(lunchDeduction * 100) / 100,
             dinnerDeduction: Math.round(dinnerDeduction * 100) / 100,
             totalDeductions: Math.round(totalDeductions * 100) / 100,
-            netPerDiemClaim: Math.round(netPerDiemClaim * 100) / 100,
-        };
+            netPerDiemClaim: Math.round(netPerDiemClaim * 100) / 100 };
     }, [currentRates, fullDays, hasArrivalDay, hasDepartureDay, breakfastCount, lunchCount, dinnerCount]);
 
     const handlePrint = () => {
@@ -71,8 +64,7 @@ export default function SpesenRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
                     gap: 20,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 4, color: "#334155" }}>
@@ -85,8 +77,7 @@ export default function SpesenRechner() {
                         size="large"
                         options={POPULAR_PER_DIEMS.map((p) => ({
                             value: p.country,
-                            label: `${p.country} (${p.fullDay} € / 24h)`,
-                        }))}
+                            label: `${p.country} (${p.fullDay} € / 24h)` }))}
                     />
                 </div>
 
@@ -174,8 +165,7 @@ export default function SpesenRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                     gap: 16,
-                    marginBottom: 32,
-                }}
+                    marginBottom: 32 }}
             >
                 <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
@@ -200,8 +190,7 @@ export default function SpesenRechner() {
                     style={{
                         borderRadius: 10,
                         border: "2px solid #16a34a",
-                        background: "#f0fdf4",
-                    }}
+                        background: "#f0fdf4" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#166534" }}>
                         Steuerfreier Spesenanspruch

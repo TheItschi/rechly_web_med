@@ -1,17 +1,15 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { InputNumber, Slider, Card, Typography, Alert, Tag, Radio, Button } from "antd";
+import { InputNumber, Slider, Card, Tag, Button } from "antd";
 import {
     CheckCircleOutlined,
     ExclamationCircleOutlined,
     CopyOutlined,
     CheckOutlined,
-    InfoCircleOutlined,
-} from "@ant-design/icons";
+    InfoCircleOutlined } from "@ant-design/icons";
 import Link from "next/link";
 
-const { Text } = Typography;
 
 export default function KleinunternehmerRechner() {
     const [priorYearRevenue, setPriorYearRevenue] = useState<number>(18500);
@@ -66,8 +64,7 @@ export default function KleinunternehmerRechner() {
             b2cRevenue,
             b2bRevenue,
             recommendation,
-            recommendationType,
-        };
+            recommendationType };
     }, [priorYearRevenue, currentYearRevenue, b2cSharePercent, annualExpensesNet]);
 
     const statutoryClause =
@@ -93,8 +90,7 @@ export default function KleinunternehmerRechner() {
                     marginBottom: 24,
                     display: "flex",
                     alignItems: "center",
-                    gap: 12,
-                }}
+                    gap: 12 }}
             >
                 <InfoCircleOutlined style={{ fontSize: 22, color: "#16a34a" }} />
                 <div style={{ fontSize: 14, color: "#166534", lineHeight: 1.5 }}>
@@ -110,8 +106,7 @@ export default function KleinunternehmerRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                     gap: 20,
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div>
                     <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#334155" }}>
@@ -193,8 +188,7 @@ export default function KleinunternehmerRechner() {
                     borderRadius: 12,
                     border: calc.isEligible ? "2px solid #10b981" : "2px solid #ef4444",
                     background: calc.isEligible ? "#f0fdf4" : "#fef2f2",
-                    marginBottom: 28,
-                }}
+                    marginBottom: 28 }}
             >
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
                     {calc.isEligible ? (
@@ -226,8 +220,7 @@ export default function KleinunternehmerRechner() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
                     gap: 20,
-                    marginBottom: 32,
-                }}
+                    marginBottom: 32 }}
             >
                 <Card
                     title="Als Kleinunternehmer (§ 19 UStG)"
@@ -280,8 +273,7 @@ export default function KleinunternehmerRechner() {
                     background: "#f8fafc",
                     border: "1px solid #e2e8f0",
                     padding: "20px 24px",
-                    borderRadius: 10,
-                }}
+                    borderRadius: 10 }}
             >
                 <h4 style={{ margin: "0 0 6px 0", fontSize: 15, fontWeight: 700, color: "#0f172a" }}>
                     Gesetzlicher Pflicht-Hinweistext für deine Rechnungen:
@@ -295,8 +287,7 @@ export default function KleinunternehmerRechner() {
                         fontFamily: "monospace",
                         fontSize: 14,
                         color: "#0f172a",
-                        marginBottom: 12,
-                    }}
+                        marginBottom: 12 }}
                 >
                     {statutoryClause}
                 </div>
@@ -307,7 +298,7 @@ export default function KleinunternehmerRechner() {
                         type="primary"
                         style={{ background: "#2563eb" }}
                     >
-                        {copiedClause ? "Text kopiert!" : "Hinweistext kopieren"}
+                        {copiedClause ? " kopiert!" : "Hinweistext kopieren"}
                     </Button>
                     <Link href="/kleinunternehmer-rechnung">
                         <Button>Kleinunternehmer-Rechnung in Rechly erstellen</Button>

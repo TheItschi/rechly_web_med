@@ -6,8 +6,7 @@ import {
     deleteExpense,
 } from "@/lib/expenseService";
 import type { Expense, ExpenseFormData } from "@/types";
-
-const CACHE_DURATION = 5 * 60 * 1000;
+import { isCacheValid } from "./cache";
 
 interface ExpenseStore {
     expenses: Expense[];
@@ -30,8 +29,7 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
     fetchExpenses: async (force = false) => {
         const { lastFetched, loading } = get();
         if (loading) return;
-        if (!force && lastFetched && Date.now() - lastFetched < CACHE_DURATION)
-            return;
+        if (isCacheValid(lastFetched, force)) return;
 
         set({ loading: true, error: null });
         try {

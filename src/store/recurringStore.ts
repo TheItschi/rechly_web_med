@@ -6,8 +6,7 @@ import {
     deleteRecurring,
 } from "@/lib/recurringService";
 import type { RecurringInvoiceWithDetails, RecurringFormData } from "@/types";
-
-const CACHE_DURATION = 5 * 60 * 1000;
+import { isCacheValid } from "./cache";
 
 interface RecurringStore {
     templates: RecurringInvoiceWithDetails[];
@@ -30,8 +29,7 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
     fetchTemplates: async (force = false) => {
         const { lastFetched, loading } = get();
         if (loading) return;
-        if (!force && lastFetched && Date.now() - lastFetched < CACHE_DURATION)
-            return;
+        if (isCacheValid(lastFetched, force)) return;
 
         set({ loading: true, error: null });
         try {

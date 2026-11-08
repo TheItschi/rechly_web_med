@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client, Users, Databases, Query } from "node-appwrite";
 import { eraseGuestWorkspace } from "@/lib/workspace/repository";
+import { logger } from "@/lib/logger";
 import {
     getAppwriteEndpoint,
     getAppwriteProjectId,
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
 
             if (isAnonymous && isExpired) {
                 const userId = user.$id;
-                console.log(`Cleaning up anonymous user: ${userId}`);
+                logger.debug(`Cleaning up anonymous user: ${userId}`);
 
                 try {
                     // The optional workspace may be absent, but real cleanup failures
@@ -129,7 +130,7 @@ export async function POST(request: NextRequest) {
                             }
                         } catch {
                             // Collection might not exist or no documents found
-                            console.log(
+                            logger.debug(
                                 `No documents in ${collectionId} for user ${userId}`,
                             );
                         }
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
                     // Delete the user account
                     await users.delete(userId);
                     deletedCount++;
-                    console.log(`✓ Deleted anonymous user: ${userId}`);
+                    logger.debug(`✓ Deleted anonymous user: ${userId}`);
                 } catch (deleteError) {
                     const errorMessage =
                         deleteError instanceof Error

@@ -53,10 +53,8 @@ export interface ToolLayoutProps {
 export default function ToolLayout({
     path,
     title,
-    eyebrow,
     description,
     category,
-    keywords = [],
     children,
     guideSections = [],
     faqs = [],

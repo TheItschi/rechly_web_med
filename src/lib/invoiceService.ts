@@ -2,7 +2,10 @@ import type {
     InvoiceWithClient,
     InvoiceWithDetails,
     InvoiceFormData,
+    InvoiceStatus,
 } from "@/types";
+import { apiDelete, apiFetch, apiGet, apiPost, apiPut } from "./apiClient";
+import { logger } from "./logger";
 
 /**
  * Invoice Service - CRUD operations via API routes
@@ -23,22 +26,27 @@ export interface InvoiceStats {
     unpaidAmount: number;
 }
 
+const EMPTY_STATS: InvoiceStats = {
+    total: 0,
+    draft: 0,
+    sent: 0,
+    paid: 0,
+    cancelled: 0,
+    paidAmount: 0,
+    unpaidAmount: 0,
+};
+
 /**
  * Get all invoices with client info
  */
 export const getAllInvoices = async (): Promise<InvoiceWithClient[]> => {
     try {
-        const res = await fetch("/api/invoices");
-        if (!res.ok) {
-            if (res.status === 401) {
-                console.log("Not authenticated, returning empty invoices");
-                return [];
-            }
-            throw new Error("Failed to fetch invoices");
-        }
-        return res.json();
+        return await apiGet<InvoiceWithClient[]>(
+            "/api/invoices",
+            "Failed to fetch invoices",
+        );
     } catch (error) {
-        console.error("Error fetching invoices:", error);
+        logger.error("Error fetching invoices:", error);
         throw error;
     }
 };
@@ -47,17 +55,16 @@ export const getAllInvoices = async (): Promise<InvoiceWithClient[]> => {
  * Get invoice by ID with all details (items, client)
  */
 export const getInvoiceById = async (
-    id: string
+    id: string,
 ): Promise<InvoiceWithDetails | null> => {
     try {
-        const res = await fetch(`/api/invoices/${id}`);
-        if (res.status === 404) return null;
-        if (!res.ok) {
-            throw new Error("Failed to fetch invoice");
-        }
-        return res.json();
+        return await apiFetch<InvoiceWithDetails | null>(
+            `/api/invoices/${id}`,
+            { allow404: true },
+            "Failed to fetch invoice",
+        );
     } catch (error) {
-        console.error("Error fetching invoice:", error);
+        logger.error("Error fetching invoice:", error);
         return null;
     }
 };
@@ -67,21 +74,14 @@ export const getInvoiceById = async (
  */
 export const createInvoice = async (data: InvoiceFormData): Promise<string> => {
     try {
-        const res = await fetch("/api/invoices", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to create invoice");
-        }
-
-        const result = await res.json();
+        const result = await apiPost<{ id: string }>(
+            "/api/invoices",
+            data,
+            "Failed to create invoice",
+        );
         return result.id;
     } catch (error) {
-        console.error("Error creating invoice:", error);
+        logger.error("Error creating invoice:", error);
         throw error;
     }
 };
@@ -91,21 +91,12 @@ export const createInvoice = async (data: InvoiceFormData): Promise<string> => {
  */
 export const updateInvoiceStatus = async (
     id: string,
-    status: string
+    status: InvoiceStatus,
 ): Promise<void> => {
     try {
-        const res = await fetch(`/api/invoices/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status }),
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to update invoice status");
-        }
+        await apiPut(`/api/invoices/${id}`, { status }, "Failed to update invoice status");
     } catch (error) {
-        console.error("Error updating invoice status:", error);
+        logger.error("Error updating invoice status:", error);
         throw error;
     }
 };
@@ -115,16 +106,9 @@ export const updateInvoiceStatus = async (
  */
 export const deleteInvoice = async (id: string): Promise<void> => {
     try {
-        const res = await fetch(`/api/invoices/${id}`, {
-            method: "DELETE",
-        });
-
-        if (!res.ok) {
-            const error = await res.json();
-            throw new Error(error.error || "Failed to delete invoice");
-        }
+        await apiDelete(`/api/invoices/${id}`, "Failed to delete invoice");
     } catch (error) {
-        console.error("Error deleting invoice:", error);
+        logger.error("Error deleting invoice:", error);
         throw error;
     }
 };
@@ -134,29 +118,12 @@ export const deleteInvoice = async (id: string): Promise<void> => {
  */
 export const getInvoiceStats = async (): Promise<InvoiceStats> => {
     try {
-        const res = await fetch("/api/invoices/stats");
-        if (!res.ok) {
-            return {
-                total: 0,
-                draft: 0,
-                sent: 0,
-                paid: 0,
-                cancelled: 0,
-                paidAmount: 0,
-                unpaidAmount: 0,
-            };
-        }
-        return res.json();
+        return await apiGet<InvoiceStats>(
+            "/api/invoices/stats",
+            "Failed to fetch invoice stats",
+        );
     } catch (error) {
-        console.error("Error getting invoice stats:", error);
-        return {
-            total: 0,
-            draft: 0,
-            sent: 0,
-            paid: 0,
-            cancelled: 0,
-            paidAmount: 0,
-            unpaidAmount: 0,
-        };
+        logger.error("Error getting invoice stats:", error);
+        return { ...EMPTY_STATS };
     }
 };

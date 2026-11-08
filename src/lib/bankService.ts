@@ -1,44 +1,58 @@
 import type { BankTransaction } from "@/types";
+import { apiGet, apiPost } from "./apiClient";
+import { logger } from "./logger";
 
-export async function getAllBankTransactions(
-    status?: string,
-): Promise<BankTransaction[]> {
-    const url = status
-        ? `/api/bank-transactions?status=${status}`
-        : "/api/bank-transactions";
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch bank transactions");
-    return res.json();
+export async function getAllBankTransactions(status?: string): Promise<BankTransaction[]> {
+    const url = status ? `/api/bank-transactions?status=${status}` : "/api/bank-transactions";
+    try {
+        return await apiGet<BankTransaction[]>(url, "Failed to fetch bank transactions");
+    } catch (error) {
+        logger.error("Error fetching bank transactions:", error);
+        throw error;
+    }
 }
 
 export async function importBankTransactions(
     csvText: string,
     format: string,
 ): Promise<{ imported: number; duplicates: number }> {
-    const res = await fetch("/api/bank-transactions/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csvText, format }),
-    });
-    if (!res.ok) throw new Error("Failed to import bank transactions");
-    return res.json();
+    try {
+        return await apiPost(
+            "/api/bank-transactions/import",
+            { csvText, format },
+            "Failed to import bank transactions",
+        );
+    } catch (error) {
+        logger.error("Error importing bank transactions:", error);
+        throw error;
+    }
 }
 
 export async function matchTransaction(
     transactionId: string,
     invoiceId: string,
 ): Promise<void> {
-    const res = await fetch(`/api/bank-transactions/${transactionId}/match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ invoiceId }),
-    });
-    if (!res.ok) throw new Error("Failed to match transaction");
+    try {
+        await apiPost(
+            `/api/bank-transactions/${transactionId}/match`,
+            { invoiceId },
+            "Failed to match transaction",
+        );
+    } catch (error) {
+        logger.error("Error matching transaction:", error);
+        throw error;
+    }
 }
 
 export async function ignoreTransaction(transactionId: string): Promise<void> {
-    const res = await fetch(`/api/bank-transactions/${transactionId}/ignore`, {
-        method: "POST",
-    });
-    if (!res.ok) throw new Error("Failed to ignore transaction");
+    try {
+        await apiPost(
+            `/api/bank-transactions/${transactionId}/ignore`,
+            {},
+            "Failed to ignore transaction",
+        );
+    } catch (error) {
+        logger.error("Error ignoring transaction:", error);
+        throw error;
+    }
 }

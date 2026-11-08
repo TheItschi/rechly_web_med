@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Spin, Typography } from "antd";
 import { getCompanyInfo } from "@/lib/companyService";
 import { useClientStore, useProductStore, useInvoiceStore } from "@/store";
+import { logger } from "@/lib/logger";
 
 const { Text } = Typography;
 
@@ -23,7 +24,7 @@ function CallbackContent() {
             try {
                 // Log all URL params for debugging
                 const allParams = Object.fromEntries(searchParams.entries());
-                console.log("OAuth callback URL params:", allParams);
+                logger.debug("OAuth callback URL params:", allParams);
 
                 // Check for error in URL params
                 const errorParam = searchParams.get("error");
@@ -36,7 +37,7 @@ function CallbackContent() {
 
                 // Check if this is from SSR flow
                 const fromSSR = searchParams.get("from") === "ssr";
-                console.log(
+                logger.debug(
                     "OAuth flow type:",
                     fromSSR ? "SSR" : "Client-side"
                 );
@@ -57,7 +58,7 @@ function CallbackContent() {
                     if (response.ok) {
                         user = await response.json();
                     }
-                    console.log("Session check result:", user);
+                    logger.debug("Session check result:", user);
                 } catch (sessionError) {
                     console.error("Session check failed:", sessionError);
                     setError(
@@ -68,13 +69,13 @@ function CallbackContent() {
                 }
 
                 if (!user) {
-                    console.log("No user found after OAuth");
+                    logger.debug("No user found after OAuth");
                     setError("No user found. Please try logging in again.");
                     setTimeout(() => router.push("/login"), 3000);
                     return;
                 }
 
-                console.log("OAuth user found:", user.$id, user.email);
+                logger.debug("OAuth user found:", user.$id, user.email);
                 setStatus(
                     `Welcome ${user.name || user.email}! Checking setup...`
                 );
