@@ -57,7 +57,7 @@ export async function findOrCreateCustomer(
         "unique()",
         {
             userId,
-            clientType: "private",
+            clientType: "person",
             name: input.name.trim().slice(0, 200) || email,
             email,
             phone: input.phone?.trim().slice(0, 40) || null,

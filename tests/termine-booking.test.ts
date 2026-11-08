@@ -150,7 +150,7 @@ test("booking links to Rechly clients CRM and reuses existing customer by email"
     const client = await db.getDocument(DB, "clients", first.appointment.customerId!) as unknown as Record<string, unknown>;
     assert.equal(client.userId, user);
     assert.equal(client.name, "Max Mustermann");
-    assert.equal(client.clientType, "private");
+    assert.equal(client.clientType, "person");
     assert.ok(typeof client.addressLine1 === "string" && client.addressLine1.length > 0);
     assert.ok(typeof client.postalCode === "string" && client.postalCode.length > 0);
 
