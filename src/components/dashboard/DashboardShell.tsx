@@ -33,6 +33,7 @@ import {
     BankOutlined,
     SwapOutlined,
     PlusOutlined,
+    CalendarOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -55,6 +56,7 @@ const pageTitles: Record<string, string> = {
     "/dashboard/reports": "dashboard.reports",
     "/dashboard/settings": "dashboard.settings",
     "/dashboard/migration": "dashboard.migration",
+    "/dashboard/termine": "Termine",
 };
 
 export default function DashboardShell({
@@ -125,6 +127,24 @@ export default function DashboardShell({
             type: "group" as const,
             label: "",
             children: [
+                ...(process.env.NEXT_PUBLIC_RECHLY_TERMINE_ENABLED === "1"
+                    ? [
+                          {
+                              key: "termine-menu",
+                              icon: <CalendarOutlined />,
+                              label: language === "de" ? "Termine" : "Appointments",
+                              children: [
+                                  { key: "/dashboard/termine", label: language === "de" ? "Übersicht" : "Overview" },
+                                  { key: "/dashboard/termine/kalender", label: language === "de" ? "Kalender" : "Calendar" },
+                                  { key: "/dashboard/termine/buchungen", label: language === "de" ? "Buchungen" : "Bookings" },
+                                  { key: "/dashboard/termine/leistungen", label: language === "de" ? "Leistungen" : "Services" },
+                                  { key: "/dashboard/termine/mitarbeiter", label: language === "de" ? "Mitarbeiter" : "Staff" },
+                                  { key: "/dashboard/termine/verfuegbarkeit", label: language === "de" ? "Verfügbarkeit" : "Availability" },
+                                  { key: "/dashboard/termine/einstellungen", label: language === "de" ? "Einstellungen" : "Settings" },
+                              ],
+                          },
+                      ]
+                    : []),
                 {
                     key: "/dashboard/clients",
                     icon: <UserOutlined />,

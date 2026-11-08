@@ -688,6 +688,17 @@
     font-size: 13px;
 }
 
+/* Termine business calendar */
+.termine-week-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.termine-day-column { min-width: 0; border: 1px solid var(--dash-border); border-radius: 10px; overflow: hidden; background: var(--dash-surface-subtle); }
+.termine-day-head { display: flex; align-items: baseline; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--dash-border); color: var(--dash-muted); font-size: 12px; }
+.termine-day-head strong { color: var(--dash-text); font-size: 14px; }
+.termine-day-today { background: rgba(54, 95, 214, 0.08); }
+.termine-day-body { display: flex; flex-direction: column; gap: 8px; padding: 10px; min-height: 120px; }
+.termine-event { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px; border-left: 3px solid #365fd6; border-radius: 6px; background: var(--dash-surface); font-size: 12px; }
+.termine-event small { color: var(--dash-muted); }
+@media (max-width: 620px) { .termine-week-grid { grid-template-columns: 1fr; } }
+
 .dashboard-row-arrow {
     color: var(--dash-muted);
     font-size: 10px;
