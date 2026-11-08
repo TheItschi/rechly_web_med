@@ -38,7 +38,7 @@ async function ensureTable(id, name) {
 async function ensureAttr(table, key, type, size, required, array = false) {
     try {
         if (type === "string") await db.createStringAttribute(database, table, key, size, required, undefined, array);
-        else if (type === "integer") await db.createIntegerAttribute(database, table, key, required, undefined, undefined, array);
+        else if (type === "integer") await db.createIntegerAttribute(database, table, key, required, undefined, undefined, undefined, array);
         else if (type === "boolean") await db.createBooleanAttribute(database, table, key, required, undefined, array);
         else if (type === "datetime") await db.createDatetimeAttribute(database, table, key, required, undefined, array);
         else if (type === "email") await db.createEmailAttribute(database, table, key, required, undefined, array);
