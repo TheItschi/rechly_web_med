@@ -204,6 +204,8 @@ export const de = {
         "dashboard.welcomeDefault": "Willkommen bei Rechly",
         "dashboard.overview":
             "Hier ist Ihre Geschäftsübersicht auf einen Blick",
+        "dashboard.subtitle":
+            "Rechnungen, Kunden und Zahlungen – klar und zentral organisiert.",
         "dashboard.invoices": "Rechnungen",
         "dashboard.clients": "Kunden",
         "dashboard.products": "Produkte",

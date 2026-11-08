@@ -304,10 +304,10 @@ export default function SettingsPage() {
                                 />
                             ) : (
                                 <div
+                                    className="dashboard-logo-placeholder"
                                     style={{
                                         width: 80,
                                         height: 80,
-                                        background: "#f0f0f0",
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",
@@ -315,7 +315,7 @@ export default function SettingsPage() {
                                     }}
                                 >
                                     <BankOutlined
-                                        style={{ fontSize: 32, color: "#999" }}
+                                        style={{ fontSize: 32, color: "var(--dash-muted)" }}
                                     />
                                 </div>
                             )}
@@ -667,14 +667,13 @@ export default function SettingsPage() {
                                 />
                                 <Card
                                     size="small"
+                                    className="dashboard-success-panel"
                                     style={{
                                         marginBottom: 16,
-                                        background: "#f6ffed",
-                                        borderColor: "#b7eb8f",
                                     }}
                                 >
                                     <Space direction="vertical" size={4} style={{ width: "100%" }}>
-                                        <Text strong style={{ color: "#389e0d" }}>
+                                        <Text strong style={{ color: "var(--dash-positive)" }}>
                                             ⭐ Empfohlenes Modell: <code>jonprompter/Rechly-DE-3B</code>
                                         </Text>
                                         <Text type="secondary" style={{ fontSize: 12 }}>

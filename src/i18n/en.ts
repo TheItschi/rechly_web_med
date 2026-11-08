@@ -200,6 +200,7 @@ export const en = {
         "dashboard.welcome": "Welcome",
         "dashboard.welcomeDefault": "Welcome to Rechly",
         "dashboard.overview": "Here's your business overview at a glance",
+        "dashboard.subtitle": "Invoices, clients and payments — organized in one place.",
         "dashboard.invoices": "Invoices",
         "dashboard.clients": "Clients",
         "dashboard.products": "Products",

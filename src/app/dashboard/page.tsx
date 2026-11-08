@@ -3,26 +3,26 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-    Row,
-    Col,
     Card,
-    Statistic,
-    Typography,
     Tag,
     Button,
     Skeleton,
     Empty,
-    Space,
-    Flex,
+    Progress,
 } from "antd";
 import {
     FileTextOutlined,
     UserOutlined,
     ShoppingOutlined,
-    EuroOutlined,
     PlusOutlined,
     ArrowRightOutlined,
     AlertOutlined,
+    RiseOutlined,
+    WalletOutlined,
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    SettingOutlined,
+    TagsOutlined,
 } from "@ant-design/icons";
 import { useInvoiceStore, useClientStore, useProductStore } from "@/store";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -31,8 +31,6 @@ import { getDashboardAnalytics } from "@/lib/analyticsService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
 import type { DashboardAnalytics, UserCompany } from "@/types";
-
-const { Title, Text } = Typography;
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -55,7 +53,6 @@ export default function DashboardPage() {
         cancelled: t("status.cancelled"),
     };
 
-    // Zustand stores
     const {
         invoices,
         stats,
@@ -72,7 +69,13 @@ export default function DashboardPage() {
 
     const loading =
         invoicesLoading || clientsLoading || productsLoading || companyLoading;
-    const recentInvoices = invoices.slice(0, 5);
+    const recentInvoices = invoices.slice(0, 6);
+    const paidTotal = stats?.paidAmount ?? 0;
+    const unpaidTotal = stats?.unpaidAmount ?? 0;
+    const paidRatio =
+        paidTotal + unpaidTotal > 0
+            ? Math.round((paidTotal / (paidTotal + unpaidTotal)) * 100)
+            : 0;
 
     useEffect(() => {
         loadData();
@@ -82,7 +85,6 @@ export default function DashboardPage() {
     const loadData = async () => {
         try {
             setCompanyLoading(true);
-            // Fetch all data in parallel using Zustand stores
             await Promise.all([
                 fetchInvoices(),
                 fetchStats(),
@@ -100,469 +102,305 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div>
+            <div className="dashboard-page">
                 <Skeleton active paragraph={{ rows: 2 }} />
-                <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+                <div className="dashboard-kpi-grid" style={{ marginTop: 28 }}>
                     {[1, 2, 3, 4].map((i) => (
-                        <Col xs={24} sm={12} lg={6} key={i}>
-                            <Card>
-                                <Skeleton active paragraph={{ rows: 1 }} />
-                            </Card>
-                        </Col>
+                        <Card key={i} className="dashboard-panel">
+                            <Skeleton active paragraph={{ rows: 1 }} />
+                        </Card>
                     ))}
-                </Row>
+                </div>
             </div>
         );
     }
 
+    const kpis = [
+        {
+            label: t("dashboard.invoices"),
+            value: String(stats?.total ?? 0),
+            note: `${stats?.sent ?? 0} ${t("dashboard.sent")}`,
+            icon: <FileTextOutlined />,
+            tone: "blue",
+            path: "/dashboard/invoices",
+        },
+        {
+            label: t("dashboard.clients"),
+            value: String(clients.length),
+            note: t("dashboard.manageClients"),
+            icon: <UserOutlined />,
+            tone: "teal",
+            path: "/dashboard/clients",
+        },
+        {
+            label: t("dashboard.products"),
+            value: String(products.length),
+            note: t("dashboard.manageProducts"),
+            icon: <ShoppingOutlined />,
+            tone: "violet",
+            path: "/dashboard/products",
+        },
+        {
+            label: t("dashboard.openAmounts"),
+            value: formatCurrency(unpaidTotal),
+            note: `${stats?.draft ?? 0} ${t("dashboard.drafts")}`,
+            icon: <ClockCircleOutlined />,
+            tone: "amber",
+            path: "/dashboard/invoices",
+        },
+    ];
+
     return (
-        <div>
-            {/* Welcome Header */}
-            <div style={{ marginBottom: 24 }}>
-                <Title level={3} style={{ marginBottom: 4 }}>
-                    {company
-                        ? `${t("dashboard.welcome")}, ${company.name}`
-                        : t("dashboard.welcomeDefault")}
-                </Title>
-                <Text type="secondary">{t("dashboard.overview")}</Text>
-            </div>
+        <div className="dashboard-page">
+            <section className="dashboard-welcome">
+                <div>
+                    <div className="dashboard-eyebrow">{t("dashboard.overview")}</div>
+                    <h1>
+                        {company
+                            ? `${t("dashboard.welcome")}, ${company.name}`
+                            : t("dashboard.welcomeDefault")}
+                    </h1>
+                    <p>{t("dashboard.subtitle")}</p>
+                </div>
+                <Button
+                    type="primary"
+                    size="large"
+                    icon={<PlusOutlined />}
+                    onClick={() => router.push("/dashboard/invoices/create")}
+                >
+                    {t("dashboard.newInvoice")}
+                </Button>
+            </section>
 
-            {/* Statistics Cards */}
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        hoverable
-                        onClick={() => router.push("/dashboard/invoices")}
+            <section className="dashboard-kpi-grid">
+                {kpis.map((kpi) => (
+                    <button
+                        key={kpi.label}
+                        className={`dashboard-kpi dashboard-kpi--${kpi.tone}`}
+                        onClick={() => router.push(kpi.path)}
+                        type="button"
                     >
-                        <Statistic
-                            title={t("dashboard.invoices")}
-                            value={stats?.total ?? 0}
-                            prefix={
-                                <FileTextOutlined
-                                    style={{ color: "#1976d2" }}
-                                />
-                            }
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        hoverable
-                        onClick={() => router.push("/dashboard/clients")}
-                    >
-                        <Statistic
-                            title={t("dashboard.clients")}
-                            value={clients.length}
-                            prefix={
-                                <UserOutlined style={{ color: "#52c41a" }} />
-                            }
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        hoverable
-                        onClick={() => router.push("/dashboard/products")}
-                    >
-                        <Statistic
-                            title={t("dashboard.products")}
-                            value={products.length}
-                            prefix={
-                                <ShoppingOutlined
-                                    style={{ color: "#722ed1" }}
-                                />
-                            }
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card>
-                        <Statistic
-                            title={t("dashboard.paid")}
-                            value={stats?.paidAmount ?? 0}
-                            precision={2}
-                            prefix={
-                                <EuroOutlined style={{ color: "#52c41a" }} />
-                            }
-                            suffix="€"
-                            styles={{ content: { color: "#52c41a" } }}
-                        />
-                    </Card>
-                </Col>
-            </Row>
+                        <span className="dashboard-kpi-icon">{kpi.icon}</span>
+                        <span className="dashboard-kpi-body">
+                            <span className="dashboard-kpi-label">{kpi.label}</span>
+                            <strong>{kpi.value}</strong>
+                            <span className="dashboard-kpi-note">{kpi.note}</span>
+                        </span>
+                        <ArrowRightOutlined className="dashboard-kpi-arrow" />
+                    </button>
+                ))}
+            </section>
 
-            {/* Revenue Summary */}
-            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-                <Col xs={24} lg={12}>
-                    <Card title={t("dashboard.revenueOverview")}>
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Statistic
-                                    title={t("dashboard.openAmounts")}
-                                    value={stats?.unpaidAmount ?? 0}
-                                    precision={2}
-                                    suffix="€"
-                                    styles={{ content: { color: "#fa8c16" } }}
-                                />
-                            </Col>
-                            <Col span={12}>
-                                <Statistic
-                                    title={t("dashboard.totalPaid")}
-                                    value={stats?.paidAmount ?? 0}
-                                    precision={2}
-                                    suffix="€"
-                                    styles={{ content: { color: "#52c41a" } }}
-                                />
-                            </Col>
-                        </Row>
-                        <div style={{ marginTop: 16 }}>
-                            <Row gutter={8}>
-                                <Col>
-                                    <Tag color="default">
-                                        {stats?.draft ?? 0}{" "}
-                                        {t("dashboard.drafts")}
-                                    </Tag>
-                                </Col>
-                                <Col>
-                                    <Tag color="processing">
-                                        {stats?.sent ?? 0} {t("dashboard.sent")}
-                                    </Tag>
-                                </Col>
-                                <Col>
-                                    <Tag color="success">
-                                        {stats?.paid ?? 0} {t("dashboard.paid")}
-                                    </Tag>
-                                </Col>
-                            </Row>
+            <section className="dashboard-finance-grid">
+                <Card className="dashboard-panel dashboard-revenue-panel">
+                    <div className="dashboard-panel-heading">
+                        <div>
+                            <span className="dashboard-panel-icon"><RiseOutlined /></span>
+                            <h2>{t("dashboard.revenueOverview")}</h2>
                         </div>
-                    </Card>
-                </Col>
-                <Col xs={24} lg={12}>
-                    <Card
-                        title={t("dashboard.quickActions")}
-                        extra={
+                        <Tag color={paidRatio >= 70 ? "success" : "processing"}>
+                            {paidRatio}% {t("dashboard.paid")}
+                        </Tag>
+                    </div>
+                    <div className="dashboard-revenue-values">
+                        <div>
+                            <span>{t("dashboard.totalPaid")}</span>
+                            <strong className="text-positive">{formatCurrency(paidTotal)}</strong>
+                        </div>
+                        <div>
+                            <span>{t("dashboard.openAmounts")}</span>
+                            <strong className="text-warning">{formatCurrency(unpaidTotal)}</strong>
+                        </div>
+                    </div>
+                    <Progress
+                        percent={paidRatio}
+                        showInfo={false}
+                        strokeColor="#10b981"
+                        railColor="#e2e8f0"
+                        size={["100%", 8]}
+                    />
+                    <div className="dashboard-status-summary">
+                        <span><i className="status-dot status-dot--draft" />{stats?.draft ?? 0} {t("dashboard.drafts")}</span>
+                        <span><i className="status-dot status-dot--sent" />{stats?.sent ?? 0} {t("dashboard.sent")}</span>
+                        <span><i className="status-dot status-dot--paid" />{stats?.paid ?? 0} {t("dashboard.paid")}</span>
+                    </div>
+                </Card>
+
+                <Card className="dashboard-panel dashboard-actions-panel">
+                    <div className="dashboard-panel-heading">
+                        <div>
+                            <span className="dashboard-panel-icon"><WalletOutlined /></span>
+                            <h2>{t("dashboard.quickActions")}</h2>
+                        </div>
+                    </div>
+                    <div className="dashboard-action-list">
+                        <button type="button" onClick={() => router.push("/dashboard/offers")}>
+                            <TagsOutlined />
+                            <span>{t("dashboard.offers")}</span>
+                            <ArrowRightOutlined />
+                        </button>
+                        <button type="button" onClick={() => router.push("/dashboard/clients")}>
+                            <UserOutlined />
+                            <span>{t("dashboard.manageClients")}</span>
+                            <ArrowRightOutlined />
+                        </button>
+                        <button type="button" onClick={() => router.push("/dashboard/products")}>
+                            <ShoppingOutlined />
+                            <span>{t("dashboard.manageProducts")}</span>
+                            <ArrowRightOutlined />
+                        </button>
+                        <button type="button" onClick={() => router.push("/dashboard/settings")}>
+                            <SettingOutlined />
+                            <span>{t("dashboard.settings")}</span>
+                            <ArrowRightOutlined />
+                        </button>
+                    </div>
+                </Card>
+            </section>
+
+            <section className="dashboard-main-grid">
+                <Card
+                    className="dashboard-panel dashboard-recent-panel"
+                    title={t("dashboard.recentInvoices")}
+                    extra={
+                        <Button type="link" onClick={() => router.push("/dashboard/invoices")}>
+                            {t("dashboard.showAll")} <ArrowRightOutlined />
+                        </Button>
+                    }
+                >
+                    {recentInvoices.length === 0 ? (
+                        <Empty
+                            description={t("dashboard.noInvoices")}
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        >
                             <Button
                                 type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() =>
-                                    router.push("/dashboard/invoices/create")
-                                }
+                                onClick={() => router.push("/dashboard/invoices/create")}
                             >
-                                {t("dashboard.newInvoice")}
+                                {t("dashboard.createFirst")}
                             </Button>
-                        }
-                    >
-                        <Row gutter={[8, 8]}>
-                            <Col xs={12}>
-                                <Button
-                                    block
-                                    icon={<UserOutlined />}
-                                    onClick={() =>
-                                        router.push("/dashboard/clients")
-                                    }
+                        </Empty>
+                    ) : (
+                        <div className="dashboard-invoice-list">
+                            {recentInvoices.map((invoice) => (
+                                <button
+                                    type="button"
+                                    key={invoice.id}
+                                    onClick={() => router.push(`/dashboard/invoices/${invoice.id}`)}
+                                    className="dashboard-invoice-row"
                                 >
-                                    {t("dashboard.manageClients")}
-                                </Button>
-                            </Col>
-                            <Col xs={12}>
-                                <Button
-                                    block
-                                    icon={<ShoppingOutlined />}
-                                    onClick={() =>
-                                        router.push("/dashboard/products")
-                                    }
-                                >
-                                    {t("dashboard.manageProducts")}
-                                </Button>
-                            </Col>
-                            <Col xs={12}>
-                                <Button
-                                    block
-                                    icon={<FileTextOutlined />}
-                                    onClick={() =>
-                                        router.push("/dashboard/invoices")
-                                    }
-                                >
-                                    {t("dashboard.allInvoices")}
-                                </Button>
-                            </Col>
-                            <Col xs={12}>
-                                <Button
-                                    block
-                                    onClick={() =>
-                                        router.push("/dashboard/settings")
-                                    }
-                                >
-                                    {t("dashboard.settings")}
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Card>
-                </Col>
-            </Row>
+                                    <span className="dashboard-invoice-symbol"><FileTextOutlined /></span>
+                                    <span className="dashboard-invoice-info">
+                                        <strong>{invoice.invoice_number}</strong>
+                                        <small>
+                                            {invoice.client?.name || t("dashboard.unknownClient")}
+                                            {" · "}{formatDateGerman(invoice.issue_date)}
+                                        </small>
+                                    </span>
+                                    <Tag color={statusColors[invoice.status]}>
+                                        {statusLabels[invoice.status]}
+                                    </Tag>
+                                    <strong className="dashboard-invoice-amount">
+                                        {formatCurrency(invoice.total_gross)}
+                                    </strong>
+                                    <ArrowRightOutlined className="dashboard-row-arrow" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </Card>
 
-            {/* Data Science Insights */}
-            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-                <Col xs={24} lg={12}>
-                    <Card title="Revenue Forecast (30/90 days)">
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Statistic
-                                    title="Next 30 days"
-                                    value={analytics?.forecast.next30Days ?? 0}
-                                    precision={2}
-                                    suffix="€"
-                                />
-                            </Col>
-                            <Col span={12}>
-                                <Statistic
-                                    title="Next 90 days"
-                                    value={analytics?.forecast.next90Days ?? 0}
-                                    precision={2}
-                                    suffix="€"
-                                />
-                            </Col>
-                        </Row>
-                        <div style={{ marginTop: 12 }}>
-                            <Text type="secondary">
-                                Model confidence:{" "}
-                                {analytics?.forecast.confidence ?? 0}%
-                            </Text>
+                <div className="dashboard-side-stack">
+                    <Card className="dashboard-panel dashboard-forecast-card">
+                        <div className="dashboard-panel-heading">
+                            <div>
+                                <span className="dashboard-panel-icon"><RiseOutlined /></span>
+                                <h2>Revenue Forecast</h2>
+                            </div>
+                            <span className="dashboard-confidence">
+                                {analytics?.forecast.confidence ?? 0}% confidence
+                            </span>
+                        </div>
+                        <div className="dashboard-forecast-values">
+                            <div>
+                                <span>Next 30 days</span>
+                                <strong>{formatCurrency(analytics?.forecast.next30Days ?? 0)}</strong>
+                            </div>
+                            <div>
+                                <span>Next 90 days</span>
+                                <strong>{formatCurrency(analytics?.forecast.next90Days ?? 0)}</strong>
+                            </div>
                         </div>
                     </Card>
-                </Col>
 
-                <Col xs={24} lg={12}>
-                    <Card title="Late-Payment Risk (Top Clients)">
-                        {analytics?.latePaymentRisk?.length ? (
-                            <Space
-                                direction="vertical"
-                                style={{ width: "100%" }}
-                            >
-                                {analytics.latePaymentRisk
-                                    .slice(0, 5)
-                                    .map((risk) => (
-                                        <Flex
-                                            key={risk.clientId}
-                                            justify="space-between"
-                                            align="center"
-                                        >
-                                            <div>
-                                                <Text strong>
-                                                    {risk.clientName}
-                                                </Text>
-                                                <br />
-                                                <Text type="secondary">
-                                                    Late rate: {risk.lateRate}%
-                                                    • Avg late:{" "}
-                                                    {risk.averageDaysLate}d
-                                                </Text>
-                                            </div>
-                                            <Tag
-                                                color={
-                                                    risk.riskLevel === "high"
-                                                        ? "error"
-                                                        : risk.riskLevel ===
-                                                            "medium"
-                                                          ? "warning"
-                                                          : "success"
-                                                }
-                                            >
-                                                {(risk.riskScore * 100).toFixed(
-                                                    1,
-                                                )}
-                                                %
-                                            </Tag>
-                                        </Flex>
-                                    ))}
-                            </Space>
-                        ) : (
-                            <Text type="secondary">
-                                Not enough data for risk scoring yet.
-                            </Text>
-                        )}
-                    </Card>
-                </Col>
-            </Row>
-
-            <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-                <Col xs={24} lg={12}>
-                    <Card title="Customer Segmentation (RFM)">
-                        {analytics?.customerSegments?.length ? (
-                            <Space wrap>
-                                {[
-                                    "champions",
-                                    "loyal",
-                                    "at_risk",
-                                    "new",
-                                    "needs_attention",
-                                ].map((segment) => {
-                                    const count =
-                                        analytics.customerSegments.filter(
-                                            (entry) =>
-                                                entry.segment === segment,
-                                        ).length;
-                                    return (
-                                        <Tag key={segment} color="blue">
-                                            {segment.replace("_", " ")}: {count}
-                                        </Tag>
-                                    );
-                                })}
-                            </Space>
-                        ) : (
-                            <Text type="secondary">
-                                No segmentation data yet.
-                            </Text>
-                        )}
-                    </Card>
-                </Col>
-
-                <Col xs={24} lg={12}>
-                    <Card title="Anomaly Detection" extra={<AlertOutlined />}>
-                        {analytics?.anomalies?.length ? (
-                            <Space
-                                direction="vertical"
-                                style={{ width: "100%" }}
-                            >
-                                {analytics.anomalies
-                                    .slice(0, 4)
-                                    .map((anomaly, index) => (
-                                        <div key={`${anomaly.type}-${index}`}>
-                                            <Tag
-                                                color={
-                                                    anomaly.severity === "high"
-                                                        ? "error"
-                                                        : anomaly.severity ===
-                                                            "medium"
-                                                          ? "warning"
-                                                          : "default"
-                                                }
-                                            >
-                                                {anomaly.type.replace("_", " ")}
-                                            </Tag>
-                                            <Text>{anomaly.message}</Text>
-                                        </div>
-                                    ))}
-                            </Space>
-                        ) : (
-                            <Text type="secondary">No anomalies detected.</Text>
-                        )}
-                    </Card>
-                </Col>
-            </Row>
-
-            <Card title="KPI Intelligence" style={{ marginTop: 16 }}>
-                {analytics?.kpiInsights?.length ? (
-                    <Space direction="vertical" style={{ width: "100%" }}>
-                        {analytics.kpiInsights.map((insight) => (
-                            <Flex
-                                key={insight.key}
-                                justify="space-between"
-                                align="center"
-                            >
-                                <Text>{insight.value}</Text>
-                                <Tag
-                                    color={
-                                        insight.importance === "high"
-                                            ? "error"
-                                            : insight.importance === "medium"
-                                              ? "warning"
-                                              : "default"
-                                    }
-                                >
-                                    {insight.importance}
-                                </Tag>
-                            </Flex>
-                        ))}
-                    </Space>
-                ) : (
-                    <Text type="secondary">No KPI insights generated yet.</Text>
-                )}
-            </Card>
-
-            {/* Recent Invoices */}
-            <Card
-                title={t("dashboard.recentInvoices")}
-                style={{ marginTop: 16 }}
-                extra={
-                    <Button
-                        type="link"
-                        onClick={() => router.push("/dashboard/invoices")}
-                    >
-                        {t("dashboard.showAll")} <ArrowRightOutlined />
-                    </Button>
-                }
-            >
-                {recentInvoices.length === 0 ? (
-                    <Empty
-                        description={t("dashboard.noInvoices")}
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    >
-                        <Button
-                            type="primary"
-                            onClick={() =>
-                                router.push("/dashboard/invoices/create")
-                            }
-                        >
-                            {t("dashboard.createFirst")}
-                        </Button>
-                    </Empty>
-                ) : (
-                    <Space direction="vertical" style={{ width: "100%" }}>
-                        {recentInvoices.map((invoice) => (
-                            <div
-                                key={invoice.id}
-                                onClick={() =>
-                                    router.push(
-                                        `/dashboard/invoices/${invoice.id}`,
-                                    )
-                                }
-                                style={{
-                                    padding: "12px 0",
-                                    borderBottom: "1px solid #f0f0f0",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                <Flex
-                                    justify="space-between"
-                                    align="center"
-                                    wrap="wrap"
-                                    gap={8}
-                                >
-                                    <div>
-                                        <Text strong>
-                                            {invoice.invoice_number}
-                                        </Text>
-                                        <br />
-                                        <Text type="secondary">
-                                            {invoice.client?.name ||
-                                                t(
-                                                    "dashboard.unknownClient",
-                                                )}{" "}
-                                            •{" "}
-                                            {formatDateGerman(
-                                                invoice.issue_date,
-                                            )}
-                                        </Text>
-                                    </div>
-                                    <Space>
-                                        <Tag
-                                            color={statusColors[invoice.status]}
-                                        >
-                                            {statusLabels[invoice.status]}
-                                        </Tag>
-                                        <Text strong>
-                                            {formatCurrency(
-                                                invoice.total_gross,
-                                            )}
-                                        </Text>
-                                    </Space>
-                                </Flex>
+                    <Card className="dashboard-panel dashboard-insights-card">
+                        <div className="dashboard-panel-heading">
+                            <div>
+                                <span className="dashboard-panel-icon"><AlertOutlined /></span>
+                                <h2>KPI Intelligence</h2>
                             </div>
-                        ))}
-                    </Space>
-                )}
-            </Card>
+                        </div>
+                        {analytics?.kpiInsights?.length ? (
+                            <div className="dashboard-insight-list">
+                                {analytics.kpiInsights.slice(0, 4).map((insight) => (
+                                    <div key={insight.key} className="dashboard-insight-item">
+                                        <span>{insight.value}</span>
+                                        <i className={`insight-level insight-level--${insight.importance}`} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="dashboard-empty-note">No KPI insights generated yet.</p>
+                        )}
+                    </Card>
+                </div>
+            </section>
+
+            <section className="dashboard-analytics-grid">
+                <Card className="dashboard-panel" title="Late-Payment Risk">
+                    {analytics?.latePaymentRisk?.length ? (
+                        <div className="dashboard-risk-list">
+                            {analytics.latePaymentRisk.slice(0, 5).map((risk) => (
+                                <div key={risk.clientId} className="dashboard-risk-row">
+                                    <div>
+                                        <strong>{risk.clientName}</strong>
+                                        <small>Late rate {risk.lateRate}% · Avg {risk.averageDaysLate}d</small>
+                                    </div>
+                                    <Tag color={risk.riskLevel === "high" ? "error" : risk.riskLevel === "medium" ? "warning" : "success"}>
+                                        {(risk.riskScore * 100).toFixed(1)}%
+                                    </Tag>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="dashboard-empty-note">Not enough data for risk scoring yet.</p>
+                    )}
+                </Card>
+
+                <Card className="dashboard-panel" title="Customer Segmentation & Anomalies">
+                    <div className="dashboard-segment-list">
+                        {analytics?.customerSegments?.length ? (
+                            ["champions", "loyal", "at_risk", "new", "needs_attention"].map((segment) => {
+                                const count = analytics.customerSegments.filter((entry) => entry.segment === segment).length;
+                                return (
+                                    <span key={segment}>
+                                        {segment.replace("_", " ")} <strong>{count}</strong>
+                                    </span>
+                                );
+                            })
+                        ) : (
+                            <p className="dashboard-empty-note">No segmentation data yet.</p>
+                        )}
+                    </div>
+                    {analytics?.anomalies?.length ? (
+                        <div className="dashboard-anomaly-note">
+                            <AlertOutlined /> {analytics.anomalies[0].message}
+                        </div>
+                    ) : (
+                        <p className="dashboard-empty-note"><CheckCircleOutlined /> No anomalies detected.</p>
+                    )}
+                </Card>
+            </section>
         </div>
     );
 }

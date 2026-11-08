@@ -43,7 +43,14 @@ export default function DashboardAppearance({ children }: { children: React.Reac
     return (
         <AppearanceContext.Provider value={{ appearance, change }}>
             <ConfigProvider theme={{ algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
-                token: { colorPrimary: dark ? "#69b1ff" : "#1976d2", borderRadius: 8 } }}>
+                token: {
+                    colorPrimary: dark ? "#7c9bf5" : "#365fd6",
+                    colorBgLayout: dark ? "#0d1420" : "#f4f6fa",
+                    colorBgContainer: dark ? "#151e2d" : "#ffffff",
+                    colorBorderSecondary: dark ? "#273449" : "#e5eaf1",
+                    borderRadius: 8,
+                    fontFamily: 'Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                } }}>
                 <div className="dashboard-appearance" data-appearance={dark ? "dark" : "light"}
                     style={{ minHeight: "100vh", colorScheme: dark ? "dark" : "light" }}>
                     {children}

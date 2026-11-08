@@ -765,7 +765,7 @@ export default function InvoiceCreatePage() {
 
                         <Divider>{t("invoiceCreate.summary")}</Divider>
 
-                        <Card size="small" style={{ background: "#f5f5f5" }}>
+                        <Card size="small" className="dashboard-subpanel">
                             <Space
                                 direction="vertical"
                                 style={{ width: "100%" }}
@@ -898,12 +898,9 @@ export default function InvoiceCreatePage() {
             {currentStep < 2 && (
                 <Card
                     size="small"
+                    className="dashboard-ai-card"
                     style={{
                         marginBottom: 20,
-                        background:
-                            "linear-gradient(135deg, rgba(230, 244, 255, 0.6) 0%, rgba(255, 255, 255, 0.9) 100%)",
-                        border: "1px solid #91caff",
-                        borderRadius: 10,
                     }}
                 >
                     <Space

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import DashboardAppearance from "@/components/dashboard/DashboardAppearance";
+import "./dashboard.css";
 
 export const metadata: Metadata = {
     title: "Dashboard",
