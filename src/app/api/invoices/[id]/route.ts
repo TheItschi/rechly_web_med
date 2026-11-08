@@ -1,5 +1,7 @@
 import { readEInvoiceData } from "@/lib/eRechnung/identifiers";
 import { NextRequest, NextResponse } from "next/server";
+import { deleteTimeInvoice } from "@/lib/workspace/work";
+import { WorkspaceError } from "@/lib/workspace/repository";
 import { Query } from "node-appwrite";
 import {
     createSessionClient,
@@ -276,6 +278,8 @@ export async function DELETE(
             );
         }
 
+        if (await deleteTimeInvoice(databases, user.$id, id)) return NextResponse.json({ success: true });
+
         // First delete all invoice items
         const itemsResponse = await databases.listDocuments(
             DATABASE_ID,
@@ -297,6 +301,7 @@ export async function DELETE(
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Error deleting invoice:", error);
+        if (error instanceof WorkspaceError) return NextResponse.json({ error: error.message }, { status: error.status });
         return NextResponse.json(
             { error: "Failed to delete invoice" },
             { status: 500 },

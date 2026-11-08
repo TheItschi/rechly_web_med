@@ -57,7 +57,10 @@ The app expects the Appwrite database and collections defined in `src/lib/appwri
 
 ## Optional workspace
 
-Projects, tasks and business documents can be enabled separately from invoicing.
+The optional workspace includes a business overview, projects, a task board,
+business documents, time tracking and timers, time-to-invoice billing, project
+cost reports, and a calendar with recurring events and ICS import/export.
+These workflows add no required fields to ordinary invoicing.
 See [web/desktop feature parity and setup](docs/FEATURE_PARITY.md) for the additive
 Appwrite migration, feature flag, supported exports and remaining differences.
 

@@ -31,6 +31,7 @@ export async function readWorkspace(databases: Databases, userId: string): Promi
     const data = emptyBusiness();
     for (const row of rows) {
         if (row.userId !== userId) throw new Error("Workspace ownership mismatch");
+        if (["timeEntries", "timers", "billings", "expenseLinks", "calendar", "counters"].includes(row.kind)) continue;
         const key = collection(row.kind);
         const record = JSON.parse(row.payload);
         if (record.id !== row.$id) throw new Error("Workspace record mismatch");

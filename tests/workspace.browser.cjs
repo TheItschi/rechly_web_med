@@ -63,7 +63,7 @@ const origin = 'http://127.0.0.1:3104';
         assert.equal(await page.evaluate(() => window.injected), undefined);
         for (const [button, file] of [['PDF', '/tmp/rechly-workspace-document.pdf'], ['TXT', '/tmp/rechly-workspace-document.txt'], ['Arbeitsbereich exportieren', '/tmp/rechly-workspace-export.json']]) {
             const downloaded = page.waitForEvent('download');
-            await page.getByRole('button', { name: button, exact: true }).click();
+            await page.getByRole(button === 'Arbeitsbereich exportieren' ? 'link' : 'button', { name: button, exact: true }).click();
             await (await downloaded).saveAs(file);
             assert.ok(fs.statSync(file).size > 40);
         }

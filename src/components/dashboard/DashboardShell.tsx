@@ -38,6 +38,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Link from "next/link";
 import { AppearanceSelect } from "./DashboardAppearance";
 import { isDesktopRuntime } from "@/lib/runtime";
+import WorkspaceActivity from "@/components/workspace/WorkspaceActivity";
 
 const { Header, Sider, Content } = Layout;
 
@@ -119,9 +120,16 @@ export default function DashboardLayout({
                     label: t("dashboard.clients"),
                 },
                 ...(process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED === "1" ? [{
-                    key: "/dashboard/workspace",
+                    key: "workspace-menu",
                     icon: <FileTextOutlined />,
                     label: language === "de" ? "Arbeitsbereich" : "Workspace",
+                    children: [
+                        { key: "/dashboard/workspace/overview", label: language === "de" ? "Business-Übersicht" : "Business overview" },
+                        { key: "/dashboard/workspace", label: language === "de" ? "Projekte, Aufgaben & Dokumente" : "Projects, tasks & documents" },
+                        { key: "/dashboard/workspace/time", label: language === "de" ? "Zeiten & Abrechnung" : "Time & billing" },
+                        { key: "/dashboard/workspace/reports", label: language === "de" ? "Projektcontrolling" : "Project reports" },
+                        { key: "/dashboard/workspace/calendar", label: language === "de" ? "Kalender" : "Calendar" },
+                    ],
                 }] : []),
                 {
                     key: "/dashboard/products",
@@ -490,6 +498,7 @@ export default function DashboardLayout({
                             : "calc(100vh - 112px)",
                     }}
                 >
+                    <WorkspaceActivity />
                     {children}
                 </Content>
             </Layout>

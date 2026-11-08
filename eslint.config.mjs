@@ -30,6 +30,7 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "dist/**", // Generated Electron packages include bundled dependencies.
     "next-env.d.ts",
     // Python virtual environment (Django static JS triggers false positives)
     ".venv/**",

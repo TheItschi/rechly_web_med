@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Empty, Form, Input, InputNumber, Modal, Popconfirm, Progress, Row, Select, Space, Spin, Tabs, Tag, Typography } from "antd";
+import { Alert, Button, Card, Col, Empty, Form, Input, InputNumber, Modal, Popconfirm, Progress, Row, Select, Segmented, Space, Spin, Tabs, Tag, Typography } from "antd";
 import { PlusOutlined, DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { BusinessCollection, BusinessData, BusinessDocument } from "@/lib/workspace/domain";
+import type { BusinessCollection, BusinessData, BusinessDocument, BusinessTask } from "@/lib/workspace/domain";
+import { WorkspaceLinks } from "@/components/workspace/common";
+import TaskBoard from "@/components/workspace/TaskBoard";
 
 type RecordData = BusinessData[BusinessCollection][number];
 type Snapshot = { data: BusinessData; clients: { id: string; name: string }[] };
@@ -25,6 +27,7 @@ export default function Workspace() {
     const [key, setKey] = useState<BusinessCollection>("projects");
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState("all");
+    const [board, setBoard] = useState(true);
     const [loading, setLoading] = useState(true);
     const [ready, setReady] = useState(false);
     const [busy, setBusy] = useState(false);
@@ -52,7 +55,10 @@ export default function Workspace() {
         } catch (error) { setError((error as Error).message); }
         finally { setLoading(false); }
     }
-    useEffect(() => { void load(); /* Fetch once; language switches retain the editor. */
+    useEffect(() => {
+        const tab = new URLSearchParams(window.location.search).get("tab");
+        if (tab === "tasks" || tab === "documents" || tab === "projects") setKey(tab);
+        void load(); /* Fetch once; language switches retain the editor. */
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     useEffect(() => {
@@ -120,6 +126,7 @@ export default function Workspace() {
     const money = (value: number) => new Intl.NumberFormat(language === "de" ? "de-DE" : "en-GB", { style: "currency", currency: "EUR" }).format(value);
     return <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         {holder}
+        <WorkspaceLinks />
         <Space orientation="vertical" size="large" style={{ width: "100%" }}>
             <div><Typography.Title level={2}>{l("Arbeitsbereich", "Workspace")}</Typography.Title>
                 <Typography.Paragraph type="secondary">{l("Projekte planen, Aufgaben organisieren und Geschäftsdokumente schreiben – nur wenn Sie es brauchen.", "Plan projects, organize tasks and write business documents whenever you need them.")}</Typography.Paragraph>
@@ -131,11 +138,12 @@ export default function Workspace() {
                 <Space wrap style={{ marginBottom: 24, width: "100%" }}>
                     <Input prefix={<SearchOutlined aria-hidden />} aria-label={l("Arbeitsbereich durchsuchen", "Search workspace")} placeholder={l("Suchen …", "Search …")} value={search} onChange={event => setSearch(event.target.value)} allowClear style={{ width: 230 }} />
                     <Select aria-label={l("Status filtern", "Filter status")} value={filter} onChange={setFilter} style={{ minWidth: 145 }} options={[{ value: "all", label: l("Alle", "All") }, ...statuses[key].map(value => ({ value, label: labels[value] }))]} />
+                    {key === "tasks" && <Segmented value={board ? "board" : "cards"} onChange={value => setBoard(value === "board")} options={[{ value: "board", label: l("Aufgabenboard", "Task board") }, { value: "cards", label: l("Karten", "Cards") }]} />}
                     <Button type="primary" icon={<PlusOutlined aria-hidden />} disabled={!ready || loading || busy} onClick={() => edit()}>{l("Neu anlegen", "Create new")}</Button>
-                    <Button icon={<DownloadOutlined aria-hidden />} disabled={!ready || loading} onClick={() => download(new Blob([JSON.stringify({ rechlyWorkspaceVersion: 1, exportedAt: new Date().toISOString(), business: data }, null, 2)], { type: "application/json" }), "rechly-workspace.json")}>{l("Arbeitsbereich exportieren", "Export workspace")}</Button>
+                    <Button icon={<DownloadOutlined aria-hidden />} disabled={!ready || loading} href="/api/workspace/backup">{l("Arbeitsbereich exportieren", "Export workspace")}</Button>
                 </Space>
                 <Spin spinning={loading}>
-                    {!rows.length ? <Empty description={search || filter !== "all" ? l("Keine passenden Einträge.", "No matching records.") : l("Hier ist Platz für Ihre Arbeit. Erstellen Sie den ersten Eintrag.", "Room for your work. Create your first record.")} /> : <Row gutter={[16, 16]}>
+                    {!rows.length ? <Empty description={search || filter !== "all" ? l("Keine passenden Einträge.", "No matching records.") : l("Hier ist Platz für Ihre Arbeit. Erstellen Sie den ersten Eintrag.", "Room for your work. Create your first record.")} /> : key === "tasks" && board ? <TaskBoard tasks={rows as BusinessTask[]} projects={data.projects} busy={busy} edit={edit} change={async (task,status) => { setBusy(true); try { await mutate({ action: "save", record: { ...task, status } }); await load(); } catch (error) { setError((error as Error).message); } finally { setBusy(false); } }} /> : <Row gutter={[16, 16]}>
                         {rows.map(record => {
                             const title = "name" in record ? record.name : record.title;
                             const status = "status" in record ? record.status : record.kind;
@@ -152,6 +160,7 @@ export default function Workspace() {
                                 {"due_date" in record && record.due_date && <Typography.Paragraph type={overdue ? "danger" : "secondary"}>{l("Termin", "Due")}: {record.due_date}</Typography.Paragraph>}
                                 {"budget" in record && <><Typography.Paragraph type="secondary">{clients.find(c => c.id === record.client_id)?.name || l("Ohne Kunde", "No customer")} · {l("Planbudget", "Planned budget")}: {money(record.budget)}</Typography.Paragraph><Progress percent={tasks.length ? Math.round(tasks.filter(t => t.status === "done").length / tasks.length * 100) : 0} size="small" /><Typography.Paragraph type="secondary">{tasks.filter(t => t.status === "done").length}/{tasks.length} {labels.tasks}</Typography.Paragraph></>}
                                 <Space wrap><Button disabled={busy} onClick={() => edit(record)}>{l("Öffnen", "Open")}</Button>
+                                    {key === "projects" && <Button disabled={busy} onClick={() => { setKey("tasks"); setSearch(""); setFilter("all"); form.resetFields(); form.setFieldsValue({ title: "", project_id: record.id, assignee: "", status: "todo", priority: "normal", due_date: "" }); setEditing({}); setDirty(false); setEditorError(""); }}>{l("Aufgabe anlegen", "Add task")}</Button>}
                                     {key === "documents" && <><Button disabled={busy} onClick={() => exportPdf(record.id)}>PDF</Button><Button onClick={() => { const doc = record as BusinessDocument; download(new Blob([`${doc.recipient}\n\n${doc.title}\n\n${doc.body}`], { type: "text/plain;charset=utf-8" }), "document.txt"); }}>TXT</Button></>}
                                     {key !== "projects" && <Popconfirm title={l("Eintrag endgültig löschen?", "Permanently delete this record?")} onConfirm={() => remove(record.id)} okText={l("Löschen", "Delete")} cancelText={l("Abbrechen", "Cancel")}><Button danger disabled={busy}>{l("Löschen", "Delete")}</Button></Popconfirm>}
                                 </Space>

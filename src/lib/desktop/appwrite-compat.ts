@@ -56,6 +56,43 @@ function documentValue(document: DesktopDocument, attribute?: string): unknown {
 
 class DesktopDatabases {
     private readonly database: DatabaseSync;
+    private readonly transactions = new Map<string, { expires: number; base: Map<string, StoredRow>; rows: Map<string, StoredRow>; changed: Set<string> }>();
+
+    private transaction(id: string) {
+        const tx = this.transactions.get(id);
+        if (!tx || tx.expires < Date.now()) { this.transactions.delete(id); throw Object.assign(new Error("Transaction expired"), { code: 409 }); }
+        return tx;
+    }
+    async createTransaction(ttl = 60) {
+        for (const [id, tx] of this.transactions) if (tx.expires < Date.now()) this.transactions.delete(id);
+        const rows = this.database.prepare("SELECT collection_id, document_id AS id, data, created_at, updated_at FROM documents").all() as (StoredRow & { collection_id: string })[];
+        const base = new Map(rows.map(row => [row.collection_id + "\0" + row.id, row]));
+        const id = randomUUID();
+        this.transactions.set(id, { expires: Date.now() + ttl * 1000, base, rows: new Map(base), changed: new Set() });
+        return { $id: id };
+    }
+    async updateTransaction(id: string, commit = false, rollback = false) {
+        if (rollback) { this.transactions.delete(id); return {}; }
+        const tx = this.transaction(id);
+        if (!commit) return { $id: id };
+        this.database.exec("BEGIN IMMEDIATE");
+        try {
+            for (const key of tx.changed) {
+                const [collection, document] = key.split("\0");
+                const current = this.database.prepare("SELECT document_id AS id, data, created_at, updated_at FROM documents WHERE collection_id = ? AND document_id = ?").get(collection, document) as StoredRow | undefined;
+                const before = tx.base.get(key);
+                if (!!current !== !!before || (current && before && (current.data !== before.data || current.updated_at !== before.updated_at))) throw Object.assign(new Error("Transaction conflict"), { code: 409 });
+            }
+            for (const key of tx.changed) {
+                const [collection, document] = key.split("\0"), row = tx.rows.get(key);
+                if (row) this.database.prepare("INSERT INTO documents (collection_id, document_id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(collection_id,document_id) DO UPDATE SET data=excluded.data, updated_at=excluded.updated_at").run(collection, document, row.data, row.created_at, row.updated_at);
+                else this.database.prepare("DELETE FROM documents WHERE collection_id = ? AND document_id = ?").run(collection, document);
+            }
+            this.database.exec("COMMIT");
+        } catch (error) { this.database.exec("ROLLBACK"); throw error; }
+        finally { this.transactions.delete(id); }
+        return { $id: id };
+    }
 
     constructor(dataDirectory: string) {
         this.database = new DatabaseSync(path.join(dataDirectory, "rechly.sqlite"));
@@ -99,8 +136,9 @@ class DesktopDatabases {
         databaseId: string,
         collectionId: string,
         queries: string[] = [],
+        transactionId?: string,
     ) {
-        const rows = this.database
+        const rows = transactionId ? [...this.transaction(transactionId).rows].filter(([key]) => key.startsWith(collectionId + "\0")).map(([, row]) => row) : this.database
             .prepare(
                 `SELECT document_id AS id, data, created_at, updated_at
                  FROM documents WHERE collection_id = ?`,
@@ -181,8 +219,10 @@ class DesktopDatabases {
         databaseId: string,
         collectionId: string,
         documentId: string,
+        _queries: string[] = [],
+        transactionId?: string,
     ) {
-        const row = this.database
+        const row = transactionId ? this.transaction(transactionId).rows.get(collectionId + "\0" + documentId) : this.database
             .prepare(
                 `SELECT document_id AS id, data, created_at, updated_at
                  FROM documents
@@ -205,10 +245,18 @@ class DesktopDatabases {
         requestedId: string,
         data: Record<string, unknown>,
         _permissions: string[] = [],
+        transactionId?: string,
     ) {
         const documentId =
             requestedId === "unique()" ? randomUUID() : requestedId;
         const now = new Date().toISOString();
+
+        if (transactionId) {
+            const tx = this.transaction(transactionId), key = collectionId + "\0" + documentId;
+            if (tx.rows.has(key)) throw Object.assign(new Error("Document already exists"), { code: 409 });
+            tx.rows.set(key, { id: documentId, data: JSON.stringify(data), created_at: now, updated_at: now }); tx.changed.add(key);
+            return this.getDocument(databaseId, collectionId, documentId, [], transactionId);
+        }
 
         try {
             this.database
@@ -239,17 +287,26 @@ class DesktopDatabases {
         collectionId: string,
         documentId: string,
         updates: Record<string, unknown>,
+        _permissions?: string[],
+        transactionId?: string,
     ) {
         const existing = await this.getDocument(
             databaseId,
             collectionId,
             documentId,
+            [], transactionId,
         );
         const data = { ...existing, ...updates } as Record<string, unknown>;
         for (const key of Object.keys(data)) {
             if (key.startsWith("$")) delete data[key];
         }
-        const updatedAt = new Date().toISOString();
+        const updatedAt = new Date(Math.max(Date.now(), Date.parse(existing.$updatedAt) + 1)).toISOString();
+
+        if (transactionId) {
+            const tx = this.transaction(transactionId), key = collectionId + "\0" + documentId;
+            tx.rows.set(key, { id: documentId, data: JSON.stringify(data), created_at: existing.$createdAt, updated_at: updatedAt }); tx.changed.add(key);
+            return this.getDocument(databaseId, collectionId, documentId, [], transactionId);
+        }
 
         this.database
             .prepare(
@@ -265,7 +322,9 @@ class DesktopDatabases {
         _databaseId: string,
         collectionId: string,
         documentId: string,
+        transactionId?: string,
     ) {
+        if (transactionId) { const tx = this.transaction(transactionId), key = collectionId + "\0" + documentId; tx.rows.delete(key); tx.changed.add(key); return {}; }
         this.database
             .prepare(
                 "DELETE FROM documents WHERE collection_id = ? AND document_id = ?",

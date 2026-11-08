@@ -32,4 +32,7 @@ for (let attempt = 0; attempt < 60; attempt++) {
     await new Promise(resolve => setTimeout(resolve, 1000));
 }
 if (!ready) throw new Error("Owner index still pending; rerun later.");
+// Time billing and calendar mutations must fail closed on older Appwrite servers.
+const transaction = await db.createTransaction(60);
+await db.updateTransaction(transaction.$id, false, true);
 console.log("Workspace ready. Set NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED=1 and rebuild/redeploy to enable it.");
