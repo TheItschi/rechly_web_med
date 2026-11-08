@@ -134,6 +134,7 @@ export interface CreateBookingInput {
     customerEmail: string;
     customerPhone?: string;
     customerNote?: string;
+    internalNote?: string;
     source: "public" | "manual";
     idempotencyKey?: string;
     nowUtc?: string;
@@ -266,6 +267,7 @@ export async function createBooking(
             customerEmail: email,
             customerPhone: input.customerPhone?.trim().slice(0, 40) || undefined,
             customerNote: input.customerNote?.trim().slice(0, 500) || undefined,
+        internalNote: input.internalNote?.trim().slice(0, 1000) || undefined,
             startUtc: input.startUtc,
             endUtc,
             businessTimezone: settings.timezone,
