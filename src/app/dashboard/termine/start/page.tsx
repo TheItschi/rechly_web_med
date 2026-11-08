@@ -38,13 +38,25 @@ export default function TermineStartPage() {
         setError(null);
         try {
             await post("/api/termine/slug", { slug, displayName });
+            let staffIds: string[] = [];
+            try {
+                const st = await post<{ staff: { $id: string } }>("/api/termine/staff", {
+                    name: displayName,
+                    active: true,
+                    bookable: true,
+                    serviceIds: [],
+                });
+                staffIds = [st.staff.$id];
+            } catch {
+                // Staff ist optional; Buchung funktioniert, sobald Personal angelegt ist.
+            }
             if (serviceName.trim() && duration) {
                 await post("/api/termine/services", {
                     name: serviceName.trim(),
                     durationMinutes: duration,
                     priceCents: Math.round((price ?? 0) * 100),
                     currency: "EUR",
-                    staffIds: [],
+                    staffIds,
                 });
             }
             // Default hours Mon–Fri 09:00–18:00.

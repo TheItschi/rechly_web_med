@@ -113,7 +113,7 @@ export default function TermineBookingsPage() {
                 />
             </Card>
 
-            <Drawer title="Buchung" open={!!detail} onClose={() => setDetail(null)} width={420}>
+            <Drawer title="Buchung" open={!!detail} onClose={() => setDetail(null)} size={420}>
                 {detail && (
                     <div>
                         <Descriptions column={1} size="small" bordered>

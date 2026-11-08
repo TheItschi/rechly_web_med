@@ -20,10 +20,13 @@ export const TERMINAL_STATUSES: ReadonlySet<TermineStatus> = new Set([
     "NO_SHOW",
 ]);
 
-/** Active states occupy staff time and block availability. */
+/** States that occupy staff time and block availability. Cancelled and no-show
+ * slots are released; completed appointments keep blocking their slot so
+ * history is never rewritten into a double booking. */
 export const ACTIVE_STATUSES: ReadonlySet<TermineStatus> = new Set([
     "PENDING",
     "CONFIRMED",
+    "COMPLETED",
 ]);
 
 const TRANSITIONS: Record<TermineStatus, ReadonlySet<TermineStatus>> = {

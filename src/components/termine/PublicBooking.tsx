@@ -46,6 +46,13 @@ export default function PublicBooking({ business, services, staff }: { business:
     );
     const showStaffStep = business.allowAnyStaff && eligibleStaff.length > 1;
 
+    const steps = showStaffStep
+        ? ["Leistung", "Mitarbeiter", "Datum", "Uhrzeit", "Daten"]
+        : ["Leistung", "Datum", "Uhrzeit", "Daten"];
+    const dateStep = showStaffStep ? 2 : 1;
+    const timeStep = showStaffStep ? 3 : 2;
+    const formStep = showStaffStep ? 4 : 3;
+
     const loadSlots = useCallback(async () => {
         if (!service) return;
         setLoadingSlots(true);
@@ -66,8 +73,8 @@ export default function PublicBooking({ business, services, staff }: { business:
     }, [service, staffId, business.slug]);
 
     useEffect(() => {
-        if (step === 2 && service) void loadSlots();
-    }, [step, service, loadSlots]);
+        if (step === dateStep && service) void loadSlots();
+    }, [step, service, loadSlots, dateStep]);
 
     const dayList = useMemo(() => Object.keys(slotsByDay).sort(), [slotsByDay]);
     const daySlots = day && slotsByDay[day] ? slotsByDay[day] : [];
@@ -112,9 +119,6 @@ export default function PublicBooking({ business, services, staff }: { business:
         }
     }
 
-    const steps = showStaffStep
-        ? ["Leistung", "Mitarbeiter", "Datum", "Uhrzeit", "Daten"]
-        : ["Leistung", "Datum", "Uhrzeit", "Daten"];
     const stepIndex = (n: number) => (showStaffStep ? n : n - (n > 0 ? 1 : 0));
 
     return (
@@ -200,11 +204,11 @@ export default function PublicBooking({ business, services, staff }: { business:
                                 </div>
                                 <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
                                     <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(0)}>Zurück</Button>
-                                    <Button type="primary" icon={<ArrowRightOutlined />} onClick={() => { setStep(2); window.scrollTo({ top: 0 }); }}>Weiter</Button>
+                                    <Button type="primary" icon={<ArrowRightOutlined />} onClick={() => { setStep(dateStep); window.scrollTo({ top: 0 }); }}>Weiter</Button>
                                 </div>
                             </Card>
                         )}
-                        {(step === (showStaffStep ? 2 : 1)) && (
+                        {step === dateStep && (
                             <Card className="buchen-card" loading={loadingSlots}>
                                 {dayList.length === 0 && !loadingSlots ? (
                                     <Alert message="In den nächsten 31 Tagen ist leider kein Termin frei." type="info" showIcon />
@@ -218,11 +222,12 @@ export default function PublicBooking({ business, services, staff }: { business:
                                     </div>
                                 )}
                                 <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-                                    <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(showStaffStep ? 1 : 0)}>Zurück</Button>
+                                    <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(0)}>Zurück</Button>
+                                    <Button type="primary" icon={<ArrowRightOutlined />} disabled={!day || daySlots.length === 0} onClick={() => { setStep(timeStep); window.scrollTo({ top: 0 }); }}>Weiter</Button>
                                 </div>
                             </Card>
                         )}
-                        {(step === (showStaffStep ? 3 : 2)) && (
+                        {step === timeStep && (
                             <Card className="buchen-card" loading={loadingSlots}>
                                 {!day ? (
                                     <Alert message="Bitte zuerst einen Tag wählen." type="info" showIcon />
@@ -238,7 +243,7 @@ export default function PublicBooking({ business, services, staff }: { business:
                                                 onClick={() => {
                                                     setStartUtc(s.startUtc);
                                                     if (!showStaffStep) setStaffId(s.staffId);
-                                                    setStep(showStaffStep ? 4 : 3);
+                                                    setStep(formStep);
                                                     window.scrollTo({ top: 0 });
                                                 }}
                                             >
@@ -248,11 +253,11 @@ export default function PublicBooking({ business, services, staff }: { business:
                                     </div>
                                 )}
                                 <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-                                    <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(showStaffStep ? 2 : 1)}>Zurück</Button>
+                                    <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(dateStep)}>Zurück</Button>
                                 </div>
                             </Card>
                         )}
-                        {(step === (showStaffStep ? 4 : 3)) && (
+                        {step === formStep && (
                             <Card className="buchen-card">
                                 <Descriptions column={1} size="small" style={{ marginBottom: 16 }}>
                                     <Descriptions.Item label="Leistung">{service?.name} ({service?.durationMinutes} Min{service && business.showPrices && service.priceCents !== undefined ? `, ${eur(service.priceCents, service.currency)}` : ""})</Descriptions.Item>
@@ -275,7 +280,7 @@ export default function PublicBooking({ business, services, staff }: { business:
                                         Mit der Buchung stimmen Sie der Verarbeitung Ihrer Angaben zur Terminverwaltung zu.
                                     </p>
                                     <div style={{ display: "flex", gap: 8 }}>
-                                        <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(showStaffStep ? 3 : 2)}>Zurück</Button>
+                                        <Button icon={<ArrowLeftOutlined />} onClick={() => setStep(timeStep)}>Zurück</Button>
                                         <Button type="primary" htmlType="submit" loading={submitting} icon={<ArrowRightOutlined />}>
                                             Verbindlich buchen
                                         </Button>

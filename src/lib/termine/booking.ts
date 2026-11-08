@@ -3,7 +3,7 @@ import { DB, T, TermineStore, atomic, conflict, newId, newToken, recordId, reser
 import { TermineError } from "./store";
 import { ACTIVE_STATUSES, canTransition, type AvailabilityQuery, type TermineAppointment, type TermineStatus } from "./types";
 import { computeAvailability, type AppointmentLike } from "./availability";
-import { addMinutesUtc, dateInTz, intervalsOverlap } from "./time";
+import { addMinutesUtc, dateInTz, dayjs, intervalsOverlap } from "./time";
 
 export interface ServiceRow extends Row {
     name: string;
@@ -102,11 +102,13 @@ export async function engineInput(
     days: number,
 ) {
     const service = await store.own<ServiceRow>(T.SERVICES, serviceId);
+    const since = dayjs(fromDate, "YYYY-MM-DD").subtract(1, "day").format("YYYY-MM-DD");
+    // Bounded read: only appointments that can intersect the window matter.
     const [staffRows, hoursRows, blockRows, apptRows] = await Promise.all([
         store.list<StaffRow>(T.STAFF),
         store.list<HoursRow>(T.HOURS),
         store.list(T.BLOCKS as never) as Promise<Array<Row & { staffId?: string; startUtc: string; endUtc: string }>>,
-        store.list<AppointmentRow>(T.APPOINTMENTS),
+        store.list<AppointmentRow>(T.APPOINTMENTS, [Query.greaterThanEqual("startUtc", since)]),
     ]);
     const to = new Date(fromDate + "T00:00:00Z");
     to.setUTCDate(to.getUTCDate() + days);
