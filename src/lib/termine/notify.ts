@@ -114,7 +114,10 @@ export function resendSender(apiKey: string | undefined): MailSender {
                 method: "POST",
                 headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    from: "Rechly Termine <no-reply@rechly.de>",
+                    from:
+                        process.env.TERMINE_FROM_EMAIL ||
+                        process.env.RESEND_FROM_EMAIL ||
+                        "Rechly Termine <no-reply@rechly.de>",
                     to: [msg.to],
                     subject: msg.subject,
                     text: msg.text,
