@@ -113,3 +113,10 @@ test("generates valid QR code data URL from GiroCode payload", async () => {
     assert.ok(dataUrl.startsWith("data:image/png;base64,"));
     assert.ok(dataUrl.length > 500);
 });
+
+test("rejects checksum errors, control characters, overflow and malformed BIC", () => {
+    const valid = { name: "Müller GmbH", iban: "DE89370400440532013000", amount: 119, reference: "RE-1" };
+    for (const patch of [{ iban: "DE00370400440532013000" }, { bic: "bad" }, { name: "Alice\nSCT" }, { reference: "RE\n1" }, { amount: Infinity }, { amount: 0.001 }, { reference: "a".repeat(141) }, { name: "€".repeat(70), reference: "€".repeat(140) }]) {
+        assert.equal(buildGirocodePayload({ ...valid, ...patch }), null);
+    }
+});

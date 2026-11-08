@@ -118,6 +118,11 @@ export default function DashboardLayout({
                     icon: <UserOutlined />,
                     label: t("dashboard.clients"),
                 },
+                ...(process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED === "1" ? [{
+                    key: "/dashboard/workspace",
+                    icon: <FileTextOutlined />,
+                    label: language === "de" ? "Arbeitsbereich" : "Workspace",
+                }] : []),
                 {
                     key: "/dashboard/products",
                     icon: <ShoppingOutlined />,
@@ -289,7 +294,7 @@ export default function DashboardLayout({
                 placement="left"
                 onClose={() => setMobileMenuOpen(false)}
                 open={mobileMenuOpen}
-                width={280}
+                size={280}
                 styles={{
                     body: { padding: 0 },
                 }}

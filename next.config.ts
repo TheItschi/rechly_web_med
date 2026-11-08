@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     // once bundled.
     serverExternalPackages: ["pdfkit"],
     outputFileTracingIncludes: {
+        "/api/workspace": ["./node_modules/pdfkit/js/data/**", "./public/fonts/liberation/**"],
         "/api/invoices/[id]/zugferd": ["./node_modules/pdfkit/js/data/**", "./public/fonts/liberation/**"],
     },
 

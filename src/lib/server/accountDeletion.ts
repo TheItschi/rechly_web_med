@@ -7,7 +7,7 @@ const children: Record<string, [string, string]> = {
     offers: ["offer_items", "offerId"],
     recurring_invoices: ["recurring_invoice_items", "recurringInvoiceId"],
 };
-const collections = ["invoices", "offers", "recurring_invoices", "dunning_notices", "expenses", "bank_transactions", "products", "clients", "user_company"];
+const collections = ["workspace_records", "invoices", "offers", "recurring_invoices", "dunning_notices", "expenses", "bank_transactions", "products", "clients", "user_company"];
 type Backend = {
     databases: Databases;
     storage: Storage;

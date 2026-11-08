@@ -55,6 +55,12 @@ npm run dev
 
 The app expects the Appwrite database and collections defined in `src/lib/appwrite.ts` and `src/lib/appwrite-server.ts`. Rechly does not yet ship Appwrite provisioning automation, so self-hosters need to create those resources in their own Appwrite project.
 
+## Optional workspace
+
+Projects, tasks and business documents can be enabled separately from invoicing.
+See [web/desktop feature parity and setup](docs/FEATURE_PARITY.md) for the additive
+Appwrite migration, feature flag, supported exports and remaining differences.
+
 ## Analytics
 
 Revenue forecasting, late-payment risk scoring, customer segmentation, and anomaly detection are computed directly in the Next.js API route (`/api/analytics/insights`). No external ML service is required — the app trains a lightweight logistic regression model on the fly using your invoice history.

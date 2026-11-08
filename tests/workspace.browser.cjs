@@ -1,0 +1,91 @@
+// Use only an isolated local SQLite-backed server; see docs/FEATURE_PARITY.md.
+const { chromium } = require(process.env.RECHLY_PLAYWRIGHT_PATH || 'playwright-core');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const origin = 'http://127.0.0.1:3104';
+(async () => {
+    assert.equal(process.env.RECHLY_DATA_DIR, '/tmp/rechly-workspace-test', 'Use an isolated test server/data directory');
+    assert.equal((await (await fetch(origin + '/api/desktop/health')).json()).storage, 'sqlite');
+    const browser = await chromium.launch({ executablePath: process.env.RECHLY_CHROMIUM || '/usr/bin/chromium', headless: true, args: ['--no-sandbox'] });
+    try {
+        const page = await browser.newPage({ viewport: { width: 1360, height: 1000 } });
+        const errors = [];
+        page.on('pageerror', error => errors.push(error.message));
+        await page.goto(origin + '/dashboard/workspace');
+        await page.getByRole('heading', { name: 'Arbeitsbereich', exact: true }).waitFor();
+        const suffix = Date.now().toString();
+        const title = 'Website-Relaunch ' + suffix;
+        await page.getByRole('button', { name: 'Neu anlegen', exact: true }).click();
+        let editor = page.getByRole('dialog');
+        await editor.getByLabel('Titel', { exact: true }).fill(title);
+        await editor.getByLabel('Beschreibung', { exact: true }).fill('Kundenportal planen und die nächsten Schritte festhalten.');
+        await editor.getByLabel('Planbudget (EUR)', { exact: true }).fill('2400');
+        await editor.getByRole('button', { name: 'Speichern', exact: true }).click();
+        await editor.waitFor({ state: 'hidden' });
+        await page.getByRole('heading', { name: title }).waitFor();
+        await page.getByRole('tab', { name: 'Aufgaben', exact: true }).click();
+        await page.getByRole('button', { name: 'Neu anlegen', exact: true }).click();
+        editor = page.getByRole('dialog');
+        await editor.getByLabel('Titel', { exact: true }).fill('Entwurf prüfen ' + suffix);
+        await editor.getByLabel('Projekt (optional)', { exact: true }).click();
+        await page.getByTitle(title, { exact: true }).click();
+        await editor.getByLabel('Zuständig (optional)', { exact: true }).fill('Müller');
+        await editor.getByRole('button', { name: 'Speichern', exact: true }).click();
+        await editor.waitFor({ state: 'hidden' });
+        await page.reload();
+        await page.getByRole('tab', { name: 'Aufgaben', exact: true }).click();
+        await page.getByRole('heading', { name: 'Entwurf prüfen ' + suffix }).waitFor();
+        await page.getByRole('tab', { name: 'Dokumente', exact: true }).click();
+        await page.getByRole('button', { name: 'Neu anlegen', exact: true }).click();
+        editor = page.getByRole('dialog');
+        await editor.getByLabel('Titel', { exact: true }).fill('Besprechungsnotizen ' + suffix);
+        await editor.getByLabel('Vorlage', { exact: true }).click();
+        await page.getByTitle('Protokoll', { exact: true }).click();
+        assert.match(await editor.getByLabel('Inhalt', { exact: true }).inputValue(), /Teilnehmende/);
+        await editor.getByLabel('Inhalt', { exact: true }).fill('Müller & Partner\n<script>window.injected=true</script>\nNächster Schritt: Freigabe des Entwurfs.');
+        await editor.getByRole('button', { name: 'Abbrechen', exact: true }).click();
+        await page.getByRole('button', { name: 'Weiter bearbeiten', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Ungespeicherte Änderungen verwerfen?' }).waitFor({ state: 'hidden' });
+        assert.ok(await editor.isVisible());
+        // Simulate an unavailable backend: the unsaved draft must remain editable.
+        await page.route('**/api/workspace', async route => {
+            if (route.request().method() === 'POST') await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'Test: Bitte erneut versuchen.' }) });
+            else await route.continue();
+        });
+        await editor.getByRole('button', { name: 'Speichern', exact: true }).click();
+        await editor.getByRole('alert').waitFor();
+        assert.match(await editor.getByLabel('Inhalt', { exact: true }).inputValue(), /Müller/);
+        await page.unroute('**/api/workspace');
+        await editor.getByRole('button', { name: /Speichern/ }).click();
+        await editor.waitFor({ state: 'hidden' });
+        await page.getByLabel('Arbeitsbereich durchsuchen').fill(suffix);
+        await page.getByRole('heading', { name: 'Besprechungsnotizen ' + suffix }).waitFor();
+        assert.equal(await page.evaluate(() => window.injected), undefined);
+        for (const [button, file] of [['PDF', '/tmp/rechly-workspace-document.pdf'], ['TXT', '/tmp/rechly-workspace-document.txt'], ['Arbeitsbereich exportieren', '/tmp/rechly-workspace-export.json']]) {
+            const downloaded = page.waitForEvent('download');
+            await page.getByRole('button', { name: button, exact: true }).click();
+            await (await downloaded).saveAs(file);
+            assert.ok(fs.statSync(file).size > 40);
+        }
+        assert.equal(fs.readFileSync('/tmp/rechly-workspace-document.pdf').subarray(0, 4).toString(), '%PDF');
+        assert.match(fs.readFileSync('/tmp/rechly-workspace-document.txt', 'utf8'), /Müller/);
+        await page.screenshot({ path: '/tmp/rechly-workspace-desktop.png', fullPage: true });
+        await page.setViewportSize({ width: 390, height: 844 });
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'No horizontal scrolling on mobile');
+        await page.screenshot({ path: '/tmp/rechly-workspace-mobile.png', fullPage: true });
+        await page.reload();
+        await page.getByRole('tab', { name: 'Dokumente', exact: true }).click();
+        await page.getByLabel('Arbeitsbereich durchsuchen').fill(suffix);
+        await page.getByRole('button', { name: 'Löschen', exact: true }).click();
+        await page.getByRole('tooltip').getByRole('button', { name: 'Löschen', exact: true }).click();
+        await page.getByRole('heading', { name: 'Besprechungsnotizen ' + suffix }).waitFor({ state: 'hidden' });
+        const crossSite = await fetch(origin + '/api/workspace', { method: 'POST', headers: { Origin: 'https://untrusted.example', 'Content-Type': 'application/json' }, body: '{}' });
+        assert.equal(crossSite.status, 403);
+        await page.evaluate(() => localStorage.setItem('language', 'en'));
+        await page.reload();
+        await page.getByRole('heading', { name: 'Workspace', exact: true }).waitFor();
+        await page.getByRole('button', { name: 'Create new', exact: true }).waitFor();
+        assert.deepEqual(errors, []);
+        console.log('PASS: workspace CRUD, links, reload persistence, templates, unsaved/error recovery, escaped text, PDF/TXT/JSON downloads, mobile layout and CSRF rejection.');
+    } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exit(1); });

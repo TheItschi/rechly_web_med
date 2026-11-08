@@ -7,6 +7,7 @@ import { handleAccountDeletion } from "../src/lib/server/accountDeletionRequest"
 type RecordData = { $id: string; userId?: string; invoiceId?: string; receiptFileId?: string };
 function backend() {
     const data = new Map<string, RecordData[]>([
+        ["workspace_records", [{ $id: "own-task", userId: "owner" }, { $id: "foreign-task", userId: "other" }]],
         ["clients", Array.from({ length: 260 }, (_, n) => ({ $id: `client-${String(n).padStart(3,"0")}`, userId: "owner" }))],
         ["invoices", [{ $id: "invoice", userId: "owner" }, { $id: "foreign-invoice", userId: "other" }]],
         ["invoice_items", [{ $id: "line", invoiceId: "invoice" }, { $id: "foreign-line", invoiceId: "foreign-invoice" }]],
@@ -43,6 +44,7 @@ function backend() {
 test("erases all 260 customers and child rows before identity; preserves other tenants and ignores foreign file references", async()=>{
     const fixture=backend();await eraseAccountData(fixture.services,"owner");
     assert.equal(fixture.data.get("clients")!.length,0);
+    assert.deepEqual(fixture.data.get("workspace_records"), [{ $id: "foreign-task", userId: "other" }]);
     assert.deepEqual(fixture.data.get("invoice_items"),[{ $id:"foreign-line",invoiceId:"foreign-invoice" }]);
     assert.ok(fixture.calls.indexOf("invoice_items/line")<fixture.calls.indexOf("invoices/invoice"));
     assert.ok(fixture.calls.includes("file/orphan-upload"));assert.ok(!fixture.calls.includes("file/foreign-file"));

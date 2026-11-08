@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client, Users, Databases, Query } from "node-appwrite";
+import { eraseGuestWorkspace } from "@/lib/workspace/repository";
 import {
     getAppwriteEndpoint,
     getAppwriteProjectId,
@@ -103,6 +104,9 @@ export async function POST(request: NextRequest) {
                 console.log(`Cleaning up anonymous user: ${userId}`);
 
                 try {
+                    // The optional workspace may be absent, but real cleanup failures
+                    // must leave the guest identity available for a later retry.
+                    dataDeletedCount += await eraseGuestWorkspace(databases, userId);
                     // Delete user's data from all collections
                     for (const collectionId of Object.values(COLLECTIONS)) {
                         try {
