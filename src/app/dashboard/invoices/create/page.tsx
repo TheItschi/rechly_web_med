@@ -25,6 +25,7 @@ import {
     DatePicker,
     Steps,
     Result,
+    Modal,
 } from "antd";
 import {
     PlusOutlined,
@@ -36,8 +37,8 @@ import {
     RobotOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { getAllClients } from "@/lib/clientService";
-import { getAllProducts } from "@/lib/productService";
+import { getAllClients, createClient } from "@/lib/clientService";
+import { getAllProducts, createProduct } from "@/lib/productService";
 import { createInvoice } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { runInvoiceAssistant, parseInvoiceDraftWithAI } from "@/lib/aiService";
@@ -86,6 +87,13 @@ export default function InvoiceCreatePage() {
     const [createdInvoiceId, setCreatedInvoiceId] = useState<string | null>(
         null,
     );
+
+    const [clientModalOpen, setClientModalOpen] = useState(false);
+    const [clientSaving, setClientSaving] = useState(false);
+    const [clientForm] = Form.useForm();
+    const [productModalOpen, setProductModalOpen] = useState(false);
+    const [productSaving, setProductSaving] = useState(false);
+    const [productForm] = Form.useForm();
 
     const loadData = useCallback(async () => {
         try {
@@ -169,6 +177,61 @@ export default function InvoiceCreatePage() {
             discount_percent: 0,
         };
         setLineItems([...lineItems, newItem]);
+    };
+
+    const handleCreateClient = async () => {
+        try {
+            const values = await clientForm.validateFields();
+            setClientSaving(true);
+            const newClient = await createClient({
+                name: values.name.trim(),
+                email: values.email?.trim() || undefined,
+                phone: values.phone?.trim() || undefined,
+                address_line1: values.address_line1?.trim() || "",
+                postal_code: values.postal_code?.trim() || "",
+                city: values.city?.trim() || "",
+                country: values.country?.trim() || "Deutschland",
+            });
+            setClients((prev) => [...prev, newClient]);
+            setSelectedClient(newClient);
+            setEInvoice(undefined);
+            setClientModalOpen(false);
+            clientForm.resetFields();
+            message.success(t("invoiceCreate.createdClient"));
+        } catch (error) {
+            if (error instanceof Error && error.message) {
+                message.error(error.message);
+            }
+        } finally {
+            setClientSaving(false);
+        }
+    };
+
+    const handleCreateProduct = async () => {
+        try {
+            const values = await productForm.validateFields();
+            setProductSaving(true);
+            const newProduct = await createProduct({
+                name: values.name.trim(),
+                description: values.description?.trim() || undefined,
+                price: Number(values.price) || 0,
+                tax_rate_percent: Number(values.tax_rate_percent ?? defaultVatRate(company?.is_small_business)),
+                unit_of_measure: values.unit_of_measure?.trim() || t("invoiceCreate.unitPiece"),
+            });
+            setProducts((prev) => [...prev, newProduct]);
+            setProductModalOpen(false);
+            productForm.resetFields();
+            message.success(t("invoiceCreate.createdProduct"));
+            if (newProduct.id) {
+                addProductAsLineItem(newProduct.id);
+            }
+        } catch (error) {
+            if (error instanceof Error && error.message) {
+                message.error(error.message);
+            }
+        } finally {
+            setProductSaving(false);
+        }
     };
 
     const totals: InvoiceTotals = calculateInvoiceTotals(
@@ -561,29 +624,38 @@ export default function InvoiceCreatePage() {
             case 0:
                 return (
                     <Card title={t("invoiceCreate.selectClientCard")}>
-                        <Select
-                            showSearch
-                            style={{ width: "100%" }}
-                            placeholder={t("invoiceCreate.clientSearch")}
-                            optionFilterProp="label"
-                            value={selectedClient?.id}
-                            onChange={(value) => {
-                                const client = clients.find(
-                                    (c) => c.id === value,
-                                );
-                                setSelectedClient(client || null);
-                                setEInvoice(undefined);
-                            }}
-                            options={clients.map((c) => ({
-                                value: c.id,
-                                label: `${c.name} ${
-                                    c.contact_person
-                                        ? `(${c.contact_person})`
-                                        : ""
-                                }`,
-                            }))}
-                            size="large"
-                        />
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <Select
+                                showSearch
+                                style={{ flex: "1 1 200px", minWidth: 0 }}
+                                placeholder={t("invoiceCreate.clientSearch")}
+                                optionFilterProp="label"
+                                value={selectedClient?.id}
+                                onChange={(value) => {
+                                    const client = clients.find(
+                                        (c) => c.id === value,
+                                    );
+                                    setSelectedClient(client || null);
+                                    setEInvoice(undefined);
+                                }}
+                                options={clients.map((c) => ({
+                                    value: c.id,
+                                    label: `${c.name} ${
+                                        c.contact_person
+                                            ? `(${c.contact_person})`
+                                            : ""
+                                    }`,
+                                }))}
+                                size="large"
+                            />
+                            <Button
+                                icon={<PlusOutlined />}
+                                size="large"
+                                onClick={() => setClientModalOpen(true)}
+                            >
+                                {t("invoiceCreate.newClientBtn")}
+                            </Button>
+                        </div>
                         {selectedClient && <InvoiceIdentifierEditor key={selectedClient.id} initial={selectedClient.e_invoice} value={eInvoice} onChange={setEInvoice} />}
                         {selectedClient && (
                             <Card size="small" style={{ marginTop: 16 }}>
@@ -610,9 +682,9 @@ export default function InvoiceCreatePage() {
             case 1:
                 return (
                     <Card title={t("invoiceCreate.addPositions")}>
-                        <Space style={{ marginBottom: 16 }}>
+                        <Space style={{ marginBottom: 16 }} wrap>
                             <Select
-                                style={{ width: 300 }}
+                                style={{ width: 300, maxWidth: "100%" }}
                                 placeholder={t("invoiceCreate.addProduct")}
                                 onChange={addProductAsLineItem}
                                 value={undefined}
@@ -623,6 +695,12 @@ export default function InvoiceCreatePage() {
                                     )}`,
                                 }))}
                             />
+                            <Button
+                                icon={<PlusOutlined />}
+                                onClick={() => setProductModalOpen(true)}
+                            >
+                                {t("invoiceCreate.newProductBtn")}
+                            </Button>
                             <Button
                                 icon={<PlusOutlined />}
                                 onClick={addLineItem}
@@ -965,6 +1043,114 @@ export default function InvoiceCreatePage() {
             )}
 
             {renderStepContent()}
+
+            <Modal
+                title={t("invoiceCreate.newClientTitle")}
+                open={clientModalOpen}
+                onOk={handleCreateClient}
+                onCancel={() => {
+                    setClientModalOpen(false);
+                    clientForm.resetFields();
+                }}
+                okText={t("clients.create")}
+                cancelText={t("clients.cancel")}
+                confirmLoading={clientSaving}
+                destroyOnHidden
+            >
+                <Form form={clientForm} layout="vertical" preserve={false}>
+                    <Form.Item
+                        label={t("clients.name")}
+                        name="name"
+                        rules={[{ required: true }]}
+                    >
+                        <Input autoFocus />
+                    </Form.Item>
+                    <Form.Item label={t("clients.email")} name="email">
+                        <Input type="email" />
+                    </Form.Item>
+                    <Form.Item label={t("clients.phone")} name="phone">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label={t("clients.address")} name="address_line1">
+                        <Input />
+                    </Form.Item>
+                    <div style={{ display: "flex", gap: 8 }}>
+                        <Form.Item
+                            label={t("clients.postalCode")}
+                            name="postal_code"
+                            style={{ flex: "0 0 110px" }}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label={t("clients.city")}
+                            name="city"
+                            style={{ flex: 1 }}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </div>
+                    <Form.Item label={t("clients.country")} name="country">
+                        <Input placeholder="Deutschland" />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            <Modal
+                title={t("invoiceCreate.newProductTitle")}
+                open={productModalOpen}
+                onOk={handleCreateProduct}
+                onCancel={() => {
+                    setProductModalOpen(false);
+                    productForm.resetFields();
+                }}
+                okText={t("products.create")}
+                cancelText={t("products.cancel")}
+                confirmLoading={productSaving}
+                destroyOnHidden
+            >
+                <Form
+                    form={productForm}
+                    layout="vertical"
+                    preserve={false}
+                    initialValues={{
+                        unit_of_measure: t("invoiceCreate.unitPiece"),
+                    }}
+                >
+                    <Form.Item
+                        label={t("products.name")}
+                        name="name"
+                        rules={[{ required: true }]}
+                    >
+                        <Input autoFocus />
+                    </Form.Item>
+                    <Form.Item label={t("products.description")} name="description">
+                        <Input.TextArea rows={2} />
+                    </Form.Item>
+                    <div style={{ display: "flex", gap: 8 }}>
+                        <Form.Item
+                            label={t("products.price")}
+                            name="price"
+                            rules={[{ required: true }]}
+                            style={{ flex: 1 }}
+                        >
+                            <InputNumber min={0} step={0.01} precision={2} style={{ width: "100%" }} addonAfter="€" />
+                        </Form.Item>
+                        <Form.Item label={t("products.unit")} name="unit_of_measure" style={{ flex: 1 }}>
+                            <Input />
+                        </Form.Item>
+                    </div>
+                    <Form.Item label={t("products.vat")} name="tax_rate_percent">
+                        <Select
+                            options={[
+                                { value: 0, label: "0%" },
+                                { value: 7, label: "7%" },
+                                { value: 19, label: "19%" },
+                            ]}
+                        />
+                    </Form.Item>
+                </Form>
+            </Modal>
 
             {currentStep < 3 && (
                 <div style={{ marginTop: 24, textAlign: "right" }}>
