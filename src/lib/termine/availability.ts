@@ -95,7 +95,7 @@ export function computeAvailability(input: EngineInput, query: AvailabilityQuery
     const tz = settings.timezone;
     const interval = settings.slotIntervalMinutes;
     const eligible = input.staff
-        .filter((s) => s.active && s.bookable && service.staffIds.includes(s.id))
+        .filter((s) => s.active && s.bookable && (service.staffIds.length === 0 || service.staffIds.includes(s.id)))
         .filter((s) => !query.staffId || s.id === query.staffId)
         .sort((a, b) => (a.id < b.id ? -1 : 1));
     if (eligible.length === 0) return [];

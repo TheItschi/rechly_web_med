@@ -40,7 +40,7 @@ export default function PublicBooking({ business, services, staff }: { business:
 
     const service = services.find((s) => s.id === serviceId) ?? null;
     const eligibleStaff = useMemo(
-        () => (service ? staff.filter((s) => service.staffIds.includes(s.id)) : []),
+        () => (service ? staff.filter((s) => service.staffIds.length === 0 || service.staffIds.includes(s.id)) : []),
         [service, staff],
     );
     const showStaffStep = business.allowAnyStaff && eligibleStaff.length > 1;

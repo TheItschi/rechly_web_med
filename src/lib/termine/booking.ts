@@ -107,12 +107,22 @@ export async function engineInput(
     const service = await store.own<ServiceRow>(T.SERVICES, serviceId);
     const since = dayjs(fromDate, "YYYY-MM-DD").subtract(1, "day").format("YYYY-MM-DD");
     // Bounded read: only appointments that can intersect the window matter.
-    const [staffRows, hoursRows, blockRows, apptRows] = await Promise.all([
+    const [rawStaff, hoursRows, blockRows, apptRows] = await Promise.all([
         store.list<StaffRow>(T.STAFF),
         store.list<HoursRow>(T.HOURS),
         store.list(T.BLOCKS as never) as Promise<Array<Row & { staffId?: string; startUtc: string; endUtc: string }>>,
         store.list<AppointmentRow>(T.APPOINTMENTS, [Query.greaterThanEqual("startUtc", since)]),
     ]);
+    const staffRows = rawStaff.length > 0
+        ? rawStaff
+        : [{
+            $id: recordId(store.userId, "staff:owner"),
+            userId: store.userId,
+            name: (await loadSettings(store))?.displayName?.trim() || "Inhaber",
+            active: true,
+            bookable: true,
+            serviceIds: [serviceId],
+        } as StaffRow];
     const to = new Date(fromDate + "T00:00:00Z");
     to.setUTCDate(to.getUTCDate() + days);
     const toDate = to.toISOString().slice(0, 10);
@@ -182,11 +192,22 @@ export async function createBooking(
         }
 
         // Staff selection: explicit or first eligible (deterministic).
-        const eligible = (await tx.list<StaffRow>(T.STAFF)).filter(
+        let allStaff = await tx.list<StaffRow>(T.STAFF);
+        if (allStaff.length === 0) {
+            allStaff = [{
+                $id: recordId(store.userId, "staff:owner"),
+                userId: store.userId,
+                name: settings.displayName || "Inhaber",
+                active: true,
+                bookable: true,
+                serviceIds: [service.$id],
+            } as StaffRow];
+        }
+        const eligible = allStaff.filter(
             (s) =>
                 s.active &&
                 s.bookable &&
-                service.staffIds.includes(s.$id) &&
+                (service.staffIds.length === 0 || service.staffIds.includes(s.$id)) &&
                 (!input.staffId || s.$id === input.staffId),
         );
         if (eligible.length === 0) throw new TermineError("Kein verfügbarer Mitarbeiter für diese Leistung.", 409);

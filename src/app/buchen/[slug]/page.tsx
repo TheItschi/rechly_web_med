@@ -44,6 +44,18 @@ export default async function BuchenPage({ params }: { params: Promise<{ slug: s
         ]),
     ]);
 
+    const rawStaff = staff.documents.length > 0
+        ? staff.documents
+        : [
+              {
+                  $id: `staff-owner-${settings.userId}`,
+                  name: settings.displayName || "Inhaber",
+                  active: true,
+                  bookable: true,
+                  serviceIds: [],
+              },
+          ];
+
     return (
         <PublicBooking
             business={business}
@@ -60,7 +72,7 @@ export default async function BuchenPage({ params }: { params: Promise<{ slug: s
                     staffIds: Array.isArray(r.staffIds) ? (r.staffIds as string[]) : [],
                 };
             })}
-            staff={staff.documents.map((s: unknown) => {
+            staff={rawStaff.map((s: unknown) => {
                 const r = s as Record<string, unknown>;
                 return {
                     id: String(r.$id),
