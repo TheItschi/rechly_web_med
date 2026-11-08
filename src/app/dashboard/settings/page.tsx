@@ -32,8 +32,11 @@ import {
     RobotOutlined,
     ExclamationCircleOutlined,
     SwapOutlined,
+    CalendarOutlined,
 } from "@ant-design/icons";
 import MigrationWizard from "@/components/dashboard/MigrationWizard";
+import OnlineBookingSettingsTab from "@/components/termine/OnlineBookingSettingsTab";
+import { isTermineEnabled } from "@/lib/features";
 import type { UploadProps } from "antd";
 import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
@@ -45,7 +48,8 @@ const { Title, Text } = Typography;
 
 export default function SettingsPage() {
     const { user, logout, deleteAccount } = useAuth();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const [activeTab, setActiveTab] = useState("company");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -76,6 +80,10 @@ export default function SettingsPage() {
     ) as AIProvider;
 
     useEffect(() => {
+        const tabParam = new URLSearchParams(window.location.search).get("tab");
+        if (tabParam && ["company", "booking", "ai", "migration", "account"].includes(tabParam)) {
+            setActiveTab(tabParam);
+        }
         loadCompanyInfo();
         loadAISettings();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -544,6 +552,20 @@ export default function SettingsPage() {
                 </Form>
             ),
         },
+        ...(isTermineEnabled()
+            ? [
+                  {
+                      key: "booking",
+                      label: (
+                          <span>
+                              <CalendarOutlined />{" "}
+                              {language === "de" ? "Online-Buchung & Termine" : "Online Booking"}
+                          </span>
+                      ),
+                      children: <OnlineBookingSettingsTab />,
+                  },
+              ]
+            : []),
         {
             key: "ai",
             label: (
@@ -918,7 +940,7 @@ export default function SettingsPage() {
     return (
         <div>
             <Title level={4}>{t("settings.title")}</Title>
-            <Tabs items={tabItems} />
+            <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
         </div>
     );
 }

@@ -30,12 +30,18 @@ export function useResource<T>(url: string) {
 }
 export function WorkspaceLinks() {
     const { l } = useWords();
-    return <Space wrap style={{ marginBottom: 20 }}>
-        <Link href="/dashboard/workspace/overview">{l("Übersicht", "Overview")}</Link>
-        <Link href="/dashboard/workspace">{l("Projekte, Aufgaben & Dokumente", "Projects, tasks & documents")}</Link>
-        <Link href="/dashboard/workspace/time">{l("Zeiten & Abrechnung", "Time & billing")}</Link>
-        <Link href="/dashboard/workspace/reports">{l("Projektcontrolling", "Project reports")}</Link>
-        <Link href="/dashboard/workspace/calendar">{l("Kalender", "Calendar")}</Link>
+    return <Space wrap style={{ marginBottom: 16 }}>
+        <Link href="/dashboard">{l("Dashboard", "Dashboard")}</Link>
+        <span>·</span>
+        <Link href="/dashboard/calendar">{l("Kalender & Termine", "Calendar")}</Link>
+        <span>·</span>
+        <Link href="/dashboard/termine/buchungen">{l("Buchungen & Zeiten", "Bookings & Hours")}</Link>
+        <span>·</span>
+        <Link href="/dashboard/workspace">{l("Projekte & Aufgaben", "Projects & Tasks")}</Link>
+        <span>·</span>
+        <Link href="/dashboard/workspace/time">{l("Zeiterfassung", "Time & Billing")}</Link>
+        <span>·</span>
+        <Link href="/dashboard/reports?tab=projects">{l("Projektcontrolling", "Project Controlling")}</Link>
     </Space>;
 }
 export function WorkspaceFrame({ title, description, error, retry, children }: { title: string; description: string; error?: string; retry: () => void; children: React.ReactNode }) {

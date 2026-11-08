@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, createSessionClient } from "@/lib/appwrite-server";
 import { getSiteUrl } from "@/lib/env";
+import { isWorkspaceEnabled } from "@/lib/features";
 import { mutateWorkspace, readWorkspace, workspaceClients, WorkspaceError } from "@/lib/workspace/repository";
 import { workspaceDocumentPdf } from "@/lib/workspace/pdf";
 
 export const runtime = "nodejs";
 async function context() {
-    if (process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED !== "1") throw new WorkspaceError("Workspace is not enabled.", 404);
+    if (!isWorkspaceEnabled()) throw new WorkspaceError("Workspace is not enabled.", 404);
     let user;
     try { const { account } = await createSessionClient(); user = await account.get(); }
     catch { throw new WorkspaceError("Please sign in again.", 401); }

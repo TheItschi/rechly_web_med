@@ -2,7 +2,9 @@
 // Usage: APPWRITE_API_ENDPOINT=... APPWRITE_API_KEY=<scoped schema key> node scripts/migrate-termine.mjs
 // Requires a key with databases.read/write on the project (createCollection/Attribute/Index).
 import { Client, Databases } from "node-appwrite";
-const { APPWRITE_API_ENDPOINT: endpoint, APPWRITE_PROJECT_ID: project, APPWRITE_API_KEY: key } = process.env;
+const endpoint = process.env.APPWRITE_API_ENDPOINT || process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
+const project = process.env.APPWRITE_PROJECT_ID || process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
+const key = process.env.APPWRITE_API_KEY;
 if (!endpoint || !project || !key) throw new Error("Configure Appwrite endpoint, project and a scoped schema API key.");
 const db = new Databases(new Client().setEndpoint(endpoint).setProject(project).setKey(key));
 const database = "rechly-db";
@@ -76,7 +78,7 @@ const E = (k, required = false) => [k, "email", 0, required, false];
 const COLUMNS = {
     termine_settings: [S("slug", 50, true), S("displayName", 200, true), S("timezone", 60, true), S("language", 5, true), I("slotIntervalMinutes", true), I("minNoticeMinutes", true), I("maxHorizonDays", true), I("cancelNoticeMinutes", true), I("rescheduleNoticeMinutes", true), S("confirmationMode", 20, true), B("allowAnyStaff", true), B("showPrices", true), B("enabled", true), B("published", true), S("currency", 10, true), S("description", 2000), S("contactEmail", 200), S("contactPhone", 40), S("address", 500), S("website", 300), S("logoFileId", 100), S("coverFileId", 100)],
     termine_slugs: [],
-    termine_services: [S("name", 200, true), S("description", 2000), S("category", 100), I("durationMinutes", true), I("priceCents", true), S("currency", 10, true), I("prepMinutes", true), I("cleanupMinutes", true), B("active", true), B("publicVisible", true), STR_ARR("staffIds", 100), I("sortOrder", true)],
+    termine_services: [S("name", 200, true), S("description", 2000), S("category", 100), I("durationMinutes", true), I("priceCents", true), S("currency", 10, true), I("prepMinutes", true), I("cleanupMinutes", true), B("active", true), B("publicVisible", true), STR_ARR("staffIds", 100), I("sortOrder", true), S("productId", 100), I("taxRatePercent")],
     termine_staff: [S("name", 200, true), S("description", 2000), B("active", true), B("bookable", true), STR_ARR("serviceIds", 100), S("color", 20)],
     termine_hours: [S("kind", 20, true), S("day", 5), S("date", 10), B("closed", true), S("periods", 4000), S("breaks", 4000)],
     termine_blocks: [S("staffId", 100), DT("startUtc", true), DT("endUtc", true), S("reason", 300)],
@@ -90,6 +92,7 @@ const COLUMNS = {
 
 for (const [table, def] of Object.entries(TABLES)) {
     await ensureTable(table, def.name);
+    await ensureAttr(table, "userId", "string", 100, true, false);
     for (const [k, t, size, req, arr] of COLUMNS[table]) await ensureAttr(table, k, t, size, req, arr);
     for (const [key, type, attrs] of def.indexes) await ensureIndex(table, key, type, attrs);
 }

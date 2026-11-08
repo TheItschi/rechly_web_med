@@ -1,10 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../_lib";
-import { DB, T, TermineError, newId } from "@/lib/termine/store";
+import { DB, T, TermineError, isUnprovisioned, newId } from "@/lib/termine/store";
 
 function fail(error: unknown, fallback: string) {
     const auth = authFail(error);
     if (auth) return auth;
+    if (isUnprovisioned(error)) {
+        return NextResponse.json(
+            { error: "Online-Buchung ist auf diesem Server noch nicht eingerichtet (Datenbank-Migration ausstehend)." },
+            { status: 503 },
+        );
+    }
     if (error instanceof TermineError) return NextResponse.json({ error: error.message }, { status: error.status });
     return NextResponse.json({ error: fallback }, { status: 500 });
 }
@@ -18,6 +24,16 @@ function validService(b: Record<string, unknown>) {
     const priceCents = Math.round(Number(b.priceCents ?? 0));
     if (!Number.isFinite(priceCents) || priceCents < 0 || priceCents > 100000000)
         throw new TermineError("Ungültiger Preis.");
+    const rawTax = b.taxRatePercent;
+    const taxRatePercent =
+        rawTax !== undefined && rawTax !== null && rawTax !== ""
+            ? Math.max(0, Math.min(100, Math.round(Number(rawTax))))
+            : undefined;
+    const productId =
+        typeof b.productId === "string" && b.productId.trim()
+            ? b.productId.trim().slice(0, 100)
+            : undefined;
+
     return {
         name,
         description: typeof b.description === "string" ? b.description.trim().slice(0, 2000) : undefined,
@@ -31,6 +47,8 @@ function validService(b: Record<string, unknown>) {
         publicVisible: b.publicVisible !== false,
         staffIds: Array.isArray(b.staffIds) ? b.staffIds.filter((x): x is string => typeof x === "string").slice(0, 50) : [],
         sortOrder: Number.isInteger(Number(b.sortOrder)) ? Number(b.sortOrder) : 0,
+        ...(productId ? { productId } : {}),
+        ...(taxRatePercent !== undefined && Number.isFinite(taxRatePercent) ? { taxRatePercent } : {}),
     };
 }
 

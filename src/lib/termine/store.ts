@@ -25,6 +25,8 @@ export class TermineError extends Error {
 }
 
 export const missing = (error: unknown) => (error as { code?: number }).code === 404;
+export const isUnprovisioned = (error: unknown) =>
+    ["collection_not_found", "table_not_found"].includes((error as { type?: string })?.type ?? "");
 export const conflict = (error: unknown) => (error as { code?: number }).code === 409;
 export const newId = randomUUID;
 export const recordId = (user: string, key: string) =>
@@ -68,13 +70,42 @@ export class TermineStore {
     }
 
     async list<T extends Row>(collection: string, queries: string[] = []): Promise<T[]> {
-        const rows = await allDocuments(
-            (q) => this.db.listDocuments<T>(DB, collection, q, this.transactionId),
-            [Query.equal("userId", this.userId), ...queries],
-        );
+        let rows: T[];
+        try {
+            rows = await allDocuments(
+                (q) => this.db.listDocuments<T>(DB, collection, q, this.transactionId),
+                [Query.equal("userId", this.userId), ...queries],
+            );
+        } catch (error) {
+            if (isUnprovisioned(error)) return [];
+            throw error;
+        }
         if (rows.some((r) => r.userId !== this.userId)) throw new Error("Ownership mismatch");
         return rows;
     }
+}
+
+/** Guest expiry must remove optional Termine rows (including reserved slugs) before deleting identity. */
+export async function eraseGuestTermine(databases: Databases, userId: string): Promise<number> {
+    let deleted = 0;
+    for (const collection of Object.values(T)) {
+        let rows: Row[];
+        try {
+            rows = await allDocuments(
+                (q) => databases.listDocuments<Row>(DB, collection, q),
+                [Query.equal("userId", userId)],
+            );
+        } catch (error) {
+            if (isUnprovisioned(error)) continue;
+            throw error;
+        }
+        for (const row of rows) {
+            if (row.userId !== userId) throw new Error("Termine ownership mismatch");
+            await databases.deleteDocument(DB, collection, row.$id);
+            deleted++;
+        }
+    }
+    return deleted;
 }
 
 /** No process-local locks: Appwrite commits the booking set or rejects the conflict. */

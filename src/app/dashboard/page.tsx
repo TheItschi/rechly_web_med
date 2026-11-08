@@ -23,6 +23,8 @@ import {
     ClockCircleOutlined,
     SettingOutlined,
     TagsOutlined,
+    CalendarOutlined,
+    ProjectOutlined,
 } from "@ant-design/icons";
 import { useInvoiceStore, useClientStore, useProductStore } from "@/store";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -30,14 +32,31 @@ import { getCompanyInfo } from "@/lib/companyService";
 import { getDashboardAnalytics } from "@/lib/analyticsService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
+import { isTermineEnabled, isWorkspaceEnabled } from "@/lib/features";
 import type { DashboardAnalytics, UserCompany } from "@/types";
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const l = (de: string, en: string) => (language === "de" ? de : en);
     const [company, setCompany] = useState<UserCompany | null>(null);
     const [companyLoading, setCompanyLoading] = useState(true);
     const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
+    const [opsSummary, setOpsSummary] = useState<{
+        todayBookings: number;
+        pendingBookings: number;
+        nextBooking?: { customerName: string; serviceNameSnapshot: string; startUtc: string };
+        openTasks: number;
+        activeProjects: number;
+        unbilledTimeValue: number;
+        timerRunning?: string;
+    }>({
+        todayBookings: 0,
+        pendingBookings: 0,
+        openTasks: 0,
+        activeProjects: 0,
+        unbilledTimeValue: 0,
+    });
 
     const statusColors: Record<string, string> = {
         draft: "default",
@@ -98,6 +117,64 @@ export default function DashboardPage() {
         } finally {
             setCompanyLoading(false);
         }
+        // Non-blocking unified platform summary (Termine + Workspace)
+        void (async () => {
+            try {
+                const todayPrefix = new Date().toISOString().slice(0, 10);
+                const nowIso = new Date().toISOString();
+                const [apptsRes, wsRes, workRes] = await Promise.all([
+                    isTermineEnabled()
+                        ? fetch(`/api/termine/appointments?from=${todayPrefix}T00:00:00.000Z`, {
+                              cache: "no-store",
+                          })
+                              .then((r) => (r.ok ? r.json() : null))
+                              .catch(() => null)
+                        : Promise.resolve(null),
+                    isWorkspaceEnabled()
+                        ? fetch("/api/workspace", { cache: "no-store" })
+                              .then((r) => (r.ok ? r.json() : null))
+                              .catch(() => null)
+                        : Promise.resolve(null),
+                    isWorkspaceEnabled()
+                        ? fetch("/api/workspace/work", { cache: "no-store" })
+                              .then((r) => (r.ok ? r.json() : null))
+                              .catch(() => null)
+                        : Promise.resolve(null),
+                ]);
+
+                const appts: Array<{
+                    customerName: string;
+                    serviceNameSnapshot: string;
+                    startUtc: string;
+                    status: string;
+                }> = apptsRes?.appointments || [];
+                const activeAppts = appts.filter(
+                    (a) => a.status === "PENDING" || a.status === "CONFIRMED",
+                );
+                const todayBookings = activeAppts.filter(
+                    (a) => a.startUtc.slice(0, 10) === todayPrefix,
+                ).length;
+                const pendingBookings = appts.filter((a) => a.status === "PENDING").length;
+                const nextBooking = activeAppts.find((a) => a.startUtc >= nowIso);
+
+                const tasks: Array<{ status: string }> = wsRes?.data?.tasks || [];
+                const projects: Array<{ status: string }> = wsRes?.data?.projects || [];
+                const reports: Array<{ unbilled: number }> = workRes?.reports || [];
+                const unbilledTimeValue = reports.reduce((s, r) => s + (r.unbilled || 0), 0);
+
+                setOpsSummary({
+                    todayBookings,
+                    pendingBookings,
+                    nextBooking,
+                    openTasks: tasks.filter((tk) => tk.status !== "done").length,
+                    activeProjects: projects.filter((p) => p.status === "active").length,
+                    unbilledTimeValue,
+                    timerRunning: workRes?.timer?.description,
+                });
+            } catch {
+                // Keep dashboard resilient if optional endpoints are unavailable
+            }
+        })();
     };
 
     if (loading) {
@@ -234,6 +311,27 @@ export default function DashboardPage() {
                         </div>
                     </div>
                     <div className="dashboard-action-list">
+                        <button type="button" onClick={() => router.push("/dashboard/calendar")}>
+                            <CalendarOutlined />
+                            <span>{l("Kalender & Termine", "Calendar & Scheduling")}</span>
+                            <ArrowRightOutlined />
+                        </button>
+                        <button type="button" onClick={() => router.push("/dashboard/termine/buchungen")}>
+                            <ClockCircleOutlined />
+                            <span>
+                                {l("Terminbuchungen", "Bookings")}
+                                {opsSummary.pendingBookings > 0 ? ` (${opsSummary.pendingBookings})` : ""}
+                            </span>
+                            <ArrowRightOutlined />
+                        </button>
+                        <button type="button" onClick={() => router.push("/dashboard/workspace")}>
+                            <ProjectOutlined />
+                            <span>
+                                {l("Projekte & Aufgaben", "Projects & Tasks")}
+                                {opsSummary.openTasks > 0 ? ` (${opsSummary.openTasks})` : ""}
+                            </span>
+                            <ArrowRightOutlined />
+                        </button>
                         <button type="button" onClick={() => router.push("/dashboard/offers")}>
                             <TagsOutlined />
                             <span>{t("dashboard.offers")}</span>
@@ -246,7 +344,7 @@ export default function DashboardPage() {
                         </button>
                         <button type="button" onClick={() => router.push("/dashboard/products")}>
                             <ShoppingOutlined />
-                            <span>{t("dashboard.manageProducts")}</span>
+                            <span>{l("Produkte & Leistungen", "Products & Services")}</span>
                             <ArrowRightOutlined />
                         </button>
                         <button type="button" onClick={() => router.push("/dashboard/settings")}>
@@ -255,6 +353,90 @@ export default function DashboardPage() {
                             <ArrowRightOutlined />
                         </button>
                     </div>
+                </Card>
+            </section>
+
+            <section className="dashboard-analytics-grid" style={{ marginBottom: 20 }}>
+                <Card
+                    className="dashboard-panel"
+                    title={
+                        <span>
+                            <CalendarOutlined /> {l("Termine & Online-Buchungen", "Appointments & Online Booking")}
+                        </span>
+                    }
+                    extra={
+                        <Button type="link" onClick={() => router.push("/dashboard/calendar")}>
+                            {l("Zum Kalender", "Open Calendar")} <ArrowRightOutlined />
+                        </Button>
+                    }
+                >
+                    <div className="dashboard-forecast-values" style={{ marginBottom: 12 }}>
+                        <div>
+                            <span>{l("Heute geplant", "Today")}</span>
+                            <strong>{opsSummary.todayBookings}</strong>
+                        </div>
+                        <div>
+                            <span>{l("Offene Anfragen", "Pending approval")}</span>
+                            <strong>{opsSummary.pendingBookings}</strong>
+                        </div>
+                    </div>
+                    {opsSummary.nextBooking ? (
+                        <div className="dashboard-anomaly-note" style={{ cursor: "pointer" }} onClick={() => router.push("/dashboard/termine/buchungen")}>
+                            <CalendarOutlined />{" "}
+                            {l("Nächster Termin:", "Next appointment:")}{" "}
+                            <strong>{opsSummary.nextBooking.customerName}</strong> ·{" "}
+                            {opsSummary.nextBooking.serviceNameSnapshot} (
+                            {new Date(opsSummary.nextBooking.startUtc).toLocaleString(
+                                language === "de" ? "de-DE" : "en-GB",
+                                { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" },
+                            )}
+                            )
+                        </div>
+                    ) : (
+                        <p className="dashboard-empty-note">
+                            {l("Keine anstehenden Buchungen.", "No upcoming customer bookings.")}
+                        </p>
+                    )}
+                </Card>
+
+                <Card
+                    className="dashboard-panel"
+                    title={
+                        <span>
+                            <ProjectOutlined /> {l("Projekte, Aufgaben & Zeiten", "Projects, Tasks & Time")}
+                        </span>
+                    }
+                    extra={
+                        <Button type="link" onClick={() => router.push("/dashboard/workspace")}>
+                            {l("Zum Arbeitsbereich", "Open Projects")} <ArrowRightOutlined />
+                        </Button>
+                    }
+                >
+                    <div className="dashboard-forecast-values" style={{ marginBottom: 12 }}>
+                        <div>
+                            <span>{l("Offene Aufgaben", "Open tasks")}</span>
+                            <strong>{opsSummary.openTasks}</strong>
+                        </div>
+                        <div>
+                            <span>{l("Offene Zeiten (netto)", "Unbilled time (net)")}</span>
+                            <strong>{formatCurrency(opsSummary.unbilledTimeValue)}</strong>
+                        </div>
+                    </div>
+                    {opsSummary.timerRunning ? (
+                        <div
+                            className="dashboard-anomaly-note"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => router.push("/dashboard/workspace/time")}
+                        >
+                            <ClockCircleOutlined /> {l("Timer läuft:", "Timer running:")}{" "}
+                            <strong>{opsSummary.timerRunning}</strong>
+                        </div>
+                    ) : (
+                        <p className="dashboard-empty-note">
+                            {opsSummary.activeProjects}{" "}
+                            {l("aktive(s) Projekt(e) · Zeiterfassung bereit", "active project(s) · Time tracking ready")}
+                        </p>
+                    )}
                 </Card>
             </section>
 

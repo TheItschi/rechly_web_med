@@ -20,13 +20,14 @@ export async function GET(request: NextRequest) {
         if (q.get("to")) queries.push(Query.lessThan("startUtc", q.get("to")!));
         if (q.get("status")) queries.push(Query.equal("status", q.get("status")!));
         if (q.get("staffId")) queries.push(Query.equal("staffId", q.get("staffId")!));
+        if (q.get("customerId")) queries.push(Query.equal("customerId", q.get("customerId")!));
         return NextResponse.json({ appointments: await store.list<AppointmentRow>(T.APPOINTMENTS, queries) });
     } catch (error) {
         return fail(error, "Termine konnten nicht geladen werden.");
     }
 }
 
-/** Manual booking by staff (bypasses public visibility + notice rules). */
+/** Manual booking by staff (bypasses public visibility + notice rules, links Rechly Client). */
 export async function POST(request: NextRequest) {
     try {
         const { store } = await businessContext();
@@ -44,7 +45,8 @@ export async function POST(request: NextRequest) {
         }
         const { appointment } = await createBooking(store, settings, {
             serviceId: body.serviceId,
-            staffId: typeof body.staffId === "string" ? body.staffId : undefined,
+            staffId: typeof body.staffId === "string" && body.staffId ? body.staffId : undefined,
+            customerId: typeof body.customerId === "string" && body.customerId ? body.customerId : undefined,
             startUtc: body.startUtc,
             customerName: String(body.customerName ?? ""),
             customerEmail: String(body.customerEmail ?? ""),

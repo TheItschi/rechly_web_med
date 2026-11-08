@@ -4,14 +4,15 @@ import Link from "next/link";
 import { Alert, Button, Card, Col, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Statistic, Table, Typography } from "antd";
 import type { WorkSnapshot } from "@/lib/workspace/work-types";
 import { localDay, money, useResource, useWords, WorkspaceFrame } from "./common";
-export default function ProjectReports() {
+export default function ProjectReports({ embedded = false }: { embedded?: boolean }) {
     const { l, language } = useWords(), resource = useResource<WorkSnapshot>("/api/workspace/work"), { data, busy } = resource;
     const [project, setProject] = useState(""); const [mode, setMode] = useState<"add" | "link" | null>(null); const [error, setError] = useState(""); const [form] = Form.useForm();
     const reports = (data?.reports || []).filter(r => !project || r.project.id === project);
     const required = [{ required: true, message: l("Bitte ausfüllen.", "Required.") }];
     const summary = (key: "value" | "unbilled" | "labor" | "costs") => reports.reduce((n,r) => n + r[key], 0);
     function open(value: "add" | "link") { form.resetFields(); form.setFieldsValue({ project_id: project || undefined, date: localDay(), vendor_name: "", description: "", amount_gross: 0, vat_rate: 19 }); setMode(value); setError(""); }
-    return <WorkspaceFrame title={l("Projektcontrolling", "Project reports")} description={l("Arbeitswert, interne Kosten, Ausgaben und tatsächlich gestellte Rechnungen im Überblick.", "See work value, internal costs, expenses and issued invoices together.")} error={resource.error} retry={resource.load}>
+    const content = <>
+        {embedded && resource.error && <Alert type="error" showIcon title={resource.error} action={<Button onClick={resource.load}>{l("Erneut versuchen", "Retry")}</Button>} style={{ marginBottom: 16 }} />}
         <Space wrap style={{ marginBottom: 20 }}><Select aria-label={l("Projekt filtern", "Filter project")} value={project} onChange={setProject} style={{ minWidth: 240 }} options={[{ value: "", label: l("Alle Projekte", "All projects") }, ...(data?.projects || []).map(p => ({ value: p.id, label: p.name }))]} /><Button disabled={!data?.projects.length || busy} onClick={() => open("add")}>{l("Projektkosten erfassen", "Add project expense")}</Button><Button disabled={!data?.projects.length || busy} onClick={() => open("link")}>{l("Vorhandene Ausgabe zuordnen", "Assign existing expense")}</Button><Link href="/dashboard/workspace/time">{l("Zeiten erfassen", "Record time")}</Link></Space>
         <Row gutter={[16,16]} style={{ marginBottom: 24 }}>{([['value', l("Arbeitswert", "Work value")], ['unbilled', l("Nicht abgerechnet", "Unbilled")], ['labor', l("Interne Arbeitskosten", "Internal labor")], ['costs', l("Projektkosten", "Project expenses")]] as const).map(([key,label]) => <Col xs={24} sm={12} lg={6} key={key}><Card><Statistic title={label} value={money(summary(key), language)} /></Card></Col>)}</Row>
         <Alert type="info" showIcon title={l("Planungsübersicht, keine steuerliche Gewinnermittlung", "Planning estimates, not a tax profit calculation")} description={l("Arbeitswert und Deckungsbeitrag sind Schätzwerte. Rechnungen zählen erst nach dem Entwurf, Zahlungen nur bei Status „Bezahlt“. Ausgaben werden netto berücksichtigt, bei Kleinunternehmen brutto.", "Work value and contribution are estimates. Invoices count after draft status; payments count when marked Paid. Expenses use net amounts, or gross for small businesses.")} style={{ marginBottom: 20 }} />
@@ -35,5 +36,7 @@ export default function ProjectReports() {
                 <Button type="primary" htmlType="submit" loading={busy}>{l("Speichern", "Save")}</Button>
             </Form>
         </Modal>
-    </WorkspaceFrame>;
+    </>;
+    if (embedded) return content;
+    return <WorkspaceFrame title={l("Projektcontrolling", "Project reports")} description={l("Arbeitswert, interne Kosten, Ausgaben und tatsächlich gestellte Rechnungen im Überblick.", "See work value, internal costs, expenses and issued invoices together.")} error={resource.error} retry={resource.load}>{content}</WorkspaceFrame>;
 }

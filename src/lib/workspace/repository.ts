@@ -27,7 +27,13 @@ export async function eraseGuestWorkspace(databases: Databases, userId: string) 
 
 /** Admin queries always include the authenticated owner; IDs in JSON cannot grant access. */
 export async function readWorkspace(databases: Databases, userId: string): Promise<BusinessData> {
-    const rows = await allDocuments(q => databases.listDocuments<Row>(database, WORKSPACE_COLLECTION, q), [Query.equal("userId", userId)]);
+    let rows: Row[];
+    try {
+        rows = await allDocuments(q => databases.listDocuments<Row>(database, WORKSPACE_COLLECTION, q), [Query.equal("userId", userId)]);
+    } catch (error) {
+        if (["collection_not_found", "table_not_found"].includes((error as { type?: string }).type || "")) return emptyBusiness();
+        throw error;
+    }
     const data = emptyBusiness();
     for (const row of rows) {
         if (row.userId !== userId) throw new Error("Workspace ownership mismatch");

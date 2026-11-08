@@ -8,6 +8,9 @@ type RecordData = { $id: string; userId?: string; invoiceId?: string; receiptFil
 function backend() {
     const data = new Map<string, RecordData[]>([
         ["workspace_records", [{ $id: "own-task", userId: "owner" }, { $id: "foreign-task", userId: "other" }]],
+        ["termine_appointments", [{ $id: "own-appt", userId: "owner" }, { $id: "foreign-appt", userId: "other" }]],
+        ["termine_slugs", [{ $id: "owner-salon", userId: "owner" }, { $id: "other-salon", userId: "other" }]],
+        ["termine_settings", [{ $id: "owner-settings", userId: "owner" }, { $id: "other-settings", userId: "other" }]],
         ["clients", Array.from({ length: 260 }, (_, n) => ({ $id: `client-${String(n).padStart(3,"0")}`, userId: "owner" }))],
         ["invoices", [{ $id: "invoice", userId: "owner" }, { $id: "foreign-invoice", userId: "other" }]],
         ["invoice_items", [{ $id: "line", invoiceId: "invoice" }, { $id: "foreign-line", invoiceId: "foreign-invoice" }]],
@@ -45,6 +48,9 @@ test("erases all 260 customers and child rows before identity; preserves other t
     const fixture=backend();await eraseAccountData(fixture.services,"owner");
     assert.equal(fixture.data.get("clients")!.length,0);
     assert.deepEqual(fixture.data.get("workspace_records"), [{ $id: "foreign-task", userId: "other" }]);
+    assert.deepEqual(fixture.data.get("termine_appointments"), [{ $id: "foreign-appt", userId: "other" }]);
+    assert.deepEqual(fixture.data.get("termine_slugs"), [{ $id: "other-salon", userId: "other" }]);
+    assert.deepEqual(fixture.data.get("termine_settings"), [{ $id: "other-settings", userId: "other" }]);
     assert.deepEqual(fixture.data.get("invoice_items"),[{ $id:"foreign-line",invoiceId:"foreign-invoice" }]);
     assert.ok(fixture.calls.indexOf("invoice_items/line")<fixture.calls.indexOf("invoices/invoice"));
     assert.ok(fixture.calls.includes("file/orphan-upload"));assert.ok(!fixture.calls.includes("file/foreign-file"));

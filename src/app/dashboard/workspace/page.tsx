@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Workspace from "@/components/dashboard/Workspace";
+import { isWorkspaceEnabled } from "@/lib/features";
 
 export default function WorkspacePage() {
-    if (process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED !== "1") notFound();
+    if (!isWorkspaceEnabled()) notFound();
     return <Workspace />;
 }

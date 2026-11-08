@@ -34,6 +34,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Python virtual environment (Django static JS triggers false positives)
     ".venv/**",
+    ".cache/**",
     "services/**",
   ]),
 ]);

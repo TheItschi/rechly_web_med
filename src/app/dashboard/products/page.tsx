@@ -19,6 +19,9 @@ import {
     Upload,
     Alert,
     Divider,
+    Tabs,
+    Tag,
+    Tooltip,
 } from "antd";
 import type { UploadProps } from "antd";
 import type { TableProps } from "antd";
@@ -29,10 +32,14 @@ import {
     DeleteOutlined,
     UploadOutlined,
     DownloadOutlined,
+    CalendarOutlined,
 } from "@ant-design/icons";
 import { useProductStore } from "@/store";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatCurrency } from "@/lib/currencyUtils";
+import { isTermineEnabled } from "@/lib/features";
+import { get as getTermine } from "@/lib/termine/client";
+import BookableServicesTab, { type BookableServiceRow } from "@/components/termine/BookableServicesTab";
 import type {
     Product,
     ProductBulkUploadResult,
@@ -43,7 +50,10 @@ import type {
 const { Title } = Typography;
 
 export default function ProductsPage() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const [activeTab, setActiveTab] = useState("products");
+    const [bookableServices, setBookableServices] = useState<BookableServiceRow[]>([]);
+    const [prefillProduct, setPrefillProduct] = useState<Product | null>(null);
     const [searchText, setSearchText] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -98,7 +108,16 @@ export default function ProductsPage() {
     );
 
     useEffect(() => {
+        const tabParam = new URLSearchParams(window.location.search).get("tab");
+        if (tabParam === "services" || tabParam === "products") {
+            setActiveTab(tabParam);
+        }
         fetchProducts();
+        if (isTermineEnabled()) {
+            void getTermine<{ services: BookableServiceRow[] }>("/api/termine/services")
+                .then((res) => setBookableServices(res.services))
+                .catch(() => {});
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -388,12 +407,68 @@ export default function ProductsPage() {
             key: "unit_of_measure",
             responsive: ["lg"],
         },
+        ...(isTermineEnabled()
+            ? [
+                  {
+                      title: language === "de" ? "Online-Buchung" : "Online Booking",
+                      key: "online_booking",
+                      responsive: ["md" as const],
+                      render: (_: unknown, record: Product) => {
+                          const linked = bookableServices.find(
+                              (s) => s.productId === record.id || s.name.toLowerCase() === record.name.toLowerCase(),
+                          );
+                          return linked ? (
+                              <Tag
+                                  color={linked.active ? "success" : "default"}
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() => {
+                                      setPrefillProduct(record);
+                                      setActiveTab("services");
+                                  }}
+                              >
+                                  <CalendarOutlined /> {linked.durationMinutes} min
+                              </Tag>
+                          ) : (
+                              <Button
+                                  size="small"
+                                  type="link"
+                                  icon={<CalendarOutlined />}
+                                  onClick={() => {
+                                      setPrefillProduct(record);
+                                      setActiveTab("services");
+                                  }}
+                              >
+                                  {language === "de" ? "Als Termin anbieten" : "Make bookable"}
+                              </Button>
+                          );
+                      },
+                  },
+              ]
+            : []),
         {
             title: t("products.actions"),
             key: "actions",
-            width: 120,
+            width: 140,
             render: (_, record) => (
                 <Space>
+                    {isTermineEnabled() && (
+                        <Tooltip
+                            title={
+                                language === "de"
+                                    ? "Als Online-Terminleistung konfigurieren"
+                                    : "Configure as bookable service"
+                            }
+                        >
+                            <Button
+                                type="text"
+                                icon={<CalendarOutlined />}
+                                onClick={() => {
+                                    setPrefillProduct(record);
+                                    setActiveTab("services");
+                                }}
+                            />
+                        </Tooltip>
+                    )}
                     <Button
                         type="text"
                         icon={<EditOutlined />}
@@ -413,10 +488,8 @@ export default function ProductsPage() {
         },
     ];
 
-    return (
-        <div>
-            <Title level={4}>{t("products.title")}</Title>
-
+    const productsTabContent = (
+        <>
             {/* Toolbar */}
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
                 <Col xs={24} sm={16} md={12}>
@@ -477,6 +550,57 @@ export default function ProductsPage() {
                             .replace("{2}", String(total)),
                 }}
             />
+        </>
+    );
+
+    return (
+        <div>
+            <Title level={4}>
+                {isTermineEnabled()
+                    ? language === "de"
+                        ? "Produkte & buchbare Leistungen"
+                        : "Products & Bookable Services"
+                    : t("products.title")}
+            </Title>
+
+            {isTermineEnabled() ? (
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    items={[
+                        {
+                            key: "products",
+                            label:
+                                language === "de"
+                                    ? `Produkte & Rechnungspositionen (${products.length})`
+                                    : `Products & Invoice Items (${products.length})`,
+                            children: productsTabContent,
+                        },
+                        {
+                            key: "services",
+                            label: (
+                                <span>
+                                    <CalendarOutlined />{" "}
+                                    {language === "de"
+                                        ? `Online buchbare Leistungen (${bookableServices.length})`
+                                        : `Online Bookable Services (${bookableServices.length})`}
+                                </span>
+                            ),
+                            children: (
+                                <BookableServicesTab
+                                    products={products}
+                                    onCreateProduct={addProduct}
+                                    prefillProduct={prefillProduct}
+                                    onClearPrefill={() => setPrefillProduct(null)}
+                                    onServicesChanged={setBookableServices}
+                                />
+                            ),
+                        },
+                    ]}
+                />
+            ) : (
+                productsTabContent
+            )}
 
             {/* Create/Edit Modal */}
             <Modal

@@ -177,6 +177,22 @@ class DesktopDatabases {
                             target,
                         ) <= 0,
                 );
+            } else if (query.method === "greaterThan") {
+                documents = documents.filter(
+                    (document) =>
+                        compareValues(
+                            documentValue(document, query.attribute),
+                            target,
+                        ) > 0,
+                );
+            } else if (query.method === "lessThan") {
+                documents = documents.filter(
+                    (document) =>
+                        compareValues(
+                            documentValue(document, query.attribute),
+                            target,
+                        ) < 0,
+                );
             } else if (query.method === "startsWith") {
                 documents = documents.filter((document) =>
                     String(documentValue(document, query.attribute) ?? "").startsWith(

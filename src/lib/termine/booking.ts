@@ -4,6 +4,7 @@ import { TermineError } from "./store";
 import { ACTIVE_STATUSES, type TermineAppointment, type TermineStatus } from "./types";
 import { computeAvailability, type AppointmentLike } from "./availability";
 import { addMinutesUtc, dateInTz, dayjs, intervalsOverlap } from "./time";
+import { findOrCreateCustomer } from "./customers";
 
 export interface ServiceRow extends Row {
     name: string;
@@ -18,6 +19,8 @@ export interface ServiceRow extends Row {
     publicVisible: boolean;
     staffIds: string[];
     sortOrder: number;
+    productId?: string;
+    taxRatePercent?: number;
 }
 
 export interface StaffRow extends Row {
@@ -131,6 +134,7 @@ export async function engineInput(
 export interface CreateBookingInput {
     serviceId: string;
     staffId?: string;
+    customerId?: string;
     startUtc: string;
     customerName: string;
     customerEmail: string;
@@ -261,15 +265,28 @@ export async function createBooking(
             throw error;
         }
 
+        const { id: customerId } = await findOrCreateCustomer(
+            tx.db,
+            store.userId,
+            {
+                customerId: input.customerId,
+                name,
+                email,
+                phone: input.customerPhone,
+            },
+            tx.transactionId,
+        );
+
         const appointment: Omit<AppointmentRow, "$id" | "$createdAt" | "$updatedAt" | "$permissions" | "$collectionId" | "$databaseId" | "$sequence"> & { userId: string } = {
             userId: store.userId,
             serviceId: service.$id,
             staffId,
+            customerId,
             customerName: name,
             customerEmail: email,
             customerPhone: input.customerPhone?.trim().slice(0, 40) || undefined,
             customerNote: input.customerNote?.trim().slice(0, 500) || undefined,
-        internalNote: input.internalNote?.trim().slice(0, 1000) || undefined,
+            internalNote: input.internalNote?.trim().slice(0, 1000) || undefined,
             startUtc: input.startUtc,
             endUtc,
             businessTimezone: settings.timezone,

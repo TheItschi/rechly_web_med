@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, createSessionClient } from "../appwrite-server";
 import { getSiteUrl } from "../env";
+import { isWorkspaceEnabled } from "../features";
 import { WorkspaceError } from "./repository";
 export async function workspaceContext() {
-    if (process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED !== "1") throw new WorkspaceError("Workspace is not enabled.", 404);
+    if (!isWorkspaceEnabled()) throw new WorkspaceError("Workspace is not enabled.", 404);
     let user;
     try { user = await (await createSessionClient()).account.get(); } catch { throw new WorkspaceError("Bitte erneut anmelden.", 401); }
     return { databases: (await createAdminClient()).databases, userId: user.$id };

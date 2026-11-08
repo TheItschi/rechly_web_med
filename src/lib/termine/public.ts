@@ -1,8 +1,9 @@
 import { Query, type Databases } from "node-appwrite";
 import { createAdminClient, DATABASE_ID } from "@/lib/appwrite-server";
-import { T } from "@/lib/termine/store";
-import { TermineError } from "@/lib/termine/store";
+import { isTermineEnabled } from "@/lib/features";
+import { T, TermineError, isUnprovisioned } from "@/lib/termine/store";
 import type { SettingsRow } from "@/lib/termine/booking";
+import { loadCompanyDefaults, type CompanyBookingDefaults } from "@/app/api/termine/settings/route";
 
 export interface PublicBusiness {
     userId: string;
@@ -26,24 +27,48 @@ export interface PublicBusiness {
     website?: string;
 }
 
-/** Resolve a published, enabled business by slug. Throws 404 otherwise. */
-export async function resolvePublicBusiness(slug: string): Promise<{ db: Databases; settings: SettingsRow }> {
+/** Resolve a published, enabled business by slug, enriched with core Company Info defaults. Throws 404 otherwise. */
+export async function resolvePublicBusiness(
+    slug: string,
+): Promise<{ db: Databases; settings: SettingsRow; companyDefaults: CompanyBookingDefaults }> {
+    if (!isTermineEnabled()) {
+        throw new TermineError("Diese Buchungsseite existiert nicht.", 404);
+    }
     const { databases } = await createAdminClient();
-    const found = await databases.listDocuments(DATABASE_ID, T.SETTINGS, [
-        Query.equal("slug", slug),
-        Query.limit(2),
-    ]);
+    let found;
+    try {
+        found = await databases.listDocuments(DATABASE_ID, T.SETTINGS, [
+            Query.equal("slug", slug),
+            Query.limit(2),
+        ]);
+    } catch (error) {
+        if (isUnprovisioned(error)) {
+            throw new TermineError("Diese Buchungsseite existiert nicht.", 404);
+        }
+        throw error;
+    }
     const settings = (found.documents as unknown as SettingsRow[]).find((s) => s.enabled && s.published);
     if (!settings) throw new TermineError("Diese Buchungsseite existiert nicht.", 404);
-    return { db: databases, settings };
+    const companyDefaults = await loadCompanyDefaults(databases, String(settings.userId));
+    return { db: databases, settings, companyDefaults };
 }
 
-export function toPublicBusiness(s: SettingsRow): PublicBusiness {
+export function toPublicBusiness(
+    s: SettingsRow,
+    companyDefaults: CompanyBookingDefaults = {},
+): PublicBusiness {
+    const ext = s as unknown as {
+        description?: string;
+        contactEmail?: string;
+        contactPhone?: string;
+        address?: string;
+        website?: string;
+    };
     return {
         userId: s.userId as string,
         slug: s.slug,
-        displayName: s.displayName,
-        description: (s as unknown as { description?: string }).description,
+        displayName: s.displayName || companyDefaults.displayName || s.slug,
+        description: ext.description,
         timezone: s.timezone,
         language: s.language,
         slotIntervalMinutes: s.slotIntervalMinutes,
@@ -55,9 +80,9 @@ export function toPublicBusiness(s: SettingsRow): PublicBusiness {
         allowAnyStaff: s.allowAnyStaff,
         showPrices: s.showPrices,
         currency: s.currency,
-        contactEmail: (s as unknown as { contactEmail?: string }).contactEmail,
-        contactPhone: (s as unknown as { contactPhone?: string }).contactPhone,
-        address: (s as unknown as { address?: string }).address,
-        website: (s as unknown as { website?: string }).website,
+        contactEmail: ext.contactEmail || companyDefaults.contactEmail,
+        contactPhone: ext.contactPhone || companyDefaults.contactPhone,
+        address: ext.address || companyDefaults.address,
+        website: ext.website || companyDefaults.website,
     };
 }

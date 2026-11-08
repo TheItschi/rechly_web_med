@@ -14,7 +14,7 @@ function fail(error: unknown) {
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
     try {
         const { slug } = await params;
-        const { db, settings } = await resolvePublicBusiness(slug);
+        const { db, settings, companyDefaults } = await resolvePublicBusiness(slug);
         const [services, staff] = await Promise.all([
             db.listDocuments(DATABASE_ID, T.SERVICES, [
                 Query.equal("userId", settings.userId),
@@ -47,7 +47,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
             color: s.color,
             serviceIds: s.serviceIds,
         }));
-        return NextResponse.json({ business: toPublicBusiness(settings), services: pubServices, staff: pubStaff });
+        return NextResponse.json({ business: toPublicBusiness(settings, companyDefaults), services: pubServices, staff: pubStaff });
     } catch (error) {
         return fail(error);
     }

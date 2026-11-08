@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { Query, type Databases } from "node-appwrite";
 import { businessContext, authFail } from "../_lib";
-import { DB, T, TermineError } from "@/lib/termine/store";
+import { DB, T, TermineError, isUnprovisioned } from "@/lib/termine/store";
 import { loadSettings, type SettingsRow } from "@/lib/termine/booking";
 
 const DEFAULTS = {
@@ -19,24 +20,91 @@ const DEFAULTS = {
     published: false,
 } as const;
 
+export interface CompanyBookingDefaults {
+    displayName?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    address?: string;
+    website?: string;
+}
+
+export async function loadCompanyDefaults(
+    db: Databases,
+    userId: string,
+): Promise<CompanyBookingDefaults> {
+    try {
+        const res = await db.listDocuments(DB, "user_company", [
+            Query.equal("userId", userId),
+            Query.limit(1),
+        ]);
+        const doc = res.documents[0];
+        if (!doc || doc.userId !== userId) return {};
+        const addressParts = [
+            doc.addressLine1,
+            doc.addressLine2,
+            [doc.postalCode, doc.city].filter(Boolean).join(" "),
+        ]
+            .map((p) => (typeof p === "string" ? p.trim() : ""))
+            .filter((p) => p && p !== "—" && p !== "00000 Unbekannt");
+        return {
+            displayName: typeof doc.name === "string" && doc.name.trim() ? doc.name.trim() : undefined,
+            contactEmail: typeof doc.email === "string" && doc.email.trim() ? doc.email.trim() : undefined,
+            contactPhone: typeof doc.phone === "string" && doc.phone.trim() ? doc.phone.trim() : undefined,
+            address: addressParts.length ? addressParts.join(", ") : undefined,
+            website: typeof doc.website === "string" && doc.website.trim() ? doc.website.trim() : undefined,
+        };
+    } catch {
+        return {};
+    }
+}
+
 function fail(error: unknown) {
     const auth = authFail(error);
     if (auth) return auth;
+    if (isUnprovisioned(error)) {
+        return NextResponse.json(
+            { error: "Online-Buchung ist auf diesem Server noch nicht eingerichtet (Datenbank-Migration ausstehend)." },
+            { status: 503 },
+        );
+    }
     if (error instanceof TermineError) return NextResponse.json({ error: error.message }, { status: error.status });
     return NextResponse.json({ error: "Einstellungen konnten nicht geladen werden." }, { status: 500 });
 }
 
 export async function GET() {
     try {
-        const { store } = await businessContext();
-        const settings = await loadSettings(store);
-        return NextResponse.json({ settings });
+        const { store, userId } = await businessContext();
+        const [settings, companyDefaults] = await Promise.all([
+            loadSettings(store),
+            loadCompanyDefaults(store.db, userId),
+        ]);
+        return NextResponse.json({ settings, companyDefaults });
     } catch (error) {
         return fail(error);
     }
 }
 
-const KEYS = ["displayName", "description", "timezone", "language", "slotIntervalMinutes", "minNoticeMinutes", "maxHorizonDays", "cancelNoticeMinutes", "rescheduleNoticeMinutes", "confirmationMode", "allowAnyStaff", "showPrices", "currency", "contactEmail", "contactPhone", "address", "website", "enabled", "published"] as const;
+const KEYS = [
+    "displayName",
+    "description",
+    "timezone",
+    "language",
+    "slotIntervalMinutes",
+    "minNoticeMinutes",
+    "maxHorizonDays",
+    "cancelNoticeMinutes",
+    "rescheduleNoticeMinutes",
+    "confirmationMode",
+    "allowAnyStaff",
+    "showPrices",
+    "currency",
+    "contactEmail",
+    "contactPhone",
+    "address",
+    "website",
+    "enabled",
+    "published",
+] as const;
 
 export async function PATCH(request: NextRequest) {
     try {
@@ -66,7 +134,7 @@ export async function PATCH(request: NextRequest) {
         }
         const existing = await loadSettings(store);
         if (!existing) {
-            return NextResponse.json({ error: "Bitte zuerst das Onboarding abschließen." }, { status: 400 });
+            return NextResponse.json({ error: "Bitte zuerst Ihre Buchungs-URL aktivieren." }, { status: 400 });
         }
         // Slug changes go through the claim endpoint (atomic reservation).
         const updated = await store.db.updateDocument(DB, T.SETTINGS, existing.$id, patch);

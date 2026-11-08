@@ -32,7 +32,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         } catch {
             return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
         }
-        const allowed = ["name", "description", "category", "durationMinutes", "priceCents", "currency", "prepMinutes", "cleanupMinutes", "active", "publicVisible", "staffIds", "sortOrder"] as const;
+        const allowed = ["name", "description", "category", "durationMinutes", "priceCents", "currency", "prepMinutes", "cleanupMinutes", "active", "publicVisible", "staffIds", "sortOrder", "productId", "taxRatePercent"] as const;
         const patch: Record<string, unknown> = {};
         for (const k of allowed) if (k in body) patch[k] = body[k];
         if (typeof patch.name === "string" && !patch.name.trim()) return NextResponse.json({ error: "Bitte einen Leistungsnamen angeben." }, { status: 400 });

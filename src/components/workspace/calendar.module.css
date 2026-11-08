@@ -6,6 +6,9 @@
 .event { display: block; width: 100%; text-align: left; border: 0; border-left: 3px solid #1677ff; background: #1677ff16; color: inherit; border-radius: 4px; padding: 5px; margin-top: 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; cursor: pointer; font-size: 12px; }
 .personal { border-left-color: #9254de; background: #9254de16; }
 .deadline { border-left-color: #d46b08; background: #d46b0816; }
+.booking { border-left-color: #0d9488; background: #0d948818; font-weight: 500; }
+.bookingPending { border-left-color: #d97706; background: #d9770618; font-weight: 500; }
+.block { border-left-color: #64748b; background: #64748b18; font-style: italic; cursor: default; }
 .muted { opacity: .55; }
 .week { display: grid; grid-template-columns: repeat(7,minmax(140px,1fr)); gap: 10px; min-width: 1050px; }
 .agenda { display: grid; gap: 12px; }

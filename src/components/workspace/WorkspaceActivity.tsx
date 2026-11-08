@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Alert, notification } from "antd";
 import { useAuth } from "@/contexts/AuthContext";
+import { isWorkspaceEnabled } from "@/lib/features";
 import type { RunningTimer } from "@/lib/workspace/work-types";
 import type { CalendarSnapshot } from "./CalendarWorkspace";
 import { addDays, localDay, useWords } from "./common";
@@ -11,7 +12,7 @@ export default function WorkspaceActivity() {
     const [timer, setTimer] = useState<RunningTimer | null>(null), [now, setNow] = useState(() => Date.now());
     const [notify, holder] = notification.useNotification();
     useEffect(() => {
-        if (process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED !== "1" || !user?.$id) return;
+        if (!isWorkspaceEnabled() || !user?.$id) return;
         let active = true, running = false;
         const userId = user.$id;
         async function poll() {
@@ -45,6 +46,6 @@ export default function WorkspaceActivity() {
         window.addEventListener("rechly-workspace-change", poll); window.addEventListener("storage", poll); document.addEventListener("visibilitychange", poll);
         return () => { active = false; clearInterval(interval); clearInterval(tick); window.removeEventListener("rechly-workspace-change", poll); window.removeEventListener("storage", poll); document.removeEventListener("visibilitychange", poll); };
     }, [user?.$id, notify]);
-    if (process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED !== "1") return null;
+    if (!isWorkspaceEnabled()) return null;
     return <>{holder}{timer && <Alert type="info" showIcon title={<Link href="/dashboard/workspace/time">{l("Timer läuft", "Timer running")}: {timer.description} · {Math.max(0, Math.floor((now - timer.started_at)/60000))} min →</Link>} style={{ marginBottom: 16 }} />}</>;
 }

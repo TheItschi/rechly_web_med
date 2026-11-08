@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../../_lib";
 import { DB, T, TermineError } from "@/lib/termine/store";
 import { canTransition, type TermineStatus } from "@/lib/termine/types";
-import type { AppointmentRow } from "@/lib/termine/booking";
+import { cancelBooking, loadSettings, type AppointmentRow } from "@/lib/termine/booking";
 
 function fail(error: unknown, fallback: string) {
     const auth = authFail(error);
@@ -40,8 +40,15 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             if (!canTransition(appt.status, next)) {
                 return NextResponse.json({ error: `Übergang von ${appt.status} nach ${next} ist nicht erlaubt.` }, { status: 409 });
             }
+            if (next === "CANCELLED_BY_BUSINESS") {
+                const settings = await loadSettings(store);
+                if (settings) {
+                    const cancelled = await cancelBooking(store, settings, id, "business");
+                    return NextResponse.json({ appointment: cancelled });
+                }
+                patch.cancelledAt = new Date().toISOString();
+            }
             patch.status = next;
-            if (next === "CANCELLED_BY_BUSINESS") patch.cancelledAt = new Date().toISOString();
             if (next === "COMPLETED") patch.completedAt = new Date().toISOString();
         }
         if (typeof body.internalNote === "string") patch.internalNote = body.internalNote.slice(0, 1000);

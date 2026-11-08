@@ -12,7 +12,13 @@ export const missing = (error: unknown) => (error as { code?: number }).code ===
 export class WorkspaceStore {
     constructor(public db: Databases, public userId: string, public transactionId?: string) {}
     async rows() {
-        const rows = await allDocuments(q => this.db.listDocuments<WorkspaceRow>(DB, WORKSPACE_COLLECTION, q, this.transactionId), [Query.equal("userId", this.userId)]);
+        let rows: WorkspaceRow[];
+        try {
+            rows = await allDocuments(q => this.db.listDocuments<WorkspaceRow>(DB, WORKSPACE_COLLECTION, q, this.transactionId), [Query.equal("userId", this.userId)]);
+        } catch (error) {
+            if (["collection_not_found", "table_not_found"].includes((error as { type?: string }).type || "")) return [];
+            throw error;
+        }
         if (rows.some(row => row.userId !== this.userId)) throw new Error("Ownership mismatch");
         return rows;
     }

@@ -34,12 +34,16 @@ import {
     SwapOutlined,
     PlusOutlined,
     CalendarOutlined,
+    ProjectOutlined,
+    ClockCircleOutlined,
+    ScheduleOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Link from "next/link";
 import { AppearanceSelect } from "./DashboardAppearance";
 import { isDesktopRuntime } from "@/lib/runtime";
+import { isTermineEnabled, isWorkspaceEnabled } from "@/lib/features";
 import WorkspaceActivity from "@/components/workspace/WorkspaceActivity";
 
 const { Header, Sider, Content } = Layout;
@@ -72,12 +76,69 @@ export default function DashboardShell({
     const [isMobile, setIsMobile] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    const workspaceEnabled = isWorkspaceEnabled();
+    const termineEnabled = isTermineEnabled();
+
     const menuItems = [
         {
             key: "/dashboard",
             icon: <DashboardOutlined />,
             label: t("dashboard.home"),
         },
+        ...(workspaceEnabled || termineEnabled
+            ? [
+                  {
+                      key: "group-planning",
+                      type: "group" as const,
+                      label:
+                          language === "de"
+                              ? "Planung & Projekte"
+                              : "Scheduling & Projects",
+                      children: [
+                          {
+                              key: "/dashboard/calendar",
+                              icon: <CalendarOutlined />,
+                              label:
+                                  language === "de"
+                                      ? "Kalender & Termine"
+                                      : "Calendar",
+                          },
+                          ...(termineEnabled
+                              ? [
+                                    {
+                                        key: "/dashboard/termine/buchungen",
+                                        icon: <ScheduleOutlined />,
+                                        label:
+                                            language === "de"
+                                                ? "Buchungen & Zeiten"
+                                                : "Bookings & Hours",
+                                    },
+                                ]
+                              : []),
+                          ...(workspaceEnabled
+                              ? [
+                                    {
+                                        key: "/dashboard/workspace",
+                                        icon: <ProjectOutlined />,
+                                        label:
+                                            language === "de"
+                                                ? "Projekte & Aufgaben"
+                                                : "Projects & Tasks",
+                                    },
+                                    {
+                                        key: "/dashboard/workspace/time",
+                                        icon: <ClockCircleOutlined />,
+                                        label:
+                                            language === "de"
+                                                ? "Zeiterfassung"
+                                                : "Time & Billing",
+                                    },
+                                ]
+                              : []),
+                      ],
+                  },
+              ]
+            : []),
         {
             key: "group-documents",
             type: "group" as const,
@@ -118,91 +179,33 @@ export default function DashboardShell({
                 {
                     key: "/dashboard/reports",
                     icon: <CalculatorOutlined />,
-                    label: t("dashboard.reports"),
+                    label:
+                        language === "de"
+                            ? "Berichte & Controlling"
+                            : "Reports & Controlling",
                 },
             ],
         },
         {
             key: "group-management",
             type: "group" as const,
-            label: "",
+            label:
+                language === "de"
+                    ? "Stammdaten & System"
+                    : "Contacts & Catalog",
             children: [
-                ...(process.env.NEXT_PUBLIC_RECHLY_TERMINE_ENABLED === "1"
-                    ? [
-                          {
-                              key: "termine-menu",
-                              icon: <CalendarOutlined />,
-                              label: language === "de" ? "Termine" : "Appointments",
-                              children: [
-                                  { key: "/dashboard/termine", label: language === "de" ? "Übersicht" : "Overview" },
-                                  { key: "/dashboard/termine/kalender", label: language === "de" ? "Kalender" : "Calendar" },
-                                  { key: "/dashboard/termine/buchungen", label: language === "de" ? "Buchungen" : "Bookings" },
-                                  { key: "/dashboard/termine/leistungen", label: language === "de" ? "Leistungen" : "Services" },
-                                  { key: "/dashboard/termine/mitarbeiter", label: language === "de" ? "Mitarbeiter" : "Staff" },
-                                  { key: "/dashboard/termine/verfuegbarkeit", label: language === "de" ? "Verfügbarkeit" : "Availability" },
-                                  { key: "/dashboard/termine/einstellungen", label: language === "de" ? "Einstellungen" : "Settings" },
-                              ],
-                          },
-                      ]
-                    : []),
                 {
                     key: "/dashboard/clients",
                     icon: <UserOutlined />,
                     label: t("dashboard.clients"),
                 },
-                ...(process.env.NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED === "1"
-                    ? [
-                          {
-                              key: "workspace-menu",
-                              icon: <FileTextOutlined />,
-                              label:
-                                  language === "de"
-                                      ? "Arbeitsbereich"
-                                      : "Workspace",
-                              children: [
-                                  {
-                                      key: "/dashboard/workspace/overview",
-                                      label:
-                                          language === "de"
-                                              ? "Business-Übersicht"
-                                              : "Business overview",
-                                  },
-                                  {
-                                      key: "/dashboard/workspace",
-                                      label:
-                                          language === "de"
-                                              ? "Projekte, Aufgaben & Dokumente"
-                                              : "Projects, tasks & documents",
-                                  },
-                                  {
-                                      key: "/dashboard/workspace/time",
-                                      label:
-                                          language === "de"
-                                              ? "Zeiten & Abrechnung"
-                                              : "Time & billing",
-                                  },
-                                  {
-                                      key: "/dashboard/workspace/reports",
-                                      label:
-                                          language === "de"
-                                              ? "Projektcontrolling"
-                                              : "Project reports",
-                                  },
-                                  {
-                                      key: "/dashboard/workspace/calendar",
-                                      label:
-                                          language === "de"
-                                              ? "Kalender"
-                                              : "Calendar",
-                                  },
-                              ],
-                          },
-                      ]
-                    : []),
                 {
                     key: "/dashboard/products",
                     icon: <ShoppingOutlined />,
-                    label: t("dashboard.products"),
+                    label:
+                        language === "de"
+                            ? "Produkte & Leistungen"
+                            : "Products & Services",
                 },
                 {
                     key: "/dashboard/migration",
@@ -212,6 +215,97 @@ export default function DashboardShell({
             ],
         },
     ];
+
+    const selectedKey = (() => {
+        if (
+            pathname === "/dashboard/calendar" ||
+            pathname === "/dashboard/workspace/calendar" ||
+            pathname === "/dashboard/termine/kalender"
+        ) {
+            return "/dashboard/calendar";
+        }
+        if (pathname.startsWith("/dashboard/termine")) {
+            return "/dashboard/termine/buchungen";
+        }
+        if (pathname.startsWith("/dashboard/workspace/time")) {
+            return "/dashboard/workspace/time";
+        }
+        if (pathname.startsWith("/dashboard/workspace/reports")) {
+            return "/dashboard/reports";
+        }
+        if (pathname.startsWith("/dashboard/workspace/overview")) {
+            return "/dashboard";
+        }
+        if (pathname.startsWith("/dashboard/workspace")) {
+            return "/dashboard/workspace";
+        }
+        if (pathname.startsWith("/dashboard/invoices")) {
+            return "/dashboard/invoices";
+        }
+        if (pathname.startsWith("/dashboard/offers")) {
+            return "/dashboard/offers";
+        }
+        if (pathname.startsWith("/dashboard/recurring")) {
+            return "/dashboard/recurring";
+        }
+        if (pathname.startsWith("/dashboard/expenses")) {
+            return "/dashboard/expenses";
+        }
+        if (pathname.startsWith("/dashboard/bank")) {
+            return "/dashboard/bank";
+        }
+        if (pathname.startsWith("/dashboard/reports")) {
+            return "/dashboard/reports";
+        }
+        if (pathname.startsWith("/dashboard/clients")) {
+            return "/dashboard/clients";
+        }
+        if (pathname.startsWith("/dashboard/products")) {
+            return "/dashboard/products";
+        }
+        if (pathname.startsWith("/dashboard/migration")) {
+            return "/dashboard/migration";
+        }
+        return pathname;
+    })();
+
+    const headerTitle = (() => {
+        if (
+            pathname === "/dashboard/settings" ||
+            pathname.startsWith("/dashboard/settings/")
+        ) {
+            return t("dashboard.settings");
+        }
+        if (selectedKey === "/dashboard/calendar") {
+            return language === "de" ? "Kalender & Termine" : "Calendar";
+        }
+        if (selectedKey === "/dashboard/termine/buchungen") {
+            return language === "de"
+                ? "Buchungen & Verfügbarkeit"
+                : "Bookings & Availability";
+        }
+        if (selectedKey === "/dashboard/workspace") {
+            return language === "de"
+                ? "Projekte & Aufgaben"
+                : "Projects & Tasks";
+        }
+        if (selectedKey === "/dashboard/workspace/time") {
+            return language === "de" ? "Zeiterfassung" : "Time & Billing";
+        }
+        if (selectedKey === "/dashboard/reports") {
+            return language === "de"
+                ? "Berichte & Controlling"
+                : "Reports & Controlling";
+        }
+        if (selectedKey === "/dashboard/products") {
+            return language === "de"
+                ? "Produkte & Leistungen"
+                : "Products & Services";
+        }
+        return pageTitles[selectedKey]
+            ? t(pageTitles[selectedKey])
+            : t("dashboard.home");
+    })();
 
     useEffect(() => {
         const checkMobile = () => {
@@ -305,7 +399,7 @@ export default function DashboardShell({
                     <Menu
                         theme="dark"
                         mode="inline"
-                        selectedKeys={[pathname]}
+                        selectedKeys={[selectedKey]}
                         items={menuItems}
                         onClick={({ key }) => router.push(key)}
                         className="dashboard-menu"
@@ -358,7 +452,7 @@ export default function DashboardShell({
                 </div>
                 <Menu
                     mode="inline"
-                    selectedKeys={[pathname]}
+                    selectedKeys={[selectedKey]}
                     items={menuItems}
                     onClick={({ key }) => handleMobileNavigation(key)}
                     className="dashboard-mobile-menu"
@@ -436,11 +530,7 @@ export default function DashboardShell({
                             />
                         </Tooltip>
                         <div className="dashboard-page-title">
-                            {isMobile
-                                ? "Rechly"
-                                : pageTitles[pathname]
-                                  ? t(pageTitles[pathname])
-                                  : t("dashboard.home")}
+                            {isMobile ? "Rechly" : headerTitle}
                         </div>
                         {isDesktopRuntime && (
                             <Tag color="green" className="dashboard-offline-tag">

@@ -10,6 +10,8 @@ import { createBooking, rescheduleBooking, cancelBooking } from "../src/lib/term
 import { wallToUtc } from "../src/lib/termine/time";
 import { createDraftFromAppointment } from "../src/lib/termine/invoices";
 import { confirmationEmail, buildIcs } from "../src/lib/termine/notify";
+import { WorkspaceStore } from "../src/lib/workspace/store";
+import { calendarSnapshot } from "../src/lib/workspace/calendar-service";
 
 process.env.RECHLY_DATA_DIR = mkdtempSync(join(tmpdir(), "rechly-termine-"));
 const db = getDesktopClients().databases as unknown as Databases;
@@ -139,4 +141,79 @@ test("confirmation email and ICS are well-formed", () => {
     assert.ok(msg.ics?.content.includes("BEGIN:VCALENDAR"));
     const ics = buildIcs({ uid: "x1", startUtc: appt.startUtc, endUtc: appt.endUtc, summary: "Test" });
     assert.ok(ics.includes("DTSTART:20260112T080000Z"));
+});
+
+test("booking links to Rechly clients CRM and reuses existing customer by email", async () => {
+    const { user, store, settings } = await fixture();
+    const first = await createBooking(store, settings, book(user, slot("09:00"), { customerName: "Max Mustermann", customerEmail: "MAX@example.de" }));
+    assert.ok(first.appointment.customerId, "booking should populate customerId");
+    const client = await db.getDocument(DB, "clients", first.appointment.customerId!) as unknown as Record<string, unknown>;
+    assert.equal(client.userId, user);
+    assert.equal(client.name, "Max Mustermann");
+    assert.equal(client.clientType, "private");
+    assert.ok(typeof client.addressLine1 === "string" && client.addressLine1.length > 0);
+    assert.ok(typeof client.postalCode === "string" && client.postalCode.length > 0);
+
+    const second = await createBooking(store, settings, book(user, slot("10:00"), { customerName: "Max Mustermann", customerEmail: "max@example.de" }));
+    assert.equal(second.appointment.customerId, first.appointment.customerId);
+});
+
+test("invoice draft honors Kleinunternehmer (§19 UStG) and linked product VAT rate", async () => {
+    const { user, store, settings } = await fixture();
+    await db.createDocument(DB, "user_company", `${user}-company`, {
+        userId: user,
+        companyName: "Atelier Klein",
+        isSmallBusiness: true,
+        paymentTermsDefault: 7,
+    }, store.perms());
+
+    const smallBizBooking = await createBooking(store, settings, book(user, slot("09:00")));
+    await db.updateDocument(DB, T.APPOINTMENTS, smallBizBooking.appointment.$id, { status: "COMPLETED" });
+    const draftZero = await createDraftFromAppointment(store, smallBizBooking.appointment.$id);
+    const invZero = await db.getDocument(DB, "invoices", draftZero.invoiceId) as unknown as Record<string, unknown>;
+    assert.equal(invZero.totalVat, 0);
+    assert.equal(invZero.totalGross, 25);
+
+    // Switch off small-business mode and link service to a 7% VAT product
+    await db.updateDocument(DB, "user_company", `${user}-company`, { isSmallBusiness: false });
+    await db.createDocument(DB, "products", `${user}-prod-7`, {
+        userId: user,
+        name: "Kulturleistung",
+        unitPriceNet: 25,
+        taxRatePercent: 7,
+        unitOfMeasure: "Stunde",
+        isActive: true,
+    }, store.perms());
+    await db.updateDocument(DB, T.SERVICES, `${user}-svc`, { productId: `${user}-prod-7` });
+
+    const reducedVatBooking = await createBooking(store, settings, book(user, slot("10:00"), { customerEmail: "vat7@example.de" }));
+    await db.updateDocument(DB, T.APPOINTMENTS, reducedVatBooking.appointment.$id, { status: "COMPLETED" });
+    const draftSeven = await createDraftFromAppointment(store, reducedVatBooking.appointment.$id);
+    const invSeven = await db.getDocument(DB, "invoices", draftSeven.invoiceId) as unknown as Record<string, unknown>;
+    assert.equal(invSeven.totalVat, 1.75);
+    assert.equal(invSeven.totalGross, 26.75);
+});
+
+test("unified calendarSnapshot merges Termine bookings and blocks in business wall-clock time", async () => {
+    const { user, store, settings } = await fixture();
+    const booked = await createBooking(store, settings, book(user, slot("09:00"), { customerName: "Clara Kalender" }));
+    await db.createDocument(DB, T.BLOCKS, `${user}-blk`, {
+        userId: user,
+        staffId: `${user}-anna`,
+        startUtc: slot("11:00"),
+        endUtc: slot("11:30"),
+        reason: "Team-Pause",
+    }, store.perms());
+
+    const wsStore = new WorkspaceStore(db, user);
+    const snap = await calendarSnapshot(wsStore, `${MONDAY}T00:00`, "2026-01-19T00:00");
+    assert.equal(snap.termineConfigured, true);
+    assert.equal(snap.bookings.length, 1);
+    assert.equal(snap.bookings[0].id, booked.appointment.$id);
+    assert.equal(snap.bookings[0].wallStart, `${MONDAY}T09:00`);
+    assert.equal(snap.bookings[0].wallEnd, `${MONDAY}T09:40`);
+    assert.equal(snap.bookings[0].staffName, "Anna");
+    assert.equal(snap.blocks.length, 1);
+    assert.equal(snap.blocks[0].reason, "Team-Pause");
+    assert.equal(snap.blocks[0].wallStart, `${MONDAY}T11:00`);
 });
