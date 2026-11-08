@@ -1,11 +1,9 @@
 "use client";
 
-import { Button, Typography } from "antd";
+import { Button } from "antd";
 import { HomeOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const { Title, Text } = Typography;
 
 export default function DashboardNotFound() {
     const router = useRouter();

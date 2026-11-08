@@ -191,11 +191,6 @@ export default function DashboardShell({
                 },
             ],
         },
-        {
-            key: "/dashboard/settings",
-            icon: <SettingOutlined />,
-            label: t("dashboard.settings"),
-        },
     ];
 
     useEffect(() => {
@@ -221,6 +216,10 @@ export default function DashboardShell({
         setMobileMenuOpen(false);
         router.push(key);
     };
+
+    const settingsSelected =
+        pathname === "/dashboard/settings" ||
+        pathname.startsWith("/dashboard/settings/");
 
     const userMenuItems = [
         {
@@ -292,7 +291,19 @@ export default function DashboardShell({
                         className="dashboard-menu"
                     />
                     <div className="dashboard-sider-footer">
-                        <a href="mailto:admin@rechly.de">
+                        <button
+                            type="button"
+                            onClick={() => router.push("/dashboard/settings")}
+                            className={`dashboard-sider-settings${settingsSelected ? " dashboard-sider-settings--active" : ""}`}
+                            aria-current={settingsSelected ? "page" : undefined}
+                        >
+                            <SettingOutlined />
+                            {!collapsed && <span>{t("dashboard.settings")}</span>}
+                        </button>
+                        <a
+                            href="mailto:admin@rechly.de"
+                            className="dashboard-sider-feedback"
+                        >
                             {collapsed ? "✉" : t("dashboard.feedbackCta")}
                         </a>
                     </div>
@@ -333,6 +344,14 @@ export default function DashboardShell({
                     className="dashboard-mobile-menu"
                 />
                 <div className="dashboard-drawer-footer">
+                    <Button
+                        block
+                        icon={<SettingOutlined />}
+                        type={settingsSelected ? "primary" : "default"}
+                        onClick={() => handleMobileNavigation("/dashboard/settings")}
+                    >
+                        {t("dashboard.settings")}
+                    </Button>
                     <div className="dashboard-language-mobile">
                         <GlobalOutlined />
                         <Select
