@@ -54,9 +54,9 @@ describe("availability engine", () => {
     });
 
     it("excludes booked intervals including cleanup buffers", () => {
-        const booked = wallToUtc("2026-01-12", "09:30", TZ)!!;
+        const booked = wallToUtc("2026-01-12", "09:30", TZ)!;
         const slots = computeAvailability(
-            base({ appointments: [{ staffId: "anna", startUtc: booked, endUtc: wallToUtc("2026-01-12", "10:10", TZ)!!, status: "CONFIRMED" }] }),
+            base({ appointments: [{ staffId: "anna", startUtc: booked, endUtc: wallToUtc("2026-01-12", "10:10", TZ)!, status: "CONFIRMED" }] }),
             Q,
         ).filter((s) => s.staffId === "anna");
         const times = slots.map((s) => s.startUtc);
@@ -83,7 +83,7 @@ describe("availability engine", () => {
         assert.equal(closed.length, 0);
 
         const blocked = computeAvailability(
-            base({ blocks: [{ id: "b1", staffId: "anna", startUtc: wallToUtc("2026-01-12", "09:00", TZ)!!, endUtc: wallToUtc("2026-01-12", "12:00", TZ)!! }] }),
+            base({ blocks: [{ id: "b1", staffId: "anna", startUtc: wallToUtc("2026-01-12", "09:00", TZ)!, endUtc: wallToUtc("2026-01-12", "12:00", TZ)! }] }),
             Q,
         );
         assert.ok(blocked.every((s) => s.staffId !== "anna"));

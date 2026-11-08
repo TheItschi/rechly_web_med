@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { Query } from "node-appwrite";
-import { DATABASE_ID } from "@/lib/appwrite-server";
 import { T, TermineError, TermineStore } from "@/lib/termine/store";
 import { resolvePublicBusiness } from "@/lib/termine/public";
 import { engineInput } from "@/lib/termine/booking";

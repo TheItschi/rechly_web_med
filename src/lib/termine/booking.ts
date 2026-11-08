@@ -1,7 +1,7 @@
 import { Query } from "node-appwrite";
-import { DB, T, TermineStore, atomic, conflict, newId, newToken, recordId, reservationId, tokenHash, type Row } from "./store";
+import { DB, T, TermineStore, atomic, newId, newToken, recordId, reservationId, tokenHash, type Row } from "./store";
 import { TermineError } from "./store";
-import { ACTIVE_STATUSES, canTransition, type AvailabilityQuery, type TermineAppointment, type TermineStatus } from "./types";
+import { ACTIVE_STATUSES, type TermineAppointment, type TermineStatus } from "./types";
 import { computeAvailability, type AppointmentLike } from "./availability";
 import { addMinutesUtc, dateInTz, dayjs, intervalsOverlap } from "./time";
 

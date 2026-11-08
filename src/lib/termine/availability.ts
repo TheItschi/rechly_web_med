@@ -9,7 +9,7 @@ import type {
     WeekSchedule,
 } from "./types";
 import { ACTIVE_STATUSES } from "./types";
-import { addMinutesUtc, dateInTz, dayjs, intervalsOverlap, wallToMinutes, wallToUtc } from "./time";
+import { addMinutesUtc, dayjs, intervalsOverlap, wallToMinutes, wallToUtc } from "./time";
 
 export interface BusyInterval {
     staffId: string;
