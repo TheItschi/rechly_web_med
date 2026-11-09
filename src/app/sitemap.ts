@@ -22,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }> = [
         {
             url: "",
-            lastModified: "2026-11-06",
+            lastModified: "2026-11-08",
             changeFrequency: "weekly",
             priority: 1.0,
         },
@@ -46,7 +46,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
         {
             url: "/features",
-            lastModified: "2026-11-06",
+            lastModified: "2026-11-08",
             changeFrequency: "monthly",
             priority: 0.9,
         },

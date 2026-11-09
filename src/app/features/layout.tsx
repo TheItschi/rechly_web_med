@@ -4,9 +4,9 @@ import { getSiteUrl } from "@/lib/env";
 const siteUrl = getSiteUrl();
 
 export const metadata = createPageMetadata({
-    title: "Rechnungssoftware Funktionen: E-Rechnung, GiroCode & DATEV",
+    title: "Rechly Funktionen: Rechnungen, Projekte & Terminbuchung",
     description:
-        "Alle Funktionen von Rechly im Überblick: Rechnungen & Angebote, XRechnung 3.0 & ZUGFeRD, GiroCode, Mahnwesen, DATEV-Export & 100 % Offline Desktop-Vollversion.",
+        "Entdecke Rechly: Rechnungen, XRechnung, ZUGFeRD, Online-Terminbuchung, Projekte, Zeiterfassung, Datenimport und optionale KI. Kostenlos und Open Source.",
     path: "/features",
     keywords: [
         "Rechnungssoftware Funktionen",

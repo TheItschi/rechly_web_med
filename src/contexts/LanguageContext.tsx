@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useSyncExternalStore } from "react";
 import { translations } from "@/i18n";
 
 export type Language = "de" | "en";
@@ -11,32 +11,37 @@ interface LanguageContextType {
     t: (key: string) => string;
 }
 
-const LanguageContext = createContext<LanguageContextType | undefined>(
-    undefined,
-);
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 // Re-export for backwards compatibility (prefer importing from "@/i18n").
 export { translations };
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
-    children,
-}) => {
-    // Default to German for SEO - German is the primary target market
-    // Use lazy initializer to read stored preference without triggering a cascading render
-    const [language, setLanguageState] = useState<Language>(() => {
-        if (typeof window === "undefined") return "de";
-        const stored = localStorage.getItem("language") as Language | null;
-        if (stored && (stored === "de" || stored === "en")) {
-            return stored;
-        }
-        // Note: We intentionally default to German and don't auto-detect browser language
-        // This ensures German content is served by default for SEO purposes
+const subscribeHydration = () => () => {};
+const clientHydrated = () => true;
+const serverHydrated = () => false;
+function storedLanguage(): Language {
+    try {
+        const stored = localStorage.getItem("language");
+        return stored === "en" ? "en" : "de";
+    } catch {
         return "de";
-    });
+    }
+}
+
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    // German HTML and the first client render must agree. Restore a saved
+    // preference after hydration; reading it in the initializer breaks English reloads.
+    const hydrated = useSyncExternalStore(subscribeHydration, clientHydrated, serverHydrated);
+    const [selectedLanguage, setLanguageState] = useState<Language | null>(null);
+    const language = selectedLanguage ?? (hydrated ? storedLanguage() : "de");
 
     const setLanguage = (lang: Language) => {
         setLanguageState(lang);
-        localStorage.setItem("language", lang);
+        try {
+            localStorage.setItem("language", lang);
+        } catch {
+            /* Switching still works without storage. */
+        }
     };
 
     const t = (key: string): string => {
@@ -44,9 +49,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     return (
-        <LanguageContext.Provider value={{ language, setLanguage, t }}>
-            {children}
-        </LanguageContext.Provider>
+        <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>
     );
 };
 

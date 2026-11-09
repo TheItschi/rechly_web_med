@@ -11,6 +11,10 @@ import {
     CalculatorOutlined,
     DownloadOutlined,
     GlobalOutlined,
+    CalendarOutlined,
+    ProjectOutlined,
+    ImportOutlined,
+    RobotOutlined,
 } from "@ant-design/icons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Navbar from "@/components/landing/Navbar";
@@ -24,6 +28,10 @@ export default function FeaturesPage() {
     const features =
         language === "de"
             ? [
+                  { icon: <CalendarOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Online-Terminbuchung", desc: "Eigene Buchungsseite mit freien Zeiten, Arbeitszeiten und Puffern. Automatisch oder manuell bestätigen; Kunden können innerhalb deiner Fristen selbst umbuchen und stornieren." },
+                  { icon: <ProjectOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Projekte & Zeiterfassung", desc: "Aufgaben, Projekte und Arbeitszeiten organisieren und erfasste Leistungen zur Abrechnung vorbereiten." },
+                  { icon: <ImportOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Daten aus anderer Software übernehmen", desc: "Kunden, Produkte und Belege aus unterstützten CSV- und Rechnungsdateien importieren. Erkannte Daten vor dem Speichern prüfen." },
+                  { icon: <RobotOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Optionale KI-Rechnungshilfe", desc: "Rechnungsdaten aus Text vorbereiten: mit eigenem KI-Anbieter oder lokal über Ollama. Du entscheidest, ob du KI nutzt." },
                   {
                       icon: (
                           <FileTextOutlined
@@ -31,7 +39,7 @@ export default function FeaturesPage() {
                           />
                       ),
                       title: "Professionelle Rechnungen",
-                      desc: "Erstelle rechtskonforme Rechnungen mit allen Pflichtangaben nach deutschem Recht. Mehrere Vorlagen verfügbar.",
+                      desc: "Erstelle Rechnungen mit Kunden- und Leistungsdaten, Beträgen und Steuern. Exportiere als PDF, XRechnung oder ZUGFeRD.",
                   },
                   {
                       icon: (
@@ -98,6 +106,10 @@ export default function FeaturesPage() {
                   },
               ]
             : [
+                  { icon: <CalendarOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Online appointment booking", desc: "Your own booking page with available times, working hours and buffers. Use automatic or manual approval; clients can reschedule and cancel within your notice periods." },
+                  { icon: <ProjectOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Projects & time tracking", desc: "Organise tasks, projects and working hours, then prepare recorded work for invoicing." },
+                  { icon: <ImportOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Import your existing data", desc: "Import clients, products and documents from supported CSV and invoice files. Review detected data before saving." },
+                  { icon: <RobotOutlined style={{ fontSize: 28, color: "#2855d9" }} />, title: "Optional AI invoice assistance", desc: "Prepare invoice details from text with your own AI provider or locally through Ollama. Using AI is your choice." },
                   {
                       icon: (
                           <FileTextOutlined
@@ -105,7 +117,7 @@ export default function FeaturesPage() {
                           />
                       ),
                       title: "Professional Invoices",
-                      desc: "Create compliant invoices with all required fields under German law. Multiple templates available.",
+                      desc: "Create invoices with client and service details, amounts and taxes. Export PDF, XRechnung or ZUGFeRD files.",
                   },
                   {
                       icon: (

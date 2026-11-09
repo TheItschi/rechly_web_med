@@ -1,0 +1,1281 @@
+.root {
+    --ink: #152438;
+    --muted: #526174;
+    --blue: #2855d9;
+    --line: #e3e9f1;
+    background: #fff;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.65;
+}
+.root * {
+    box-sizing: border-box;
+}
+.root h1,
+.root h2,
+.root h3,
+.root p,
+.root figure {
+    margin: 0;
+}
+.root a {
+    text-decoration: none;
+    color: inherit;
+}
+.root button,
+.root select {
+    font: inherit;
+}
+.root :focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 5px;
+}
+.root section[id],
+.root main {
+    scroll-margin-top: 100px;
+}
+.container {
+    width: min(1180px, calc(100% - 64px));
+    margin-inline: auto;
+}
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.skip {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    transform: translateY(-160%);
+    padding: 12px 20px;
+    background: #fff;
+    z-index: 100;
+    border-radius: 8px;
+}
+.skip:focus {
+    transform: none;
+}
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.97);
+}
+.headerInner {
+    width: min(1280px, calc(100% - 64px));
+    min-height: 80px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 25px;
+    letter-spacing: -0.9px;
+    font-weight: 750;
+    flex-shrink: 0;
+}
+.brand img {
+    border-radius: 9px;
+}
+.brandDot {
+    color: var(--blue);
+}
+.navigation,
+.navLinks,
+.navActions {
+    display: flex;
+    align-items: center;
+}
+.navigation {
+    justify-content: space-between;
+    flex: 1;
+    gap: 24px;
+}
+.navLinks {
+    gap: 24px;
+}
+.navLinks a,
+.login {
+    font-size: 14px;
+    font-weight: 550;
+    padding-block: 12px;
+}
+.navLinks a:hover,
+.login:hover {
+    color: var(--blue);
+}
+.navActions {
+    gap: 18px;
+}
+.language select {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    min-height: 44px;
+    max-width: 58px;
+}
+.root .button,
+.root .buttonSmall {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    background: var(--blue);
+    color: #fff;
+    border-radius: 9px;
+    font-weight: 650;
+    transition: background 0.15s;
+}
+.button {
+    min-height: 52px;
+    padding: 12px 23px;
+    font-size: 15px;
+}
+.buttonSmall {
+    min-height: 44px;
+    padding: 10px 17px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+.root .button:hover,
+.root .buttonSmall:hover {
+    background: #1e43b3;
+}
+.root .buttonSecondary {
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 15px;
+}
+.root .buttonSecondary:hover {
+    background: #f6f8fc;
+    border-color: #91a6c2;
+}
+.menuToggle {
+    display: none;
+}
+.hero {
+    display: grid;
+    grid-template-columns: 1.08fr 1fr;
+    gap: 60px;
+    align-items: center;
+    padding-block: 88px 64px;
+}
+.eyebrow {
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+.statusDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2e8c6e;
+    box-shadow: 0 0 0 4px #edf6f2;
+}
+.hero h1 {
+    font-size: clamp(40px, 4.25vw, 62px);
+    line-height: 1.1;
+    letter-spacing: -0.052em;
+    font-weight: 720;
+    margin-block: 24px;
+}
+.hero h1 span {
+    color: var(--blue);
+}
+.heroText {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.8;
+    max-width: 490px;
+}
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+}
+.root .heroNote {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 16px;
+}
+.preview {
+    min-width: 0;
+    position: relative;
+    padding: 22px 0 0 12px;
+}
+.preview::before {
+    content: "";
+    position: absolute;
+    inset: -15px -24px 45px -18px;
+    background: #edf2fc;
+    border-radius: 48% 52% 32% 38%;
+}
+.appFrame {
+    position: relative;
+    background: #fff;
+    border: 1px solid #dce5f1;
+    border-radius: 14px;
+    box-shadow:
+        0 24px 60px -24px #253c672b,
+        0 4px 12px #233f6810;
+    overflow: hidden;
+    transform: rotate(-1deg);
+}
+.appBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+}
+.appMark {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    line-height: 22px;
+}
+.appWorkspace {
+    color: var(--muted);
+    margin-left: 9px;
+    padding-left: 14px;
+    border-left: 1px solid var(--line);
+    font-size: 10px;
+}
+.avatar {
+    margin-left: auto;
+    background: #f0e9df;
+    color: #6c573b;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    font-weight: 700;
+}
+.appBody {
+    display: flex;
+}
+.appRail {
+    padding: 25px 14px;
+    background: #f8fafc;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    color: #71829a;
+}
+.appRail svg {
+    width: 17px;
+    height: 17px;
+}
+.appRail svg:first-child {
+    color: var(--blue);
+}
+.invoice {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 25px 24px;
+}
+.invoiceHeading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.invoiceHeading .eyebrow {
+    color: var(--muted);
+    font-size: 8px;
+    letter-spacing: 0.07em;
+}
+.draft {
+    background: #f3f5f9;
+    color: #526174;
+    font-size: 9px;
+    border-radius: 4px;
+    padding: 2px 7px;
+}
+.invoiceTitle {
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 650;
+    margin-block: 12px 25px;
+    letter-spacing: -0.5px;
+}
+.invoiceTitle span {
+    color: #7d8ba0;
+    font-weight: 400;
+    margin-left: 4px;
+}
+.invoiceParties {
+    display: flex;
+    gap: 50px;
+    padding-bottom: 21px;
+    border-bottom: 1px solid var(--line);
+}
+.invoiceParties div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.invoiceParties small {
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: var(--muted);
+}
+.invoiceParties strong {
+    font-size: 11px;
+    font-weight: 550;
+}
+.invoiceLine,
+.invoiceTax,
+.invoiceTotal {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 11px;
+    padding-top: 14px;
+}
+.invoiceLine strong {
+    font-weight: 550;
+}
+.invoiceTax {
+    color: var(--muted);
+    padding-bottom: 18px;
+}
+.invoiceTotal {
+    align-items: center;
+    border-top: 1px solid var(--line);
+    font-weight: 550;
+}
+.invoiceTotal strong {
+    font-size: 21px;
+    color: var(--blue);
+}
+.formatRow {
+    display: flex;
+    gap: 6px;
+    margin-top: 18px;
+}
+.formatRow span {
+    background: #f3f6fc;
+    border: 1px solid #e6ebf4;
+    font-size: 9px;
+    border-radius: 4px;
+    padding: 3px 7px;
+    color: #41516b;
+}
+.appAppointment {
+    background: #f9fbfa;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 18px;
+    font-size: 10px;
+}
+.appAppointmentIcon {
+    background: #e7f3ee;
+    color: #297959;
+    padding: 7px;
+    border-radius: 8px;
+}
+.appAppointment div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.appAppointment strong {
+    font-weight: 600;
+}
+.appAppointment div span {
+    color: var(--muted);
+}
+.confirmed {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #236847;
+    font-size: 9px;
+}
+.preview figcaption,
+.bookingPreview figcaption {
+    position: relative;
+    text-align: center;
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 16px;
+}
+.trustRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding-block: 23px;
+    color: var(--muted);
+    font-size: 13px;
+}
+.trustRow span {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+.trustRow svg {
+    color: #527697;
+}
+.section {
+    padding-block: 88px;
+}
+.sectionHeader {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 44px;
+    margin-bottom: 34px;
+}
+.root h2 {
+    font-size: clamp(28px, 3vw, 38px);
+    line-height: 1.22;
+    letter-spacing: -0.035em;
+    font-weight: 680;
+}
+.sectionHeader h2 {
+    margin-top: 12px;
+    max-width: 650px;
+}
+.sectionHeader > p {
+    max-width: 330px;
+    font-size: 15px;
+    color: var(--muted);
+}
+.featureGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+.feature {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 25px;
+}
+.featureTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.featureIcon {
+    display: flex;
+    align-items: center;
+    color: #3f61ae;
+}
+.badge {
+    font-size: 10px;
+    color: #49617b;
+    background: #f1f5f9;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-weight: 650;
+}
+.feature h3,
+.choiceCard h3 {
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: 650;
+    letter-spacing: -0.3px;
+}
+.feature p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 9px;
+}
+.root .textLink {
+    color: var(--blue);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 650;
+    min-height: 44px;
+}
+.textLink:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+.feature .textLink {
+    margin-top: 12px;
+}
+.bookingSection {
+    background: #f2f6fd;
+    border-block: 1px solid #e5edf9;
+    padding-block: 72px;
+}
+.bookingGrid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 100px;
+    align-items: center;
+}
+.newPill {
+    background: var(--blue);
+    color: #fff;
+    letter-spacing: 0.03em;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 10px;
+}
+.bookingCopy h2 {
+    margin-top: 20px;
+}
+.bookingCopy > p:not(.eyebrow) {
+    font-size: 16px;
+    color: var(--muted);
+    margin-top: 18px;
+    max-width: 470px;
+}
+.checkList {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 13px;
+    display: grid;
+    gap: 13px;
+    font-size: 14px;
+}
+.checkList li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.checkList svg {
+    color: #2f795f;
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+.bookingPreview {
+    width: 100%;
+    max-width: 430px;
+    justify-self: end;
+}
+.bookingCard {
+    background: #fff;
+    border: 1px solid #dfe7f3;
+    border-radius: 14px;
+    box-shadow: 0 15px 40px -20px #233f6826;
+    overflow: hidden;
+}
+.bookingCardHeader {
+    display: flex;
+    align-items: center;
+    padding: 23px;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+}
+.bookingLogo {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f5ede4;
+    color: #806549;
+    font-size: 12px;
+    font-weight: 650;
+}
+.bookingCardHeader div {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+}
+.bookingCardHeader div span {
+    color: var(--muted);
+    font-size: 11px;
+}
+.duration {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-size: 10px;
+    color: var(--muted);
+}
+.bookingCardBody {
+    padding: 24px;
+}
+.bookingCardTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+.bookingCardTitle svg {
+    color: #70829e;
+}
+.weekStrip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 7px;
+}
+.weekStrip > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 10px 0;
+}
+.weekStrip span {
+    font-size: 10px;
+}
+.weekStrip strong {
+    font-size: 18px;
+}
+.weekStrip .selectedDay {
+    background: var(--blue);
+    color: #fff;
+    border-color: var(--blue);
+}
+.dayDot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #7f9ce6;
+}
+.selectedDay .dayDot {
+    background: #fff;
+}
+.root .slotLabel {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    margin-block: 22px 10px;
+    font-size: 11px;
+    font-weight: 550;
+}
+.slotLabel span {
+    font-size: 9px;
+    color: var(--muted);
+    font-weight: 400;
+}
+.slotGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+.slotGrid > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    font-size: 12px;
+    padding: 9px 0;
+}
+.slotGrid .selectedSlot {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: #f0f4ff;
+}
+.bookingNext {
+    background: var(--blue);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    border-radius: 7px;
+    padding: 11px;
+    font-size: 11px;
+    margin-top: 20px;
+    font-weight: 550;
+}
+.root .bookingHint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 9px;
+}
+.choiceGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+.choiceCard {
+    border: 1px solid var(--line);
+    padding: 30px;
+    border-radius: 12px;
+}
+.choiceCard > svg {
+    color: var(--blue);
+    margin-bottom: 18px;
+}
+.choiceCard p {
+    color: var(--muted);
+    margin-block: 12px 10px;
+    font-size: 15px;
+    max-width: 470px;
+}
+.openSourceNote {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 22px 25px;
+    margin-top: 22px;
+}
+.openSourceNote > svg {
+    color: #527697;
+    flex-shrink: 0;
+}
+.openSourceNote p {
+    font-size: 14px;
+    font-weight: 650;
+    flex: 1;
+}
+.openSourceNote p span {
+    display: block;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 13px;
+    margin-top: 3px;
+}
+.openSourceNote .textLink {
+    flex-shrink: 0;
+}
+.resourcesSection {
+    background: #fafbfc;
+    border-block: 1px solid var(--line);
+    padding-block: 62px;
+}
+.resourcesSection h2 {
+    max-width: 640px;
+    font-size: 30px;
+}
+.resourceGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+.resourceCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding-top: 22px;
+    border-top: 1px solid #d9e1ec;
+}
+.resourceCard > svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+    color: var(--blue);
+}
+.resourceCard h3 {
+    font-size: 17px;
+    font-weight: 650;
+    margin-bottom: 6px;
+}
+.resourceCard:hover h3 {
+    color: var(--blue);
+}
+.resourceCard p {
+    color: var(--muted);
+    font-size: 14px;
+}
+.faqSection {
+    display: grid;
+    grid-template-columns: 0.75fr 1.25fr;
+    gap: 80px;
+    padding-block: 88px;
+}
+.faqSection h2 {
+    margin-top: 12px;
+}
+.root .faqIntro {
+    color: var(--muted);
+    max-width: 260px;
+    margin-top: 14px;
+    font-size: 15px;
+}
+.faqItem {
+    border-bottom: 1px solid var(--line);
+}
+.faqItem:first-child {
+    border-top: 1px solid var(--line);
+}
+.faqItem summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    list-style: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 19px 0;
+}
+.faqItem summary::-webkit-details-marker {
+    display: none;
+}
+.faqItem summary svg {
+    flex-shrink: 0;
+    color: var(--muted);
+}
+.faqItem[open] summary svg {
+    transform: rotate(180deg);
+}
+.faqItem p {
+    color: var(--muted);
+    font-size: 14px;
+    padding: 0 28px 22px 0;
+}
+.cta {
+    background: #eef3ff;
+    padding: 42px 48px;
+    border: 1px solid #e1e9fd;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 80px;
+}
+.cta h2 {
+    margin-block: 12px;
+    font-size: 32px;
+}
+.cta p:not(.eyebrow) {
+    font-size: 14px;
+    color: var(--muted);
+}
+.cta .button {
+    flex-shrink: 0;
+}
+.footer {
+    padding-top: 52px;
+    border-top: 1px solid var(--line);
+}
+.footerGrid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 44px;
+    padding-bottom: 40px;
+}
+.footerBrand p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 16px;
+    max-width: 240px;
+}
+.footerBrand .textLink {
+    margin-top: 8px;
+}
+.footer nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.footer h3 {
+    font-size: 13px;
+    font-weight: 700;
+    padding-block: 7px 12px;
+}
+.footer nav a {
+    color: var(--muted);
+    font-size: 13px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+.footer nav a:hover {
+    color: var(--blue);
+    text-decoration: underline;
+}
+.footerBottom {
+    border-top: 1px solid var(--line);
+    padding-block: 22px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+@media (min-width: 1001px) and (max-width: 1150px) {
+    .headerInner {
+        gap: 25px;
+        width: calc(100% - 40px);
+    }
+    .navLinks {
+        gap: 16px;
+    }
+    .navActions {
+        gap: 12px;
+    }
+}
+@media (max-width: 1000px) {
+    .headerInner {
+        min-height: 70px;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+    .menuToggle {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        cursor: pointer;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+    }
+    .navigation {
+        display: none;
+        width: 100%;
+        flex: 0 0 100%;
+        padding-bottom: 20px;
+    }
+    .navigationOpen {
+        display: flex;
+    }
+    .navLinks {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 4px 20px;
+    }
+    .navActions {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .hero {
+        gap: 32px;
+        padding-top: 60px;
+    }
+    .hero h1 {
+        font-size: 42px;
+    }
+    .heroText {
+        font-size: 16px;
+    }
+    .invoice {
+        padding: 20px;
+    }
+    .appRail {
+        display: none;
+    }
+    .appAppointment {
+        flex-wrap: wrap;
+    }
+    .confirmed {
+        margin-left: 0;
+    }
+    .trustRow {
+        justify-content: center;
+        gap: 14px 30px;
+    }
+    .sectionHeader {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+    }
+    .sectionHeader > p {
+        max-width: 560px;
+    }
+    .feature {
+        padding: 21px;
+    }
+    .bookingGrid {
+        gap: 48px;
+    }
+    .footerGrid {
+        gap: 25px;
+    }
+}
+@media (max-width: 760px) {
+    .container,
+    .headerInner {
+        width: calc(100% - 40px);
+    }
+    .navigationOpen {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    .navLinks {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+    }
+    .navLinks a {
+        padding: 12px 0;
+    }
+    .navActions {
+        border-top: 1px solid var(--line);
+        padding-top: 15px;
+        justify-content: space-between;
+    }
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 36px;
+        padding-block: 48px 36px;
+    }
+    .heroCopy {
+        max-width: 550px;
+    }
+    .root h2 {
+        font-size: 28px !important;
+        line-height: 1.25 !important;
+    }
+    .hero h1 {
+        font-size: clamp(36px, 7.7vw, 52px) !important;
+        line-height: 1.12 !important;
+    }
+    .heroText {
+        font-size: 16px;
+        max-width: 520px;
+    }
+    .heroNote {
+        font-size: 11px;
+    }
+    .preview {
+        padding: 16px 10px 0;
+        max-width: 500px;
+        width: 100%;
+        justify-self: center;
+    }
+    .preview::before {
+        inset: 0 0 45px;
+        border-radius: 30px;
+    }
+    .appFrame {
+        transform: none;
+    }
+    .appRail {
+        display: flex;
+    }
+    .invoice {
+        padding: 22px;
+    }
+    .confirmed {
+        margin-left: auto;
+    }
+    .trustRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 10px;
+        font-size: 11px;
+    }
+    .trustRow span {
+        align-items: flex-start;
+        gap: 7px;
+    }
+    .trustRow svg {
+        flex-shrink: 0;
+        width: 16px;
+    }
+    .section,
+    .faqSection {
+        padding-block: 56px;
+    }
+    .featureGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+    .feature h3 {
+        font-size: 16px;
+    }
+    .feature p {
+        font-size: 13px;
+    }
+    .bookingSection {
+        padding-block: 52px;
+    }
+    .bookingGrid {
+        grid-template-columns: 1fr;
+        gap: 34px;
+    }
+    .bookingPreview {
+        justify-self: center;
+    }
+    .choiceCard {
+        padding: 24px;
+    }
+    .choiceCard p {
+        font-size: 14px;
+    }
+    .openSourceNote {
+        flex-wrap: wrap;
+        padding: 21px;
+        gap: 13px;
+    }
+    .openSourceNote p {
+        flex-basis: calc(100% - 40px);
+    }
+    .openSourceNote .textLink {
+        margin-left: 35px;
+    }
+    .resourceGrid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    .resourceCard {
+        justify-content: space-between;
+    }
+    .resourcesSection {
+        padding-block: 45px;
+    }
+    .resourcesSection h2 {
+        font-size: 27px;
+    }
+    .faqSection {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+    .faqIntro {
+        max-width: none;
+    }
+    .cta {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 28px;
+        gap: 22px;
+        margin-bottom: 52px;
+    }
+    .cta h2 {
+        font-size: 28px;
+    }
+    .footerGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 26px;
+    }
+    .footerBrand {
+        grid-column: 1 / -1;
+    }
+    .footerBrand p {
+        max-width: none;
+    }
+    .footerBottom {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+@media (max-width: 450px) {
+    .container,
+    .headerInner {
+        width: calc(100% - 32px);
+    }
+    .brand {
+        font-size: 23px;
+    }
+    .hero h1 {
+        font-size: clamp(32px, 8.5vw, 38px) !important;
+    }
+    .actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .root .heroNote {
+        font-size: 11px;
+    }
+    .preview {
+        padding-inline: 0;
+    }
+    .appRail {
+        display: none;
+    }
+    .invoice {
+        padding: 20px;
+    }
+    .appBar {
+        padding: 12px 15px;
+    }
+    .appAppointment {
+        padding: 13px 14px;
+        gap: 8px;
+    }
+    .appAppointmentIcon {
+        display: none;
+    }
+    .featureGrid,
+    .choiceGrid {
+        grid-template-columns: 1fr;
+    }
+    .feature {
+        padding: 23px;
+    }
+    .feature h3 {
+        font-size: 18px;
+    }
+    .feature p {
+        font-size: 14px;
+    }
+    .featureTop {
+        margin-bottom: 12px;
+    }
+    .bookingCardHeader {
+        padding: 19px;
+    }
+    .bookingCardBody {
+        padding: 20px;
+    }
+    .checkList {
+        font-size: 13px;
+    }
+    .cta .button {
+        width: 100%;
+    }
+    .faqItem summary {
+        gap: 16px;
+        font-size: 14px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .root *,
+    .root *::before,
+    .root *::after {
+        transition: none !important;
+        animation: none !important;
+        scroll-behavior: auto !important;
+    }
+    :global(html):has(.root) {
+        scroll-behavior: auto;
+    }
+}
