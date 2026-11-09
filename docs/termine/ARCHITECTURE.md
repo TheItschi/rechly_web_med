@@ -16,8 +16,8 @@ tenancy is `userId` (= business owner) on every row, mirroring invoices/clients.
 | `booking.ts` | Server booking ops: create / reschedule / cancel, state machine, idempotency, tokens |
 | `customers.ts` | Email-scoped customer match-or-create inside tenant (never cross-business) |
 | `invoices.ts` | Draft-invoice adapter reusing `currencyUtils` + existing invoice document shape |
-| `notify.ts` | Outbox writer, Resend HTTP sender, ICS builder, retry bookkeeping |
-| `policy.ts` | Rate limits, origin checks, request caps |
+| `notify.ts`, `delivery.ts` | Resend sender, ICS serialization, delivery leases, retry bookkeeping |
+| `http.ts`, `ratelimit.ts` | Origin checks, request caps, rate limits |
 
 ## Data (`scripts/migrate-termine.mjs`, all additive/idempotent)
 
@@ -27,7 +27,7 @@ Tables in `rechly-db`, document security, per-row owner permissions:
 - `termine_slugs` — `$id = <normalized-slug>`: atomic slug registry (409 = taken), owner userId
 - `termine_services`, `termine_staff`, `termine_hours` (weekly + overrides in one table via `kind`), `termine_blocks`
 - `termine_appointments` — UTC instants, snapshots (service name/price), status, `linkedInvoiceId`
-- `termine_reservations` — `$id = sha256([business, staff, startUtc])`: deterministic slot locks, deleted on cancel
+- `termine_reservations` — deterministic start locks (deleted on cancel) and persistent staff/UTC-day concurrency guards
 - `termine_customers` — booking-side contact records, email-scoped, tenant-isolated
 - `termine_tokens` — sha256(token) → appointment link, purpose, expiry
 - `termine_outbox` — notification jobs with idempotency keys, attempts, status
@@ -41,14 +41,14 @@ Booking = one Appwrite transaction: re-read overlapping active appointments for 
 staff interval → abort 409 on overlap → create appointment + reservation rows (+ outbox,
 audit) → commit. Desktop `appwrite-compat` implements the same transaction semantics,
 so concurrency tests run locally against SQLite. Deterministic reservation `$id`s give
-a second layer: duplicate commits fail on ID conflict.
+a second layer: duplicate commits fail on ID conflict. Every booking/reschedule also touches staff/UTC-day guard rows, so different overlapping start times cannot both commit against the same availability snapshot.
 
 ## Routing
 
 - Dashboard: `/dashboard/termine/*` (behind `NEXT_PUBLIC_RECHLY_TERMINE_ENABLED=1`).
 - Public: `/buchen/[slug]/*` path routes always work; `src/middleware.ts` rewrites
   `<slug>.rechly.de` → `/buchen/[slug]` (host allowlist, proxy-trusted headers only).
-- Manage links: `/buchen/verwalten/[token]` (token never in logs/analytics).
+- Manage links: `/buchen/verwalten/[token]` (excluded from application analytics; operators must redact access logs).
 
 ## Notifications
 
@@ -71,3 +71,5 @@ Re-running is a no-op when `linkedInvoiceId` is set (idempotent).
 - Per-business `settings.enabled/published` gates booking independently of the flag.
 - Disabling never deletes history; appointments keep snapshots so later service edits
   cannot rewrite the past.
+
+See [the reliability review](IMPROVEMENTS.md) for delivery semantics, schema compatibility and remaining integration boundaries.

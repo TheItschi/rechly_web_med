@@ -1,9 +1,12 @@
+import { attemptDelivery } from "@/lib/termine/delivery";
+export const maxDuration = 60;
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/appwrite-server";
 import { TermineError, TermineStore } from "@/lib/termine/store";
-import { loadManaged } from "../route";
+import { loadManaged } from "@/lib/termine/managed";
 import { cancelBooking, loadSettings } from "@/lib/termine/booking";
 import { clientIp } from "@/lib/termine/ratelimit";
+import { bookingOrigin } from "@/lib/termine/http";
 
 function fail(error: unknown) {
     if (error instanceof TermineError) return NextResponse.json({ error: error.message }, { status: error.status });
@@ -12,6 +15,7 @@ function fail(error: unknown) {
 
 export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
     try {
+        bookingOrigin(request);
         const { token } = await params;
         const ctx = await loadManaged(clientIp(request), token);
         const { databases } = await createAdminClient();
@@ -19,6 +23,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
         const settings = await loadSettings(store);
         if (!settings) throw new TermineError("Buchung nicht verfügbar.", 404);
         const updated = await cancelBooking(store, settings, ctx.appointment.$id, "customer");
+        await attemptDelivery(store, updated.$id);
         return NextResponse.json({ status: updated.status });
     } catch (error) {
         return fail(error);

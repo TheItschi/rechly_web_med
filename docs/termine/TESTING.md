@@ -1,13 +1,32 @@
 # Termine — Testing
 
-Run: `npx tsx --test tests/termine-*.test.ts` (also covered by `npm test`).
+Run `npm test` for the full suite, or `npx tsx --test tests/termine-*.test.ts` for booking tests. Run `npx tsc --noEmit` and `npm run build` for type and production build checks.
 
-| File | What it proves |
-|---|---|
-| `tests/termine-engine.test.ts` | Slug normalization/validation/reserved names; host→slug extraction; wall-time parsing; UTC conversion winter/summer; spring DST gap rejected; autumn fold deterministic; midnight arithmetic; overlap semantics (touching edges excluded); status machine transitions |
-| `tests/termine-availability.test.ts` | Slot grid with service+cleanup; booked intervals incl. buffers excluded; any-staff determinism; breaks/overrides/blocks/notice honored; inactive staff and unknown staff yield nothing |
-| `tests/termine-booking.test.ts` | Against the real desktop SQLite adapter: **8-way concurrent booking race → exactly one wins**; overlapping/buffered starts conflict; reschedule conflict preserves the original; cancel frees the slot; double cancel rejected; completed appointment → exactly one draft invoice (`TN-YYYYMMDD-####`), re-run is a no-op; ICS contains valid `DTSTART`; confirmation email renders |
+The booking tests cover concurrent identical/different-start bookings, buffers and closed periods, any-staff selection, response-loss recovery, tenant isolation, cancellation, failed-reschedule rollback, snapshot duration, notice rules, state transitions, invoice-draft idempotency, notification leases/retries/stale messages, ICS parsing/escaping, real-date and IANA-zone validation, DST gaps/folds, and availability across customer/business date boundaries.
 
-Browser E2E (manual, desktop mode, documented in the final report): wizard activation → staff/service setup → publish → public booking flow → confirmation + manage link → customer cancel with policy enforcement → dashboard manage (complete → invoice draft) → double-book attempt rejected with 409.
+## Automated browser test
 
-Not yet automated: Playwright E2E (repo has `tests/workspace.browser.cjs` as the pattern; a `tests/termine.browser.cjs` following it is the recommended next step), load testing (100/1k-business synthetic seeding against a staging Appwrite instance — never production).
+Requires `playwright-core` and Chromium. The test refuses to run unless `RECHLY_DATA_DIR` is exactly the disposable directory below and the server reports SQLite. It reseeds only Termine tables in that isolated database. Do not set mail-provider credentials for these tests.
+
+Start the server in one terminal:
+
+```sh
+RECHLY_DESKTOP=1 NEXT_PUBLIC_RECHLY_DESKTOP=1 \
+NEXT_PUBLIC_RECHLY_TERMINE_ENABLED=1 NEXT_PUBLIC_RECHLY_WORKSPACE_ENABLED=1 \
+RECHLY_DATA_DIR=/tmp/rechly-booking-test \
+npm run dev -- --hostname 127.0.0.1 --port 3106
+```
+
+Run in another:
+
+```sh
+RECHLY_DATA_DIR=/tmp/rechly-booking-test node tests/termine.browser.cjs
+```
+
+Optional environment variables: `RECHLY_CHROMIUM` (default `/usr/bin/chromium`), `RECHLY_PLAYWRIGHT_PATH` (default `playwright-core`).
+
+The browser covers public booking, next-month navigation, deliberately dropped successful HTTP response and retry without duplicates, private management, rescheduling, cancellation, ICS download, manual approval, mobile overflow, invalid availability queries and cross-origin rejection, private-page headers, owner notification status, invalid service edits and deletion protection. Screenshots are written to `/tmp/rechly-booking-*.png`.
+
+## Staging checks still required
+
+Use a dedicated Appwrite staging tenant to exercise concurrent HTTP booking requests across multiple application instances and verify transaction conflicts. Configure a test Resend sender/inbox and scheduled authenticated notification worker; verify pending, approved, moved and cancelled messages, retries and owner notifications. No production accounts or email deliveries are used by the automated local tests.

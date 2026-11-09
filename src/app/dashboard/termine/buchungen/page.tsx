@@ -817,7 +817,7 @@ export default function TermineSchedulingHubPage() {
                     <Form.Item name="description" label={l("Beschreibung / Rolle", "Description / role")}>
                         <Input.TextArea rows={2} />
                     </Form.Item>
-                    <Form.Item name="serviceIds" label={l("Buchbare Leistungen", "Bookable services")}>
+                    <Form.Item name="serviceIds" label={l("Buchbare Leistungen", "Bookable services")} extra={l("Leer = alle Leistungen. Zusätzliche Mitarbeiterzuordnungen an der Leistung gelten ebenfalls.", "Empty = all services. Staff restrictions on the service also apply.")}>
                         <Select
                             mode="multiple"
                             allowClear

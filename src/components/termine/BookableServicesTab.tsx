@@ -418,7 +418,7 @@ export default function BookableServicesTab({
                             </Form.Item>
                         </Col>
                     </Row>
-                    <Form.Item name="staffIds" label={l("Zuständige Mitarbeiter", "Assigned staff")}>
+                    <Form.Item name="staffIds" label={l("Zuständige Mitarbeiter", "Assigned staff")} extra={l("Leer = alle geeigneten Mitarbeiter. Die Leistung muss auch im Mitarbeiterprofil freigegeben sein.", "Empty = all eligible staff. The service must also be allowed in the staff profile.")}>
                         <Select
                             mode="multiple"
                             allowClear

@@ -3,10 +3,9 @@ import { createAdminClient, DATABASE_ID } from "@/lib/appwrite-server";
 import { isTermineEnabled } from "@/lib/features";
 import { T, TermineError, isUnprovisioned } from "@/lib/termine/store";
 import type { SettingsRow } from "@/lib/termine/booking";
-import { loadCompanyDefaults, type CompanyBookingDefaults } from "@/app/api/termine/settings/route";
+import { loadCompanyDefaults, type CompanyBookingDefaults } from "./settings-defaults";
 
 export interface PublicBusiness {
-    userId: string;
     slug: string;
     displayName: string;
     description?: string;
@@ -65,7 +64,6 @@ export function toPublicBusiness(
         website?: string;
     };
     return {
-        userId: s.userId as string,
         slug: s.slug,
         displayName: s.displayName || companyDefaults.displayName || s.slug,
         description: ext.description,

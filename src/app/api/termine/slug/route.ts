@@ -3,7 +3,7 @@ import { businessContext, authFail } from "../_lib";
 import { DB, T, TermineError, atomic, isUnprovisioned, missing, newId } from "@/lib/termine/store";
 import { loadSettings } from "@/lib/termine/booking";
 import { normalizeSlug, validateSlug } from "@/lib/termine/slug";
-import { DEFAULTS, loadCompanyDefaults } from "../settings/route";
+import { DEFAULTS, loadCompanyDefaults } from "@/lib/termine/settings-defaults";
 
 function fail(error: unknown) {
     const auth = authFail(error);

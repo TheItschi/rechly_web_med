@@ -7,7 +7,7 @@ const RESERVED = new Set([
     "www", "api", "app", "admin", "auth", "login", "logout", "dashboard",
     "mail", "smtp", "ftp", "status", "support", "help", "billing", "cdn",
     "static", "assets", "dev", "staging", "test", "termine", "buchen",
-    "booking", "bookings", "calendar", "kalender", "console", "root",
+    "booking", "bookings", "calendar", "kalender", "console", "root", "verwalten",
     "superuser", "webmail", "blog", "shop", "docs", "hilfe", "kontakt",
     "impressum", "datenschutz", "agb", "cookies", "rechnung", "register",
     "onboarding", "settings", "tools", " Desktop".trim(), "desktop",

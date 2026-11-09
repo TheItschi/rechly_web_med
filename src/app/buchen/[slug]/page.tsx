@@ -17,17 +17,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BuchenPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { db, settings } = await (async () => {
+    const { db, settings, companyDefaults } = await (async () => {
         try {
             return await resolvePublicBusiness(slug);
         } catch {
             return notFound() as never;
         }
     })();
-    const business = toPublicBusiness(settings);
+    const business = toPublicBusiness(settings, companyDefaults);
     const { Query } = await import("node-appwrite");
     const { DATABASE_ID } = await import("@/lib/appwrite-server");
-    const { T } = await import("@/lib/termine/store");
+    const { T, recordId } = await import("@/lib/termine/store");
     const [services, staff] = await Promise.all([
         db.listDocuments(DATABASE_ID, T.SERVICES, [
             Query.equal("userId", settings.userId),
@@ -48,7 +48,7 @@ export default async function BuchenPage({ params }: { params: Promise<{ slug: s
         ? staff.documents
         : [
               {
-                  $id: `staff-owner-${settings.userId}`,
+                  $id: recordId(settings.userId, "staff:owner"),
                   name: settings.displayName || "Inhaber",
                   active: true,
                   bookable: true,
@@ -67,7 +67,7 @@ export default async function BuchenPage({ params }: { params: Promise<{ slug: s
                     description: typeof r.description === "string" ? r.description : undefined,
                     category: typeof r.category === "string" ? r.category : undefined,
                     durationMinutes: Number(r.durationMinutes ?? 30),
-                    priceCents: Number(r.priceCents ?? 0),
+                    priceCents: settings.showPrices ? Number(r.priceCents ?? 0) : undefined,
                     currency: String(r.currency ?? "EUR"),
                     staffIds: Array.isArray(r.staffIds) ? (r.staffIds as string[]) : [],
                 };

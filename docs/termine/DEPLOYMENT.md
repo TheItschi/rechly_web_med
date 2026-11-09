@@ -6,7 +6,7 @@
 2. `NEXT_PUBLIC_RECHLY_TERMINE_ENABLED=1` set for the web app (build-time).
 3. DNS: wildcard `*.rechly.de → <server>` (approval required; verify with `dig`).
 4. Traefik: `HostRegexp(`{sub:[a-z0-9-]+}.rechly.de`)` router → Appwrite is **not** needed (booking pages are served by Next.js, not Appwrite); only ensure `api.rechly.de` keeps working and no rule swallows subdomains. No proxy change expected.
-5. SMTP: `RESEND_API_KEY` set on the server runtime for notification delivery.
+5. Email: `RESEND_API_KEY`, a verified `TERMINE_FROM_EMAIL` (or `RESEND_FROM_EMAIL`), and `NEXT_PUBLIC_APP_URL` set to the public site URL. Configure `CLEANUP_API_SECRET` and schedule authenticated POST requests to `/api/cron/termine-notifications` approximately every minute. A configured secret alone does not schedule the worker.
 
 ## Schema migration (approval required — touches shared database)
 
@@ -29,5 +29,7 @@ Additive only: creates the 12 `termine_*` tables + indexes, verifies document se
 ## Monitoring
 
 - Appwrite health + container restarts (existing Uptime Kuma).
-- Application: 409-rate on booking creation (spikes = real contention or abuse), outbox `pending` age and `failed` count, cron heartbeat (`/api/cron/termine-notifications?dry=1` should return 200).
+- Application: 409-rate on booking creation (spikes = real contention or abuse), outbox `pending` age and `failed` count, cron heartbeat (authenticated **POST** `/api/cron/termine-notifications?dry=1` should return 200; this does not test actual delivery).
 - Set an alert on outbox jobs with `attempts >= 5` — usually SMTP/Resend misconfiguration.
+
+The reliability update in [IMPROVEMENTS.md](IMPROVEMENTS.md) reuses existing tables; no additional schema migration is needed. Owner settings expose notification counts. Verify real Appwrite concurrency and delivery in staging before rollout.

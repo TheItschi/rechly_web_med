@@ -29,6 +29,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 import { get, patch, post } from "@/lib/termine/client";
 import { normalizeSlug } from "@/lib/termine/slug";
+import BookingHealth from "./BookingHealth";
 
 interface BookingSettings {
     slug: string;
@@ -290,6 +291,7 @@ export default function OnlineBookingSettingsTab() {
                 </Space>
             </Space>
 
+            {settings && <BookingHealth />}
             {settings && (
                 <Card size="small" style={{ marginBottom: 16 }}>
                     <Row gutter={[12, 12]} align="middle">

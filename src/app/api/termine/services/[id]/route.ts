@@ -1,3 +1,5 @@
+import { Query } from "node-appwrite";
+import { validateCatalogPatch } from "@/lib/termine/catalog-validation";
 import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../../_lib";
 import { DB, T, TermineError } from "@/lib/termine/store";
@@ -36,6 +38,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const patch: Record<string, unknown> = {};
         for (const k of allowed) if (k in body) patch[k] = body[k];
         if (typeof patch.name === "string" && !patch.name.trim()) return NextResponse.json({ error: "Bitte einen Leistungsnamen angeben." }, { status: 400 });
+        await validateCatalogPatch(store, patch, "service");
         const updated = await store.db.updateDocument(DB, T.SERVICES, id, patch);
         return NextResponse.json({ service: updated });
     } catch (error) {
@@ -48,6 +51,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
         const { store } = await businessContext();
         const { id } = await params;
         await store.own(T.SERVICES, id);
+        const references = await store.list(T.APPOINTMENTS, [Query.equal("serviceId", id), Query.limit(1)]);
+        if (references.length) throw new TermineError("Dieser Eintrag gehört zu bestehenden Buchungen. Bitte deaktivieren statt löschen.", 409);
         await store.db.deleteDocument(DB, T.SERVICES, id);
         return NextResponse.json({ deleted: true });
     } catch (error) {

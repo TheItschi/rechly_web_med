@@ -6,6 +6,28 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export const BUSINESS_TZ = "Europe/Berlin";
+const offsetsByDay = new Map<string, number[]>();
+
+export function validDate(value: string): boolean {
+    return (
+        /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+        Number.isFinite(Date.parse(value)) &&
+        new Date(value).toISOString().slice(0, 10) === value
+    );
+}
+
+export function canonicalInstant(value: string): string {
+    if (
+        typeof value !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/.test(
+            value,
+        ) ||
+        !validDate(value.slice(0, 10)) ||
+        !Number.isFinite(Date.parse(value))
+    )
+        throw new Error("Bitte einen gültigen Zeitpunkt mit Zeitzone angeben.");
+    return new Date(value).toISOString();
+}
 
 /** Minutes since midnight for "HH:MM". Throws on invalid input. */
 export function wallToMinutes(wall: string): number {
@@ -34,11 +56,33 @@ export function wallToUtc(date: string, wall: string, tz: string): string | null
     } catch {
         return null;
     }
-    const guess = dayjs.tz(`${date} ${minutesToWall(minutes)}`, "YYYY-MM-DD HH:mm", tz);
-    if (!guess.isValid()) return null;
-    // Round-trip check: a spring-forward gap shifts the wall time — treat as nonexistent.
-    if (guess.format("YYYY-MM-DD HH:mm") !== `${date} ${minutesToWall(minutes)}`) return null;
-    return guess.utc().toISOString();
+    if (!validDate(date)) return null;
+    const naive = Date.parse(`${date}T${minutesToWall(minutes)}:00Z`),
+        key = `${date}:${tz}`;
+    let offsets = offsetsByDay.get(key);
+    if (!offsets) {
+        offsets = [
+            ...new Set(
+                [-86400000, 0, 86400000].map((delta) =>
+                    dayjs
+                        .utc(naive + delta)
+                        .tz(tz)
+                        .utcOffset(),
+                ),
+            ),
+        ];
+        if (offsetsByDay.size > 500) offsetsByDay.clear();
+        offsetsByDay.set(key, offsets);
+    }
+    // Earliest real occurrence in an autumn fold, independent of today's offset.
+    const candidates = offsets
+        .map((offset) => naive - offset * 60000)
+        .filter(
+            (value) =>
+                dayjs.utc(value).tz(tz).format("YYYY-MM-DD HH:mm") === `${date} ${minutesToWall(minutes)}`,
+        )
+        .sort((a, b) => a - b);
+    return candidates.length ? new Date(candidates[0]).toISOString() : null;
 }
 
 /** UTC instant → "HH:MM" wall time in tz. */

@@ -319,6 +319,8 @@ export function BookingDetailDrawer({
                                         ghost
                                         icon={<CheckCircleOutlined />}
                                         loading={busy}
+                                        disabled={Date.parse(booking.startUtc) > Date.now()}
+                                        title={l("Ab Terminbeginn verfügbar", "Available once the appointment starts")}
                                         onClick={() => void transition("COMPLETED")}
                                     >
                                         {l("Abschließen", "Mark completed")}
@@ -336,7 +338,7 @@ export function BookingDetailDrawer({
                                     >
                                         {l("Verschieben", "Reschedule")}
                                     </Button>
-                                    <Button loading={busy} onClick={() => void transition("NO_SHOW")}>
+                                    <Button loading={busy} disabled={Date.parse(booking.startUtc) > Date.now()} title={l("Ab Terminbeginn verfügbar", "Available once the appointment starts")} onClick={() => void transition("NO_SHOW")}>
                                         {l("Nicht erschienen", "No-show")}
                                     </Button>
                                     <Popconfirm

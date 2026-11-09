@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../_lib";
 import { DB, T, TermineError, isUnprovisioned, newId } from "@/lib/termine/store";
+import { validateCatalogPatch } from "@/lib/termine/catalog-validation";
 
 function fail(error: unknown, fallback: string) {
     const auth = authFail(error);
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
         }
         const data = validService(body);
+        await validateCatalogPatch(store, data, "service");
         const created = await store.db.createDocument(DB, T.SERVICES, newId(), { userId: store.userId, ...data }, store.perms());
         return NextResponse.json({ service: created }, { status: 201 });
     } catch (error) {

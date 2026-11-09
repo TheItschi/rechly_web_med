@@ -1,3 +1,5 @@
+import { attemptDelivery } from "@/lib/termine/delivery";
+export const maxDuration = 60;
 import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../../../_lib";
 import { TermineError } from "@/lib/termine/store";
@@ -17,6 +19,7 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
         const settings = await loadSettings(store);
         if (!settings) throw new TermineError("Termine ist nicht eingerichtet.", 400);
         const updated = await cancelBooking(store, settings, id, "business");
+        await attemptDelivery(store, updated.$id);
         return NextResponse.json({ appointment: updated });
     } catch (error) {
         return fail(error);

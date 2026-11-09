@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import { Analytics, type BeforeSendEvent } from "@vercel/analytics/next";
 
 interface ConsentAnalyticsProps {
@@ -77,6 +78,7 @@ function clearAnalyticsCookies() {
 export default function ConsentAnalytics({
     googleAnalyticsId,
 }: ConsentAnalyticsProps) {
+    const privateBooking = usePathname().startsWith("/buchen/");
     const [enabled, setEnabled] = useState(false);
     const enabledRef = useRef(false);
 
@@ -86,7 +88,7 @@ export default function ConsentAnalytics({
         }
 
         const syncConsent = () => {
-            const nextEnabled = hasAnalyticsConsent();
+            const nextEnabled = !privateBooking && hasAnalyticsConsent();
             const wasEnabled = enabledRef.current;
 
             if (googleAnalyticsId) {
@@ -119,12 +121,12 @@ export default function ConsentAnalytics({
             window.removeEventListener("cookie-consent-changed", syncConsent);
             window.removeEventListener("storage", handleStorage);
         };
-    }, [googleAnalyticsId]);
+    }, [googleAnalyticsId, privateBooking]);
 
-    if (!enabled) return null;
+    if (!enabled || privateBooking) return null;
 
     const filterVercelEvent = (event: BeforeSendEvent) =>
-        hasAnalyticsConsent() ? event : null;
+        hasAnalyticsConsent() && !new URL(event.url).pathname.startsWith("/buchen/") ? event : null;
 
     return (
         <>

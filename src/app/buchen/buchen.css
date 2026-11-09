@@ -1,25 +1,334 @@
-.buchen-page { min-height: 100vh; background: #f4f6fa; color: #162033; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
-.buchen-hero { background: linear-gradient(135deg, #101a2e 0%, #1c2f55 100%); color: #fff; padding: 56px 20px 40px; }
-.buchen-hero-inner { max-width: 720px; margin: 0 auto; }
-.buchen-eyebrow { font-size: 11px; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; color: #9db4ee; margin-bottom: 10px; }
-.buchen-hero h1 { margin: 0; font-size: clamp(26px, 5vw, 38px); font-weight: 800; letter-spacing: -0.03em; }
-.buchen-hero p { margin: 12px 0 0; color: #c4cfdf; font-size: 15px; line-height: 1.6; max-width: 560px; }
-.buchen-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; color: #8fa1bd; font-size: 13px; }
-.buchen-main { max-width: 720px; margin: 0 auto; padding: 28px 16px 64px; }
-.buchen-card { border-radius: 14px !important; border: 1px solid #e5eaf1 !important; box-shadow: 0 1px 2px rgba(15,23,42,.03), 0 10px 30px rgba(15,23,42,.05) !important; }
-.buchen-service-list { display: grid; gap: 12px; }
-.buchen-service { display: flex; flex-direction: column; gap: 4px; padding: 18px; border: 1px solid #e5eaf1; border-radius: 12px; background: #fff; text-align: left; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
-.buchen-service:hover { border-color: #365fd6; }
-.buchen-service--active { border-color: #365fd6; box-shadow: 0 0 0 2px rgba(54,95,214,.18); }
-.buchen-service-name { font-size: 16px; font-weight: 700; color: #162033; }
-.buchen-service-desc { font-size: 13px; color: #64748b; }
-.buchen-service-meta { font-size: 13px; font-weight: 600; color: #365fd6; }
-.buchen-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
-.buchen-day { padding: 12px; border: 1px solid #e5eaf1; border-radius: 10px; background: #fff; cursor: pointer; font-size: 13px; }
-.buchen-day--active { border-color: #365fd6; background: #eef3ff; font-weight: 700; }
-.buchen-times { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
-.buchen-time { padding: 12px 8px; border: 1px solid #e5eaf1; border-radius: 10px; background: #fff; cursor: pointer; font-size: 15px; font-weight: 600; color: #162033; }
-.buchen-time:hover { border-color: #365fd6; }
-.buchen-time--active { border-color: #365fd6; background: #365fd6; color: #fff; }
-.buchen-footer { max-width: 720px; margin: 0 auto; padding: 0 16px 48px; display: flex; flex-wrap: wrap; gap: 8px 20px; color: #94a3b8; font-size: 12px; }
-.buchen-footer a { color: #64748b; }
+.buchen-page {
+    min-height: 100vh;
+    background: #f4f6fa;
+    color: #162033;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.buchen-hero {
+    background: linear-gradient(135deg, #101a2e 0%, #1c2f55 100%);
+    color: #fff;
+    padding: 56px 20px 40px;
+}
+.buchen-hero-inner {
+    max-width: 720px;
+    margin: 0 auto;
+}
+.buchen-eyebrow {
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9db4ee;
+    margin-bottom: 10px;
+}
+.buchen-hero h1 {
+    margin: 0;
+    font-size: clamp(26px, 5vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+.buchen-hero p {
+    margin: 12px 0 0;
+    color: #c4cfdf;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 560px;
+}
+.buchen-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-top: 16px;
+    color: #8fa1bd;
+    font-size: 13px;
+}
+.buchen-main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 16px 64px;
+}
+.buchen-card {
+    border-radius: 14px !important;
+    border: 1px solid #e5eaf1 !important;
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.03),
+        0 10px 30px rgba(15, 23, 42, 0.05) !important;
+}
+.buchen-service-list {
+    display: grid;
+    gap: 12px;
+}
+.buchen-service {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 18px;
+    border: 1px solid #e5eaf1;
+    border-radius: 12px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color 0.15s,
+        box-shadow 0.15s;
+}
+.buchen-service:hover {
+    border-color: #365fd6;
+}
+.buchen-service--active {
+    border-color: #365fd6;
+    box-shadow: 0 0 0 2px rgba(54, 95, 214, 0.18);
+}
+.buchen-service-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #162033;
+}
+.buchen-service-desc {
+    font-size: 13px;
+    color: #64748b;
+}
+.buchen-service-meta {
+    font-size: 13px;
+    font-weight: 600;
+    color: #365fd6;
+}
+.buchen-days {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+}
+.buchen-day {
+    padding: 12px;
+    border: 1px solid #e5eaf1;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+}
+.buchen-day--active {
+    border-color: #365fd6;
+    background: #eef3ff;
+    font-weight: 700;
+}
+.buchen-times {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+}
+.buchen-time {
+    padding: 12px 8px;
+    border: 1px solid #e5eaf1;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #162033;
+}
+.buchen-time:hover {
+    border-color: #365fd6;
+}
+.buchen-time--active {
+    border-color: #365fd6;
+    background: #365fd6;
+    color: #fff;
+}
+.buchen-footer {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+.buchen-footer a {
+    color: #64748b;
+}
+.buchen-hero-inner,
+.buchen-main,
+.buchen-footer {
+    max-width: 1120px;
+}
+.buchen-hero {
+    padding: 44px 24px;
+}
+.buchen-meta a {
+    color: #c4cfdf;
+}
+.booking-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 290px;
+    gap: 28px;
+    align-items: start;
+}
+.booking-layout section {
+    min-width: 0;
+}
+.booking-summary {
+    position: sticky;
+    top: 24px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #e5eaf1;
+    border-radius: 16px;
+    overflow-wrap: anywhere;
+}
+.booking-summary h2 {
+    font-size: 22px;
+    margin: 10px 0;
+    line-height: 1.3;
+}
+.booking-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #52647f;
+    font-weight: 700;
+}
+.booking-muted {
+    color: #52647f;
+    font-size: 13px;
+    line-height: 1.65;
+}
+.booking-policy {
+    margin-top: 24px;
+    border-top: 1px solid #e5eaf1;
+    padding-top: 18px;
+    color: #52647f;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.booking-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #e5eaf1;
+}
+.booking-picker-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+}
+.booking-zone {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-width: 320px;
+    margin: 16px 0 24px;
+    color: #52647f;
+    font-size: 13px;
+}
+.booking-picker-columns {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.85fr);
+    gap: 24px;
+}
+.booking-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+}
+.booking-weekday {
+    text-align: center;
+    color: #52647f;
+    font-size: 12px;
+    padding: 8px 0;
+}
+.booking-calendar button {
+    position: relative;
+    min-height: 42px;
+    border: 0;
+    border-radius: 9px;
+    background: #edf3ff;
+    color: #214cc4;
+    font-weight: 650;
+    cursor: pointer;
+}
+.booking-calendar button:disabled {
+    background: transparent;
+    color: #a5adba;
+    cursor: default;
+}
+.booking-calendar button.selected {
+    background: #2855cb;
+    color: white;
+}
+.booking-day-dot {
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+    margin: 2px auto 0;
+}
+.buchen-page button:focus-visible,
+.buchen-page a:focus-visible {
+    outline: 3px solid #527eff;
+    outline-offset: 3px;
+}
+.booking-picker .buchen-times {
+    max-height: 370px;
+    overflow-y: auto;
+    padding: 4px;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+}
+.booking-confirmation {
+    max-width: 720px;
+    margin: 16px auto;
+}
+.booking-success-icon {
+    font-size: 44px;
+    color: #168865;
+}
+.booking-manage {
+    max-width: 850px;
+}
+.buchen-service {
+    width: 100%;
+    overflow-wrap: anywhere;
+    min-height: 100px;
+}
+.buchen-service-list {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+@media (max-width: 850px) {
+    .booking-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .booking-summary {
+        position: static;
+    }
+    .buchen-hero {
+        padding: 32px 20px;
+    }
+}
+@media (max-width: 520px) {
+    .booking-picker-columns {
+        grid-template-columns: 1fr;
+    }
+    .buchen-card .ant-card-body {
+        padding: 18px;
+    }
+    .booking-actions > .ant-btn {
+        flex: 1;
+    }
+    .booking-picker-toolbar .ant-typography {
+        font-size: 17px;
+    }
+    .buchen-main {
+        padding-top: 22px;
+    }
+    .buchen-service-list {
+        grid-template-columns: 1fr;
+    }
+}

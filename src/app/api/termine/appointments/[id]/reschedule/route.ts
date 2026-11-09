@@ -1,3 +1,5 @@
+import { attemptDelivery } from "@/lib/termine/delivery";
+export const maxDuration = 60;
 import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../../../_lib";
 import { TermineError } from "@/lib/termine/store";
@@ -29,6 +31,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             newStaffId: typeof body.newStaffId === "string" ? body.newStaffId : undefined,
             actor: "business",
         });
+        await attemptDelivery(store, updated.$id);
         return NextResponse.json({ appointment: updated });
     } catch (error) {
         return fail(error);

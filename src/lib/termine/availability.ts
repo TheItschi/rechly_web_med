@@ -18,6 +18,7 @@ export interface BusyInterval {
 }
 
 export interface AppointmentLike {
+    id?: string;
     staffId: string;
     startUtc: string;
     endUtc: string;
@@ -96,6 +97,7 @@ export function computeAvailability(input: EngineInput, query: AvailabilityQuery
     const interval = settings.slotIntervalMinutes;
     const eligible = input.staff
         .filter((s) => s.active && s.bookable && (service.staffIds.length === 0 || service.staffIds.includes(s.id)))
+        .filter((s) => !s.serviceIds?.length || s.serviceIds.includes(service.id))
         .filter((s) => !query.staffId || s.id === query.staffId)
         .sort((a, b) => (a.id < b.id ? -1 : 1));
     if (eligible.length === 0) return [];
@@ -140,7 +142,7 @@ export function computeAvailability(input: EngineInput, query: AvailabilityQuery
             if (startMs > horizonMs) continue;
             const endUtc = addMinutesUtc(startUtc, service.durationMinutes + service.cleanupMinutes);
             const occupiedStart = addMinutesUtc(startUtc, -service.prepMinutes);
-            const inside = windows.some((w) => startMs >= w.start && toMs(endUtc) <= w.end);
+            const inside = windows.some((w) => toMs(occupiedStart) >= w.start && toMs(endUtc) <= w.end);
             if (!inside) continue;
             // First eligible staff with a free interval wins this start (deterministic order).
             for (const staff of eligible) {

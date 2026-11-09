@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { businessContext, authFail } from "../_lib";
 import { DB, T, TermineError, newId } from "@/lib/termine/store";
+import { validateCatalogPatch } from "@/lib/termine/catalog-validation";
 
 function fail(error: unknown, fallback: string) {
     const auth = authFail(error);
@@ -41,7 +42,9 @@ export async function POST(request: NextRequest) {
         } catch {
             return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
         }
-        const created = await store.db.createDocument(DB, T.STAFF, newId(), { userId: store.userId, ...validStaff(body) }, store.perms());
+        const data = validStaff(body);
+        await validateCatalogPatch(store, data, "staff");
+        const created = await store.db.createDocument(DB, T.STAFF, newId(), { userId: store.userId, ...data }, store.perms());
         return NextResponse.json({ staff: created }, { status: 201 });
     } catch (error) {
         return fail(error, "Mitarbeiter konnte nicht erstellt werden.");

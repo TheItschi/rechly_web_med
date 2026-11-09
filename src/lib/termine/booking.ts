@@ -1,10 +1,53 @@
 import { Query } from "node-appwrite";
-import { DB, T, TermineStore, atomic, newId, newToken, recordId, reservationId, tokenHash, type Row } from "./store";
+import {
+    DB,
+    T,
+    TermineStore,
+    atomic,
+    newId,
+    newToken,
+    recordId,
+    reservationId,
+    tokenHash,
+    type Row,
+} from "./store";
 import { TermineError } from "./store";
-import { ACTIVE_STATUSES, type TermineAppointment, type TermineStatus } from "./types";
+import { ACTIVE_STATUSES, canTransition, type TermineAppointment, type TermineStatus } from "./types";
 import { computeAvailability, type AppointmentLike } from "./availability";
-import { addMinutesUtc, dateInTz, dayjs, intervalsOverlap } from "./time";
+import { addMinutesUtc, canonicalInstant, dateInTz, dayjs, intervalsOverlap } from "./time";
 import { findOrCreateCustomer } from "./customers";
+
+/** Serialize overlapping intervals even when their starts differ. Guard rows persist;
+ * every transaction writes a fresh revision so Appwrite detects concurrent changes. */
+async function guardInterval(tx: TermineStore, staffId: string, start: string, end: string) {
+    const first = Date.parse(start.slice(0, 10)),
+        last = Date.parse(end.slice(0, 10));
+    for (let day = first; day <= last; day += 86400000) {
+        const startUtc = new Date(day).toISOString(),
+            id = recordId(tx.userId, `guard:${staffId}:${startUtc}`);
+        const fields = { userId: tx.userId, staffId, startUtc, appointmentId: newId() };
+        try {
+            await tx.own(T.RESERVATIONS, id);
+            await tx.db.updateDocument(DB, T.RESERVATIONS, id, fields, undefined, tx.transactionId);
+        } catch (error) {
+            if (!(error instanceof TermineError && error.status === 404)) throw error;
+            await tx.db.createDocument(DB, T.RESERVATIONS, id, fields, tx.perms(), tx.transactionId);
+        }
+    }
+}
+
+function instant(value: string) {
+    try {
+        return canonicalInstant(value);
+    } catch {
+        throw new TermineError("Ungültiger Zeitpunkt. Bitte Datum, Uhrzeit und Zeitzone prüfen.");
+    }
+}
+
+export function prepMinutes(a: AppointmentRow) {
+    const cleanup = Math.max(0, (Date.parse(a.endUtc) - Date.parse(a.startUtc)) / 60000 - a.durationMinutes);
+    return Math.max(0, a.bufferMinutes - cleanup);
+}
 
 export interface ServiceRow extends Row {
     name: string;
@@ -98,46 +141,66 @@ export async function loadSettings(store: TermineStore): Promise<SettingsRow | n
 }
 
 /** Assemble engine input for a service over [fromDate, fromDate+days). */
-export async function engineInput(
-    store: TermineStore,
-    serviceId: string,
-    fromDate: string,
-    days: number,
-) {
+export async function engineInput(store: TermineStore, serviceId: string, fromDate: string, days: number) {
     const service = await store.own<ServiceRow>(T.SERVICES, serviceId);
     const since = dayjs(fromDate, "YYYY-MM-DD").subtract(1, "day").format("YYYY-MM-DD");
     // Bounded read: only appointments that can intersect the window matter.
     const [rawStaff, hoursRows, blockRows, apptRows] = await Promise.all([
         store.list<StaffRow>(T.STAFF),
         store.list<HoursRow>(T.HOURS),
-        store.list(T.BLOCKS as never) as Promise<Array<Row & { staffId?: string; startUtc: string; endUtc: string }>>,
+        store.list(T.BLOCKS as never) as Promise<
+            Array<Row & { staffId?: string; startUtc: string; endUtc: string }>
+        >,
         store.list<AppointmentRow>(T.APPOINTMENTS, [Query.greaterThanEqual("startUtc", since)]),
     ]);
-    const staffRows = rawStaff.length > 0
-        ? rawStaff
-        : [{
-            $id: recordId(store.userId, "staff:owner"),
-            userId: store.userId,
-            name: (await loadSettings(store))?.displayName?.trim() || "Inhaber",
-            active: true,
-            bookable: true,
-            serviceIds: [serviceId],
-        } as StaffRow];
+    const staffRows =
+        rawStaff.length > 0
+            ? rawStaff
+            : [
+                  {
+                      $id: recordId(store.userId, "staff:owner"),
+                      userId: store.userId,
+                      name: (await loadSettings(store))?.displayName?.trim() || "Inhaber",
+                      active: true,
+                      bookable: true,
+                      serviceIds: [serviceId],
+                  } as StaffRow,
+              ];
     const to = new Date(fromDate + "T00:00:00Z");
     to.setUTCDate(to.getUTCDate() + days);
     const toDate = to.toISOString().slice(0, 10);
-    const week: Record<string, { periods: Array<{ start: string; end: string }>; breaks: Array<{ start: string; end: string }> }> = {};
-    const overrides: Array<{ date: string; closed: boolean; periods?: Array<{ start: string; end: string }> }> = [];
+    const week: Record<
+        string,
+        { periods: Array<{ start: string; end: string }>; breaks: Array<{ start: string; end: string }> }
+    > = {};
+    const overrides: Array<{
+        date: string;
+        closed: boolean;
+        periods?: Array<{ start: string; end: string }>;
+    }> = [];
     for (const h of hoursRows) {
         if (h.kind === "week" && h.day !== undefined) {
-            week[h.day] = { periods: parsePeriods(h.periods), breaks: parsePeriods(h.breaks) };
+            week[h.day] = {
+                periods: h.closed ? [] : parsePeriods(h.periods),
+                breaks: parsePeriods(h.breaks),
+            };
         } else if (h.kind === "override" && h.date) {
-            overrides.push({ date: h.date, closed: h.closed, periods: h.closed ? undefined : parsePeriods(h.periods) });
+            overrides.push({
+                date: h.date,
+                closed: h.closed,
+                periods: h.closed ? undefined : parsePeriods(h.periods),
+            });
         }
     }
     const appointments: AppointmentLike[] = apptRows
         .filter((a) => ACTIVE_STATUSES.has(a.status) && a.startUtc.slice(0, 10) <= toDate)
-        .map((a) => ({ staffId: a.staffId, startUtc: a.startUtc, endUtc: a.endUtc, status: a.status }));
+        .map((a) => ({
+            id: a.$id,
+            staffId: a.staffId,
+            startUtc: addMinutesUtc(a.startUtc, -prepMinutes(a)),
+            endUtc: a.endUtc,
+            status: a.status,
+        }));
     return { service, staffRows, week, overrides, blockRows, appointments };
 }
 
@@ -162,7 +225,14 @@ export async function createBooking(
     settings: SettingsRow,
     input: CreateBookingInput,
 ): Promise<{ appointment: AppointmentRow; manageToken: string }> {
-    if (!settings.enabled) throw new TermineError("Die Online-Buchung ist derzeit deaktiviert.", 403);
+    input = { ...input, startUtc: instant(input.startUtc) };
+    if (
+        input.idempotencyKey &&
+        (input.idempotencyKey.length > 100 || !/^[\w:.-]+$/.test(input.idempotencyKey))
+    )
+        throw new TermineError("Ungültiger Buchungsschlüssel.");
+    if (input.source === "public" && !settings.enabled)
+        throw new TermineError("Die Online-Buchung ist derzeit deaktiviert.", 403);
     if (input.source === "public" && !settings.published)
         throw new TermineError("Die Online-Buchung ist derzeit nicht verfügbar.", 403);
     const name = input.customerName.trim();
@@ -182,11 +252,24 @@ export async function createBooking(
                 Query.limit(1),
             ]);
             if (existing[0]) {
-                const tokens = await tx.list<Row & { appointmentId: string }>(T.TOKENS, [
+                const a = existing[0];
+                if (
+                    a.startUtc !== input.startUtc ||
+                    a.serviceId !== input.serviceId ||
+                    a.customerEmail !== email ||
+                    a.customerName !== name ||
+                    (input.staffId && a.staffId !== input.staffId) ||
+                    !["PENDING", "CONFIRMED"].includes(a.status)
+                )
+                    throw new TermineError("Dieser Buchungsschlüssel wurde bereits verwendet.", 409);
+                const jobs = await tx.list<Row & { payload: string }>(T.OUTBOX, [
                     Query.equal("appointmentId", existing[0].$id),
-                    Query.limit(1),
                 ]);
-                void tokens;
+                for (const job of jobs) {
+                    const payload = JSON.parse(job.payload);
+                    if (payload.manageToken)
+                        return { appointment: a, manageToken: String(payload.manageToken) };
+                }
                 throw new TermineError("Diese Buchung wurde bereits erstellt.", 409);
             }
         }
@@ -194,14 +277,16 @@ export async function createBooking(
         // Staff selection: explicit or first eligible (deterministic).
         let allStaff = await tx.list<StaffRow>(T.STAFF);
         if (allStaff.length === 0) {
-            allStaff = [{
-                $id: recordId(store.userId, "staff:owner"),
-                userId: store.userId,
-                name: settings.displayName || "Inhaber",
-                active: true,
-                bookable: true,
-                serviceIds: [service.$id],
-            } as StaffRow];
+            allStaff = [
+                {
+                    $id: recordId(store.userId, "staff:owner"),
+                    userId: store.userId,
+                    name: settings.displayName || "Inhaber",
+                    active: true,
+                    bookable: true,
+                    serviceIds: [service.$id],
+                } as StaffRow,
+            ];
         }
         const eligible = allStaff.filter(
             (s) =>
@@ -210,9 +295,8 @@ export async function createBooking(
                 (service.staffIds.length === 0 || service.staffIds.includes(s.$id)) &&
                 (!input.staffId || s.$id === input.staffId),
         );
-        if (eligible.length === 0) throw new TermineError("Kein verfügbarer Mitarbeiter für diese Leistung.", 409);
-        const staffId = input.staffId ?? eligible.map((s) => s.$id).sort()[0];
-
+        if (eligible.length === 0)
+            throw new TermineError("Kein verfügbarer Mitarbeiter für diese Leistung.", 409);
         // Validate the requested slot against real availability.
         const day = dateInTz(input.startUtc, settings.timezone);
         const ei = await engineInput(tx, service.$id, day, 1);
@@ -250,20 +334,23 @@ export async function createBooking(
                 settings: {
                     timezone: settings.timezone,
                     slotIntervalMinutes: settings.slotIntervalMinutes,
-                    minNoticeMinutes: settings.minNoticeMinutes,
+                    minNoticeMinutes: input.source === "manual" ? 0 : settings.minNoticeMinutes,
                     maxHorizonDays: settings.maxHorizonDays,
                 },
             },
-            { serviceId: service.$id, staffId, fromDate: day, days: 1, nowUtc: input.nowUtc },
+            { serviceId: service.$id, staffId: input.staffId, fromDate: day, days: 1, nowUtc: input.nowUtc },
         );
-        if (!slots.some((s) => s.startUtc === input.startUtc && s.staffId === staffId))
-            throw new TermineError("Dieser Zeitpunkt ist leider nicht mehr verfügbar.", 409);
+        const selectedSlot = slots.find((s) => s.startUtc === input.startUtc);
+        if (!selectedSlot) throw new TermineError("Dieser Zeitpunkt ist leider nicht mehr verfügbar.", 409);
+        const staffId = selectedSlot.staffId;
 
         const endUtc = addMinutesUtc(input.startUtc, service.durationMinutes + service.cleanupMinutes);
+        await guardInterval(tx, staffId, addMinutesUtc(input.startUtc, -service.prepMinutes), endUtc);
         const appointmentId = input.idempotencyKey
             ? recordId(store.userId, `appt:${input.idempotencyKey}`)
             : newId();
-        const status = input.source === "manual" || settings.confirmationMode === "automatic" ? "CONFIRMED" : "PENDING";
+        const status =
+            input.source === "manual" || settings.confirmationMode === "automatic" ? "CONFIRMED" : "PENDING";
 
         // Deterministic reservation first: concurrent commits collide on $id.
         try {
@@ -282,7 +369,10 @@ export async function createBooking(
             );
         } catch (error) {
             if ((error as { code?: number }).code === 409)
-                throw new TermineError("Dieser Zeitraum wurde gerade belegt. Bitte einen anderen Zeitpunkt wählen.", 409);
+                throw new TermineError(
+                    "Dieser Zeitraum wurde gerade belegt. Bitte einen anderen Zeitpunkt wählen.",
+                    409,
+                );
             throw error;
         }
 
@@ -298,7 +388,16 @@ export async function createBooking(
             tx.transactionId,
         );
 
-        const appointment: Omit<AppointmentRow, "$id" | "$createdAt" | "$updatedAt" | "$permissions" | "$collectionId" | "$databaseId" | "$sequence"> & { userId: string } = {
+        const appointment: Omit<
+            AppointmentRow,
+            | "$id"
+            | "$createdAt"
+            | "$updatedAt"
+            | "$permissions"
+            | "$collectionId"
+            | "$databaseId"
+            | "$sequence"
+        > & { userId: string } = {
             userId: store.userId,
             serviceId: service.$id,
             staffId,
@@ -329,7 +428,7 @@ export async function createBooking(
             tx.transactionId,
         );
 
-                const manageToken = newToken();
+        const manageToken = newToken();
         await tx.db.createDocument(
             DB,
             T.TOKENS,
@@ -348,7 +447,12 @@ export async function createBooking(
             DB,
             T.AUDIT,
             newId(),
-            { userId: store.userId, appointmentId, action: `created:${input.source}`, detail: `${service.name} @ ${input.startUtc}` },
+            {
+                userId: store.userId,
+                appointmentId,
+                action: `created:${input.source}`,
+                detail: `${service.name} @ ${input.startUtc}`,
+            },
             tx.perms(),
             tx.transactionId,
         );
@@ -358,11 +462,14 @@ export async function createBooking(
             newId(),
             {
                 userId: store.userId,
-                kind: status === "CONFIRMED"
-                    ? (input.source === "manual" ? "booking_business" : "booking_confirm")
-                    : "booking_request",
+                kind:
+                    status === "CONFIRMED"
+                        ? input.source === "manual"
+                            ? "booking_business"
+                            : "booking_confirm"
+                        : "booking_request",
                 appointmentId,
-                payload: JSON.stringify({ appointmentId }),
+                payload: JSON.stringify({ appointmentId, manageToken, startUtc: input.startUtc }),
                 status: "pending",
                 attempts: 0,
             },
@@ -370,13 +477,7 @@ export async function createBooking(
             tx.transactionId,
         );
 
-        const created = await tx.db.getDocument(
-            DB,
-            T.APPOINTMENTS,
-            appointmentId,
-            [],
-            tx.transactionId,
-        );
+        const created = await tx.db.getDocument(DB, T.APPOINTMENTS, appointmentId, [], tx.transactionId);
         return { appointment: created as unknown as AppointmentRow, manageToken };
     });
 }
@@ -394,39 +495,43 @@ export async function rescheduleBooking(
     settings: SettingsRow,
     input: RescheduleInput,
 ): Promise<AppointmentRow> {
+    input = { ...input, newStartUtc: instant(input.newStartUtc) };
     return atomic(store.db, store.userId, async (tx) => {
         const appt = await tx.own<AppointmentRow>(T.APPOINTMENTS, input.appointmentId);
         if (appt.status !== "PENDING" && appt.status !== "CONFIRMED")
             throw new TermineError("Dieser Termin kann nicht mehr verschoben werden.", 409);
-        const noticeMs =
-            (input.actor === "customer" ? settings.rescheduleNoticeMinutes : 0) * 60_000;
+        if (appt.startUtc === input.newStartUtc && (!input.newStaffId || input.newStaffId === appt.staffId))
+            return appt;
+        const noticeMs = (input.actor === "customer" ? settings.rescheduleNoticeMinutes : 0) * 60_000;
         const nowMs = Date.parse(input.nowUtc ?? new Date().toISOString());
         if (Date.parse(appt.startUtc) - nowMs < noticeMs)
             throw new TermineError("Der Umbuchungszeitraum ist überschritten.", 409);
 
         const staffId = input.newStaffId ?? appt.staffId;
         const service = await tx.own<ServiceRow>(T.SERVICES, appt.serviceId);
+        if (!service.active || (input.actor === "customer" && !service.publicVisible))
+            throw new TermineError(
+                "Diese Leistung ist nicht mehr online umbuchbar. Bitte das Unternehmen kontaktieren.",
+                409,
+            );
+        if (service.staffIds.length && !service.staffIds.includes(staffId))
+            throw new TermineError("Dieser Mitarbeiter ist dieser Leistung nicht zugeordnet.", 409);
         const day = dateInTz(input.newStartUtc, settings.timezone);
         const ei = await engineInput(tx, service.$id, day, 1);
         // Exclude the appointment itself from overlap detection.
-        ei.appointments = ei.appointments.filter(
-            (a) =>
-                !(
-                    a.staffId === appt.staffId &&
-                    a.startUtc === appt.startUtc &&
-                    a.endUtc === appt.endUtc
-                ),
-        );
+        ei.appointments = ei.appointments.filter((a) => a.id !== appt.$id);
+        const prep = prepMinutes(appt),
+            cleanup = appt.bufferMinutes - prep;
         const slots = computeAvailability(
             {
                 service: {
                     id: service.$id,
                     name: service.name,
-                    durationMinutes: service.durationMinutes,
+                    durationMinutes: appt.durationMinutes,
                     priceCents: service.priceCents,
                     currency: service.currency,
-                    prepMinutes: service.prepMinutes,
-                    cleanupMinutes: service.cleanupMinutes,
+                    prepMinutes: prep,
+                    cleanupMinutes: cleanup,
                     active: true,
                     publicVisible: true,
                     staffIds: [staffId],
@@ -453,7 +558,7 @@ export async function rescheduleBooking(
                 settings: {
                     timezone: settings.timezone,
                     slotIntervalMinutes: settings.slotIntervalMinutes,
-                    minNoticeMinutes: 0,
+                    minNoticeMinutes: input.actor === "customer" ? settings.minNoticeMinutes : 0,
                     maxHorizonDays: settings.maxHorizonDays,
                 },
             },
@@ -462,7 +567,9 @@ export async function rescheduleBooking(
         if (!slots.some((s) => s.startUtc === input.newStartUtc))
             throw new TermineError("Der neue Zeitpunkt ist leider nicht verfügbar.", 409);
 
-        const endUtc = addMinutesUtc(input.newStartUtc, service.durationMinutes + service.cleanupMinutes);
+        const endUtc = addMinutesUtc(input.newStartUtc, appt.durationMinutes + cleanup);
+        await guardInterval(tx, staffId, addMinutesUtc(input.newStartUtc, -prep), endUtc);
+        await guardInterval(tx, appt.staffId, addMinutesUtc(appt.startUtc, -prep), appt.endUtc);
         // Release old reservation, claim the new one — delete first so a retry
         // after a crash never leaves both slots occupied.
         await tx.db.deleteDocument(
@@ -486,7 +593,12 @@ export async function rescheduleBooking(
                 DB,
                 T.RESERVATIONS,
                 reservationId(store.userId, appt.staffId, appt.startUtc),
-                { userId: store.userId, staffId: appt.staffId, startUtc: appt.startUtc, appointmentId: appt.$id },
+                {
+                    userId: store.userId,
+                    staffId: appt.staffId,
+                    startUtc: appt.startUtc,
+                    appointmentId: appt.$id,
+                },
                 tx.perms(),
                 tx.transactionId,
             );
@@ -498,10 +610,26 @@ export async function rescheduleBooking(
             DB,
             T.APPOINTMENTS,
             appt.$id,
-            { staffId, startUtc: input.newStartUtc, endUtc },
+            { staffId, startUtc: input.newStartUtc, endUtc, businessTimezone: settings.timezone },
             undefined,
             tx.transactionId,
         );
+        // Keep the original private link usable when moving far into the future.
+        const tokens = await tx.list<Row & { expiresAt: string }>(T.TOKENS, [
+            Query.equal("appointmentId", appt.$id),
+        ]);
+        const expiresAt = addMinutesUtc(input.newStartUtc, 90 * 24 * 60);
+        for (const token of tokens) {
+            if (Date.parse(token.expiresAt) < Date.parse(expiresAt))
+                await tx.db.updateDocument(
+                    DB,
+                    T.TOKENS,
+                    token.$id,
+                    { expiresAt },
+                    undefined,
+                    tx.transactionId,
+                );
+        }
         await tx.db.createDocument(
             DB,
             T.AUDIT,
@@ -523,7 +651,7 @@ export async function rescheduleBooking(
                 userId: store.userId,
                 kind: "booking_rescheduled",
                 appointmentId: appt.$id,
-                payload: JSON.stringify({ appointmentId: appt.$id }),
+                payload: JSON.stringify({ appointmentId: appt.$id, startUtc: input.newStartUtc }),
                 status: "pending",
                 attempts: 0,
             },
@@ -566,8 +694,8 @@ export async function cancelBooking(
                 reservationId(store.userId, appt.staffId, appt.startUtc),
                 tx.transactionId,
             );
-        } catch {
-            /* Reservation may already be gone after a retry; status change is authoritative. */
+        } catch (error) {
+            if ((error as { code?: number }).code !== 404) throw error;
         }
         await tx.db.createDocument(
             DB,
@@ -609,3 +737,76 @@ export function hasOverlap(
 }
 
 export type { TermineAppointment };
+
+/** Status validation, audit and confirmation delivery must commit together. */
+export async function updateBooking(
+    store: TermineStore,
+    id: string,
+    patch: { status?: TermineStatus; internalNote?: string },
+) {
+    return atomic(store.db, store.userId, async (tx) => {
+        const appt = await tx.own<AppointmentRow>(T.APPOINTMENTS, id);
+        const fields: Record<string, unknown> = {};
+        if (patch.internalNote !== undefined) fields.internalNote = patch.internalNote.slice(0, 1000);
+        if (patch.status) {
+            if (!canTransition(appt.status, patch.status) || patch.status.startsWith("CANCELLED"))
+                throw new TermineError(
+                    "Dieser Statuswechsel ist nicht möglich. Bitte die Ansicht aktualisieren.",
+                    409,
+                );
+            if (["COMPLETED", "NO_SHOW"].includes(patch.status) && Date.parse(appt.startUtc) > Date.now())
+                throw new TermineError(
+                    "Zukünftige Termine können noch nicht abgeschlossen oder als nicht erschienen markiert werden.",
+                    409,
+                );
+            fields.status = patch.status;
+            if (patch.status === "COMPLETED") fields.completedAt = new Date().toISOString();
+            if (patch.status === "NO_SHOW") {
+                try {
+                    await tx.db.deleteDocument(
+                        DB,
+                        T.RESERVATIONS,
+                        reservationId(tx.userId, appt.staffId, appt.startUtc),
+                        tx.transactionId,
+                    );
+                } catch (error) {
+                    if ((error as { code?: number }).code !== 404) throw error;
+                }
+            }
+            await tx.db.createDocument(
+                DB,
+                T.AUDIT,
+                newId(),
+                { userId: tx.userId, appointmentId: id, action: `status:${patch.status}` },
+                tx.perms(),
+                tx.transactionId,
+            );
+            if (patch.status === "CONFIRMED")
+                await tx.db.createDocument(
+                    DB,
+                    T.OUTBOX,
+                    newId(),
+                    {
+                        userId: tx.userId,
+                        appointmentId: id,
+                        kind: "booking_confirm",
+                        payload: JSON.stringify({ appointmentId: id, startUtc: appt.startUtc }),
+                        status: "pending",
+                        attempts: 0,
+                    },
+                    tx.perms(),
+                    tx.transactionId,
+                );
+        }
+        return Object.keys(fields).length
+            ? ((await tx.db.updateDocument(
+                  DB,
+                  T.APPOINTMENTS,
+                  id,
+                  fields,
+                  undefined,
+                  tx.transactionId,
+              )) as unknown as AppointmentRow)
+            : appt;
+    });
+}

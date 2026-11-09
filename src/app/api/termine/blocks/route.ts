@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 import { businessContext, authFail } from "../_lib";
 import { DB, T, TermineError, newId } from "@/lib/termine/store";
+import { canonicalInstant } from "@/lib/termine/time";
 
 function fail(error: unknown, fallback: string) {
     const auth = authFail(error);
@@ -32,11 +33,12 @@ export async function POST(request: NextRequest) {
         } catch {
             return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
         }
-        const startUtc = String(body.startUtc ?? "");
-        const endUtc = String(body.endUtc ?? "");
+        let startUtc:string,endUtc:string;
+        try {startUtc=canonicalInstant(String(body.startUtc??""));endUtc=canonicalInstant(String(body.endUtc??""));}catch{throw new TermineError("Ungültiger Zeitraum.");}
         if (!Date.parse(startUtc) || !Date.parse(endUtc) || !(startUtc < endUtc)) {
             return NextResponse.json({ error: "Ungültiger Zeitraum." }, { status: 400 });
         }
+        if(typeof body.staffId === "string" && body.staffId) await store.own(T.STAFF,body.staffId);
         const created = await store.db.createDocument(
             DB,
             T.BLOCKS,

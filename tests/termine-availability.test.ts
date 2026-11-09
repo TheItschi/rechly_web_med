@@ -41,6 +41,16 @@ function base(over: Partial<EngineInput> = {}): EngineInput {
 const Q = { serviceId: "svc1", fromDate: "2026-01-12", days: 1, nowUtc: "2026-01-05T00:00:00.000Z" }; // Monday
 
 describe("availability engine", () => {
+    it("honours service restrictions on staff profiles as well as assigned staff", () => {
+        const input = base({ staff: [
+            { ...STAFF[0], serviceIds: ["another-service"] },
+            { ...STAFF[1], serviceIds: [] },
+        ] });
+        const slots = computeAvailability(input, Q);
+        assert.ok(slots.length > 0);
+        assert.ok(slots.every(slot => slot.staffId === "bob"));
+        assert.equal(computeAvailability(input, { ...Q, staffId: "anna" }).length, 0);
+    });
     it("generates slots for a simple morning (30min service + 10min cleanup in 30min grid)", () => {
         const slots = computeAvailability(base(), Q).filter((s) => s.staffId === "anna");
         const times = slots.map((s) => s.startUtc);

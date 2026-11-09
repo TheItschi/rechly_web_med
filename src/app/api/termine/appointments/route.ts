@@ -1,3 +1,5 @@
+import { attemptDelivery } from "@/lib/termine/delivery";
+export const maxDuration = 60;
 import { NextResponse, type NextRequest } from "next/server";
 import { Query } from "node-appwrite";
 import { businessContext, authFail } from "../_lib";
@@ -55,7 +57,8 @@ export async function POST(request: NextRequest) {
             internalNote: typeof body.internalNote === "string" ? body.internalNote : undefined,
             source: "manual",
         });
-        return NextResponse.json({ appointment }, { status: 201 });
+        const delivery = await attemptDelivery(store, appointment.$id);
+        return NextResponse.json({ appointment, delivery }, { status: 201 });
     } catch (error) {
         return fail(error, "Termin konnte nicht erstellt werden.");
     }
