@@ -33,6 +33,7 @@ export interface InvoiceTemplateDefinition {
     description: string;
     metaTitle: string;
     metaDescription: string;
+    lastModified?: string;
     keywords: string[];
     presetData: {
         invoiceTitle: string;
@@ -520,16 +521,17 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
     },
     {
         slug: "reinigungsgewerbe",
-        title: "Rechnungsvorlage Gebäudereinigung & Reinigungskraft (§ 13b & § 35a)",
+        lastModified: "2026-11-09",
+        title: "Rechnung für Reinigungsfirma: Muster & kostenlose Vorlage",
         shortTitle: "Gebäudereinigung & Putzhilfe",
         eyebrow: "REINIGUNG & FACILITY MANAGEMENT",
         category: "Handwerk & Bau",
         badge: "Privat (§ 35a) & B2B (§ 13b)",
         description:
-            "Rechnungsvorlage für Gebäudereiniger, Büroreinigung, Fensterputzer und Haushaltshilfen: Sowohl für Gewerbekunden als auch mit 20 % Steuervorteil (§ 35a EStG) für Privathaushalte.",
-        metaTitle: "Rechnung Gebäudereinigung & Reinigungsfirma: Muster & Vorlage",
+            "Muster für Büroreinigung, Gebäudereinigung und selbstständige Haushaltshilfen: Trage Leistungen, Stunden und Material ein und erstelle eine Rechnung als PDF. Mit Hinweisen zu Umsatzsteuer und getrennten Arbeitskosten.",
+        metaTitle: "Rechnung Reinigungsfirma: Muster & Vorlage kostenlos",
         metaDescription:
-            "Kostenlose Rechnungsvorlage & Muster für Gebäudereinigung, Reinigungsfirma, Putzfrau & Haushaltshilfe (§ 35a EStG & § 13b UStG): Online ausfüllen & als PDF laden!",
+            "Rechnung für Reinigungsfirma oder Haushaltshilfe erstellen: kostenloses Muster mit Stunden, Material und Leistungszeitraum. Online anpassen und als PDF speichern.",
         keywords: [
             "Rechnung Gebäudereinigung Muster",
             "Rechnung Reinigungsfirma Muster",
@@ -586,6 +588,20 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
         ],
         guideSections: [
             {
+                title: "Beispiel: Rechnung für eine monatliche Büroreinigung",
+                body: [
+                    "Ein einfaches Muster: 10 Stunden Büroreinigung zu je 30,00 € ergeben 300,00 € netto. Dazu kommen 20,00 € Reinigungsmaterial. Bei 19 % Umsatzsteuer entstehen auf 320,00 € netto weitere 60,80 € Steuer; der Rechnungsbetrag beträgt 380,80 € brutto.",
+                    "Beschreibe, welches Objekt gereinigt wurde und für welchen Zeitraum du abrechnest, zum Beispiel „Büroreinigung, Musterstraße 1, Leistungszeitraum 01.–31.10.2026“. Passe alle Beispieldaten, Preise und Steuerangaben an deinen tatsächlichen Auftrag an.",
+                ],
+            },
+            {
+                title: "Welche Angaben gehören in die Rechnung einer Reinigungsfirma?",
+                body: [
+                    "Bei einer regulären Rechnung nach § 14 Abs. 4 UStG gehören unter anderem Name und Anschrift beider Unternehmen, deine Steuernummer oder USt-IdNr., Rechnungsdatum und eindeutige Rechnungsnummer, Art und Umfang der Leistung sowie der Leistungszeitpunkt hinein. Ergänze Entgelt, Steuersatz und Steuerbetrag oder einen zutreffenden Hinweis auf die Steuerbefreiung. Für Kleinbetrags- und Kleinunternehmerrechnungen gelten besondere Regeln.",
+                    "Für selbstständige Haushaltshilfen im Privathaushalt kann ein getrennter Ausweis von Arbeits- und Materialkosten sinnvoll sein. Ein möglicher Steuerabzug nach § 35a EStG hängt von den gesetzlichen Voraussetzungen ab, insbesondere Rechnung und unbarer Zahlung. Die Vorlage garantiert keinen Steuervorteil. Bei einer angestellten Haushaltshilfe ist stattdessen die Lohnabrechnung maßgeblich.",
+                ],
+            },
+            {
                 title: "Sonderfall § 13b Abs. 2 Nr. 8 UStG in der Gebäudereinigung",
                 body: [
                     "Reinigen Sie im Subauftrag für ein anderes Gebäudereinigungsunternehmen (das den Nachweis USt 1 TG besitzt), greift genau wie am Bau das Reverse-Charge-Verfahren ohne Mehrwertsteuer. Reinigen Sie dagegen für ein normales Büro, eine Arztpraxis oder Privatkunden, stellen Sie regulär mit 19 % USt (oder als Kleinunternehmer nach § 19 UStG) ab.",
@@ -593,6 +609,14 @@ export const VORLAGEN_CATALOG: InvoiceTemplateDefinition[] = [
             },
         ],
         faqs: [
+            {
+                question: "Kann ich das Rechnungsmuster für meine Reinigungsfirma als PDF speichern?",
+                answer: "Ja. Öffne die Vorlage im Rechnungsgenerator, ersetze die Beispieldaten und ergänze deine Leistungen. Anschließend kannst du die Rechnung als PDF herunterladen. Prüfe vorher Angaben, Steuermodus und Summen.",
+            },
+            {
+                question: "Wie schreibe ich als selbstständige Haushaltshilfe eine Rechnung ohne Umsatzsteuer?",
+                answer: "Wenn die Kleinunternehmerregelung nach § 19 UStG auf dich zutrifft, wähle den Kleinunternehmer-Modus und prüfe den entsprechenden Steuerhinweis. Weise dann keine Umsatzsteuer gesondert aus. Eine Tätigkeit im Privathaushalt allein macht die Leistung nicht automatisch umsatzsteuerfrei.",
+            },
             {
                 question: "Wie oft sollte die Unterhaltsreinigung abgerechnet werden?",
                 answer: "Üblich ist eine monatliche Sammelrechnung am Monatsende oder eine Dauerrechnung bei festen monatlichen Pauschalen.",

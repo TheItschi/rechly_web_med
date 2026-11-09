@@ -139,14 +139,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     const toolRoutes = TOOLS_CATALOG.map((tool) => ({
         url: tool.path,
-        lastModified: "2026-11-06",
+        lastModified: tool.lastModified ?? "2026-11-06",
         changeFrequency: "weekly" as const,
         priority: tool.slug === "rechnungsgenerator" ? 0.96 : 0.91,
     }));
 
     const vorlagenRoutes = VORLAGEN_CATALOG.map((vorlage) => ({
         url: `/vorlagen/${vorlage.slug}`,
-        lastModified: "2026-11-06",
+        lastModified: vorlage.lastModified ?? "2026-11-06",
         changeFrequency: "weekly" as const,
         priority: 0.89,
     }));

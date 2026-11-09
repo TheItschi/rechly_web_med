@@ -27,6 +27,8 @@ export default function ERechnungViewer() {
         setLoading(true);
         setErrorMsg(null);
         setFileName(file.name);
+        setParsedData(null);
+        setRawXml("");
 
         try {
             const isPdf = file.name.toLowerCase().endsWith(".pdf");
@@ -38,7 +40,7 @@ export default function ERechnungViewer() {
                 const extractedXml = extractZugferdXmlFromPdfBytes(bytes);
                 if (!extractedXml) {
                     throw new Error(
-                        "In dieser PDF-Datei konnte keine eingebettete ZUGFeRD/Factur-X-XML-Datei gefunden werden. Handelt es sich um eine reine Bild-PDF?"
+                        "Die Rechnungs-XML konnte aus dieser PDF nicht gelesen werden. Komprimierte oder anders eingebettete Anhänge werden hier nicht unterstützt. Extrahiere die XML mit einem geeigneten PDF-Programm und öffne sie separat."
                     );
                 }
                 xmlContent = extractedXml;
@@ -50,10 +52,10 @@ export default function ERechnungViewer() {
             const parsed = parseEInvoiceXml(xmlContent);
             if (!parsed.invoice_number && !parsed.amount_gross && !parsed.vendor_name) {
                 throw new Error(
-                    "Das XML-Dokument entspricht keinem bekannten Standard nach EN 16931 (weder UBL noch CII XRechnung)."
+                    "In dieser XML-Datei wurden keine unterstützten Rechnungsdaten gefunden."
                 );
             }
-
+            setParsedData(parsed);
         } catch (err: unknown) {
             console.error("E-Invoice parsing error:", err);
             const message = err instanceof Error ? err.message : "Fehler beim Lesen der E-Rechnungsdatei.";
@@ -87,7 +89,7 @@ export default function ERechnungViewer() {
     };
 
     return (
-        <div>
+        <div style={{ minWidth: 0, overflowWrap: "anywhere" }}>
             {/* Upload Area */}
             <Dragger
                 accept=".xml,.pdf"
@@ -119,7 +121,7 @@ export default function ERechnungViewer() {
                 <Alert
                     type="error"
                     showIcon
-                    message="Validierungsfehler"
+                    message="Datei konnte nicht gelesen werden"
                     description={errorMsg}
                     style={{ marginBottom: 24, borderRadius: 8 }}
                 />
@@ -127,7 +129,7 @@ export default function ERechnungViewer() {
 
             {/* Parsed Result View */}
             {parsedData && (
-                <div style={{ display: "grid", gap: 24 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 24 }}>
                     <div
                         style={{
                             display: "flex",
@@ -140,17 +142,17 @@ export default function ERechnungViewer() {
                             borderRadius: 10,
                             border: "1px solid #a7f3d0" }}
                     >
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                             <CheckCircleOutlined style={{ color: "#059669", fontSize: 20 }} />
-                            <div>
+                            <div style={{ minWidth: 0 }}>
                                 <span style={{ fontWeight: 700, color: "#065f46" }}>
-                                    E-Rechnung erfolgreich validiert:
+                                    Rechnungsdaten erfolgreich gelesen:
                                 </span>{" "}
                                 <span style={{ color: "#047857" }}>{fileName}</span>
                             </div>
                         </div>
 
-                        <div style={{ display: "flex", gap: 8 }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                             <Button icon={<FileTextOutlined />} onClick={() => setShowRawModal(true)}>
                                 Roh-XML ansehen
                             </Button>
@@ -160,11 +162,18 @@ export default function ERechnungViewer() {
                         </div>
                     </div>
 
+                    <Alert
+                        type="info"
+                        showIcon
+                        title="Datenansicht, keine Konformitätsprüfung"
+                        description="Der Viewer zeigt ausgewählte Rechnungsdaten. Er führt keine vollständige Prüfung nach EN 16931, XRechnung/KoSIT oder PDF/A-3 durch. Bewahre die Originaldatei auf."
+                    />
+
                     {/* Key Metrics Grid */}
                     <div
                         style={{
                             display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
                             gap: 16 }}
                     >
                         <Card size="small" style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}>
@@ -210,10 +219,11 @@ export default function ERechnungViewer() {
 
                     {/* Details  */}
                     <Card
-                        title="Rechnungsdetails & Pflichtangaben (§ 14 UStG / EN 16931)"
+                        title="Ausgelesene Rechnungsdaten"
+                        styles={{ title: { whiteSpace: "normal", padding: "12px 0" } }}
                         style={{ borderRadius: 10, border: "1px solid #e2e8f0" }}
                     >
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 24 }}>
                             <div>
                                 <h4 style={{ margin: "0 0 8px 0", fontSize: 14, color: "#64748b" }}>
                                     Rechnungssteller (Verkäufer / Auftragnehmer)
@@ -281,7 +291,7 @@ export default function ERechnungViewer() {
                                         parsedData.vendor_name || ""
                                     )}&reference=${encodeURIComponent(parsedData.invoice_number || "")}`}
                                 >
-                                    <Button type="primary" icon={<QrcodeOutlined />} style={{ background: "#2563eb" }}>
+                                    <Button type="primary" icon={<QrcodeOutlined />} style={{ background: "#2563eb", maxWidth: "100%", height: "auto", whiteSpace: "normal" }}>
                                         GiroCode generieren
                                     </Button>
                                 </Link>

@@ -41,6 +41,7 @@ export interface ToolLayoutProps {
         title: string;
         content: string[];
         bullets?: string[];
+        links?: Array<{ href: string; label: string }>;
     }>;
     faqs?: FaqItem[];
     relatedTools?: RelatedTool[];
@@ -144,7 +145,7 @@ export default function ToolLayout({
         <div style={{ background: "#f8fafc", minHeight: "100vh", color: "#1e293b" }}>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
             />
             <Navbar />
 
@@ -242,7 +243,7 @@ export default function ToolLayout({
                             <SafetyCertificateOutlined /> Ohne Registrierung
                         </span>
                         <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                            <CheckCircleOutlined /> DSGVO-konform (Browser-Verarbeitung)
+                            <CheckCircleOutlined /> Direkt im Browser nutzbar
                         </span>
 
                         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
@@ -401,6 +402,17 @@ export default function ToolLayout({
                                             {sec.bullets.map((b, bIdx) => (
                                                 <li key={bIdx} style={{ marginBottom: 6, lineHeight: 1.6, fontSize: 15 }}>
                                                     {b}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {sec.links && (
+                                        <ul style={{ margin: "16px 0 0", paddingLeft: 20 }}>
+                                            {sec.links.map((link) => (
+                                                <li key={link.href} style={{ marginBottom: 8, overflowWrap: "anywhere" }}>
+                                                    <a href={link.href} style={{ color: "#1d4ed8", textDecoration: "underline" }}>
+                                                        {link.label}
+                                                    </a>
                                                 </li>
                                             ))}
                                         </ul>

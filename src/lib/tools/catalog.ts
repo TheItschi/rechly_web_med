@@ -18,10 +18,12 @@ export interface ToolDefinition {
     keywords: string[];
     badge?: string;
     icon: string;
+    lastModified?: string;
     guideSections: Array<{
         title: string;
         content: string[];
         bullets?: string[];
+        links?: Array<{ href: string; label: string }>;
     }>;
     faqs: Array<{
         question: string;
@@ -35,62 +37,54 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         id: "e-rechnung-viewer",
         slug: "e-rechnung-viewer",
         path: "/tools/e-rechnung-viewer",
-        title: "E-Rechnung Viewer: XRechnung & ZUGFeRD kostenlos öffnen und prüfen",
-        shortTitle: "E-Rechnung Viewer",
-        eyebrow: "E-RECHNUNG & EN 16931",
+        title: "XRechnung Viewer kostenlos: XML-Rechnungen online öffnen",
+        shortTitle: "XRechnung & E-Rechnung Viewer",
+        eyebrow: "XRECHNUNG LESBAR ANZEIGEN",
         category: "Tagesgeschäft & E-Rechnung",
         description:
-            "XRechnung (UBL/CII) und ZUGFeRD/Factur-X PDFs direkt im Browser ansehen, Pflichtangaben prüfen, Positionen analysieren, CSV exportieren und GiroCode erzeugen. 100% lokal ohne Upload.",
-        metaTitle: "XRechnung & ZUGFeRD Viewer kostenlos – XML & PDF öffnen",
+            "Öffne eine XRechnung als XML-Datei und lies Rechnungsnummer, Aussteller und Beträge direkt im Browser. Ohne Anmeldung und ohne Datei-Upload. Mit Roh-XML-Ansicht und CSV-Export der ausgelesenen Eckdaten.",
+        metaTitle: "XRechnung Viewer kostenlos – XML öffnen ohne Upload",
         metaDescription:
-            "Kostenloser XRechnung & ZUGFeRD Viewer (E-Rechnung Reader): XML-Dateien & PDFs online ohne Upload öffnen, prüfen & lesbar anzeigen. Schnelle Quba-Viewer Alternative!",
-        keywords: [
-            "XRechnung Viewer kostenlos",
-            "E-Rechnung Viewer kostenlos",
-            "E-Rechnung Reader kostenlos",
-            "XRechnung öffnen",
-            "ZUGFeRD Viewer online",
-            "XRechnung ansehen",
-            "XRechnung Viewer PDF",
-            "Quba Viewer Alternative",
-            "E-Rechnung Empfang kostenlos",
-        ],
-        badge: "E-Rechnung 2025/2026",
+            "XRechnung online öffnen: XML-Rechnungen in UBL oder CII lesbar anzeigen und Eckdaten als CSV speichern. Kostenlos, ohne Anmeldung und ohne Datei-Upload.",
+        keywords: ["XRechnung Viewer", "XRechnung Viewer kostenlos", "E-Rechnung Viewer", "XRechnung öffnen", "ZUGFeRD Viewer online"],
         icon: "FileSearchOutlined",
+        lastModified: "2026-11-09",
         guideSections: [
             {
-                title: "E-Rechnungspflicht in Deutschland seit 2025",
-                content: [
-                    "Mit dem Wachstumschancengesetz ist der Empfang von elektronischen Rechnungen nach dem europäischen Standard EN 16931 für alle inländischen B2B-Unternehmen seit dem 1. Januar 2025 verpflichtend.",
-                    "Eine reine Bild-PDF per E-Mail gilt im Geschäftsverkehr nicht mehr als rechtskonforme E-Rechnung. Echte E-Rechnungen basieren auf strukturierten XML-Daten – entweder als reine XML (XRechnung) oder als hybride PDF/A-3 mit eingebetteter XML (ZUGFeRD).",
-                ],
+                title: "So öffnest du eine XRechnung",
+                content: ["Eine XRechnung enthält strukturierte XML-Daten. Ein normaler PDF-Reader zeigt diese nicht als Rechnung an. Der Viewer liest ausgewählte Rechnungsdaten aus UBL- und CII-XML und stellt sie im Browser dar."],
                 bullets: [
-                    "Empfangspflicht gilt ausnahmslos für alle Unternehmer (auch Kleinunternehmer)",
-                    "XRechnung nutzt UBL (Universal Business Language) oder UN/CEFACT CII",
-                    "ZUGFeRD kombiniert druckbare PDF mit maschinenlesbarem XML-Anhang",
+                    "Wähle die XML-Datei von deinem Gerät oder ziehe sie in das Dateifeld.",
+                    "Vergleiche Rechnungsnummer, Aussteller, Datum und Summen mit deiner Bestellung.",
+                    "Öffne bei Bedarf die Roh-XML-Ansicht oder speichere die angezeigten Eckdaten als CSV.",
                 ],
             },
             {
-                title: "Warum eine lokale Browser-Prüfung sicherer ist",
+                title: "XRechnung, ZUGFeRD und normale PDF: Was lässt sich öffnen?",
                 content: [
-                    "Rechnungen enthalten hochsensible Betriebsgeheimnisse, Kontoverbindungen, Preise und Kundendaten. Viele Online-Viewer laden Rechnungsdateien auf fremde Cloud-Server hoch.",
-                    "Der Rechly E-Rechnung Viewer arbeitet zu 100% lokal im Browser auf deinem Endgerät. Deine XML- oder PDF-Daten werden niemals an Dritte übertragen.",
+                    "XRechnung-XML in UBL oder CII wird direkt gelesen. Bei ZUGFeRD-/Factur-X-PDFs versucht der Viewer, unkomprimiert eingebettete XML zu finden. Komprimierte Anhänge und andere PDF-Strukturen werden derzeit nicht zuverlässig ausgelesen. Extrahiere in diesem Fall die eingebettete XML mit einem geeigneten PDF-Programm und öffne sie separat.",
+                    "Eine gewöhnliche PDF oder ein Scan enthält nicht automatisch strukturierte Rechnungsdaten. Dieser Viewer führt keine Texterkennung (OCR) durch. Er zeigt ausgewählte Kopfdaten und Summen; eine vollständige Positionsdarstellung ist nicht enthalten.",
+                ],
+            },
+            {
+                title: "Anzeigen ist keine vollständige E-Rechnungsvalidierung",
+                content: [
+                    "Ein erfolgreiches Einlesen bestätigt weder die Vollständigkeit einer Rechnung noch ihre Konformität mit EN 16931 oder XRechnung. Auch die PDF/A-3-Konformität wird hier nicht geprüft. Für eine technische XRechnungsprüfung brauchst du einen Validator mit passender KoSIT-Konfiguration.",
+                    "Die Datei wird auf deinem Gerät verarbeitet. Der Viewer lädt sie nicht auf den Rechly-Server hoch. Eine lesbare Anzeige ersetzt außerdem kein revisionsgerechtes Archiv: Bewahre die Originaldatei in deinem dafür vorgesehenen System auf.",
+                ],
+                links: [
+                    { href: "https://github.com/itplr-kosit/validator", label: "KoSIT Validator: technische Prüfung von XML-Dokumenten" },
+                    { href: "/e-rechnung-software", label: "E-Rechnungen mit Rechly erstellen und verwalten" },
+                    { href: "/open-source", label: "Quellcode und Selbsthosting von Rechly" },
                 ],
             },
         ],
         faqs: [
-            {
-                question: "Kann ich mit diesem Viewer auch ZUGFeRD PDFs öffnen?",
-                answer: "Ja. Der Viewer extrahiert automatisch die im PDF-Container eingebettete CrossIndustryInvoice-XML und stellt Beträge, Steuern und Positionen übersichtlich dar.",
-            },
-            {
-                question: "Ist die Nutzung wirklich ohne Registrierung kostenlos?",
-                answer: "Ja, alle Rechly Werkzeuge stehen dauerhaft kostenlos und ohne Benutzerkonto für die Öffentlichkeit bereit.",
-            },
-            {
-                question: "Kann ich den Viewer als kostenlose Alternative zum Quba-Viewer oder für den E-Rechnung-Empfang nutzen?",
-                answer: "Ja. Unser E-Rechnung Reader öffnet sowohl reine XRechnung-XML-Dateien (UBL & CII) als auch hybride ZUGFeRD-PDFs sofort im Browser oder komplett offline in unserer kostenlosen Rechly Desktop-App (/desktop) – ideal für den gesetzlichen E-Rechnungsempfang.",
-            },
+            { question: "Wie kann ich eine XRechnung kostenlos öffnen?", answer: "Wähle hier eine XRechnung-XML in UBL oder CII aus. Der Viewer zeigt ausgewählte Rechnungsdaten im Browser an. Du brauchst kein Konto und musst die Datei nicht auf einen Server hochladen." },
+            { question: "Kann ich eine XRechnung als PDF speichern?", answer: "Mit der Druckfunktion deines Browsers kannst du die Anzeige als PDF speichern. Diese Ansicht ist keine neue E-Rechnung und ersetzt die ursprüngliche XML-Datei nicht. Ein gestalteter Rechnungs-PDF-Export ist in diesem Viewer nicht enthalten." },
+            { question: "Kann ich eine ZUGFeRD-PDF online ansehen?", answer: "Der Viewer kann bestimmte PDFs mit unkomprimiert eingebetteter Rechnungs-XML auslesen. Nicht alle ZUGFeRD-PDFs werden unterstützt. Wird kein Anhang erkannt, extrahiere die XML mit einem geeigneten PDF-Programm und öffne diese Datei hier separat." },
+            { question: "Prüft der Viewer die Gültigkeit meiner E-Rechnung?", answer: "Nein. Er liest Daten aus unterstützten XML-Strukturen. Eine vollständige Prüfung gegen XRechnung, EN 16931, KoSIT-Regeln oder PDF/A-3 findet nicht statt." },
+            { question: "Werden meine Rechnungsdateien hochgeladen?", answer: "Nein. Das Einlesen erfolgt lokal im Browser. Die ausgewählte Rechnungsdatei wird durch diesen Viewer nicht an den Rechly-Server gesendet." },
         ],
         relatedToolIds: ["girocode-generator", "leitweg-id-pruefen", "skontorechner"],
     },
@@ -98,49 +92,43 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         id: "girocode-generator",
         slug: "girocode-generator",
         path: "/tools/girocode-generator",
-        title: "GiroCode Generator: Kostenloser EPC-QR-Code für Rechnungen & Überweisungen",
+        title: "GiroCode Generator: QR-Code für Überweisungen erstellen",
         shortTitle: "GiroCode Generator",
         eyebrow: "EPC-QR-CODE & SEPA",
         category: "Tagesgeschäft & E-Rechnung",
         description:
-            "Erstelle in Sekunden einen offiziellen SEPA GiroCode (EPC069-12 QR-Code) für deine Rechnungen. Kunden scannen den Code in ihrer Banking-App und überweisen fehlerfrei mit vorausgefüllter IBAN und Betrag.",
-        metaTitle: "GiroCode Generator kostenlos: EPC-QR-Code für Rechnungen",
+            "Erstelle kostenlos einen EPC-QR-Code mit Empfänger, IBAN, Betrag und Verwendungszweck. Lade ihn als PNG herunter und füge ihn in deine Rechnung ein. Ohne Anmeldung; die Zahlungsdaten werden im Browser verarbeitet.",
+        metaTitle: "GiroCode Generator kostenlos – SEPA-QR-Code als PNG",
         metaDescription:
-            "Offizieller EPC GiroCode Generator: Erstelle kostenlos SEPA-QR-Codes für Rechnungen & Überweisungen (PNG/SVG). Schneller bezahlt werden – ohne Anmeldung!",
-        keywords: [
-            "GiroCode erstellen",
-            "Giro Code Generator",
-            "EPC QR Code Generator",
-            "SEPA QR Code kostenlos",
-            "Zahlschein QR Code Rechnung",
-            "QR-Code für Überweisung erstellen",
-            "GiroCode Vorlage",
-        ],
+            "QR-Code für Überweisungen erstellen: IBAN, Empfänger, Betrag und Verwendungszweck eingeben, GiroCode als PNG herunterladen. Kostenlos und ohne Anmeldung.",
+        keywords: ["GiroCode erstellen", "Giro Code Generator", "EPC QR Code Generator", "SEPA QR Code kostenlos", "QR-Code für Überweisung erstellen"],
         badge: "Beliebt",
         icon: "QrcodeOutlined",
+        lastModified: "2026-11-09",
         guideSections: [
             {
-                title: "Wie funktioniert der GiroCode (EPC-QR-Code)?",
-                content: [
-                    "Der GiroCode basiert auf der Norm des European Payments Council (EPC069-12). Er kodiert Empfängername, IBAN, BIC, Zahlungsbetrag und Verwendungszweck in einem standardisierten zweidimensionalen QR-Code.",
-                    "Kunden müssen weder IBAN noch lange Rechnungsnummern abtippen: Das Scannen mit einer beliebigen deutschen Banking-App (Sparkasse, Volksbank, Deutsche Bank, ING, DKB, N26 usw.) füllt die Überweisung sekundenschnell und fehlerfrei aus.",
-                ],
+                title: "GiroCode erstellen in drei Schritten",
+                content: ["Ein GiroCode speichert Überweisungsdaten als EPC-QR-Code. Eine kompatible Banking-App übernimmt die Angaben in eine SEPA-Überweisung. Der Kunde prüft die Daten und gibt die Zahlung selbst frei."],
                 bullets: [
-                    "Keine Tippfehler bei 22-stelligen IBANs und Rechnungsnummern",
-                    "Signifikant schnellere Zahlungseingänge im Schnitt um 3 bis 5 Tage",
-                    "Unterstützt von nahezu allen europäischen Banking-Apps",
+                    "Trage Empfängername und IBAN ein; ergänze Betrag, Verwendungszweck und bei Bedarf den BIC.",
+                    "Prüfe die Angaben und lade den erzeugten Code als PNG herunter.",
+                    "Füge die Grafik gut lesbar in die Rechnung ein und teste sie mit deiner Banking-App.",
+                ],
+                links: [{ href: "/tools/rechnungsgenerator", label: "Eine Rechnung mit Zahlungsdaten erstellen" }],
+            },
+            {
+                title: "Beispiel: Eine Rechnung per QR-Code bezahlen",
+                content: [
+                    "Bei einer Rechnung über 119,00 € kann der Verwendungszweck beispielsweise „Rechnung RE-2026-042“ lauten. Nach dem Scan sollten Empfänger, IBAN, 119,00 € und diese Rechnungsnummer in der Überweisungsmaske erscheinen.",
+                    "Ein GiroCode ist keine Zahlungsbestätigung und löst selbst keine Überweisung aus. Seine Unterstützung hängt von der Banking-App ab. Verwende möglichst deren Überweisungs-Scanner und prüfe die Daten vor der Freigabe.",
                 ],
             },
         ],
         faqs: [
-            {
-                question: "Ist der BIC im GiroCode verpflichtend?",
-                answer: "Nein, innerhalb des SEPA-Raums (EWR) ist die Angabe des BIC gemäß EPC-Standard Version 002 optional. Die Angabe von Name, IBAN und Betrag genügt.",
-            },
-            {
-                question: "Kann ich den GiroCode direkt auf meine Rechly Rechnungen drucken?",
-                answer: "Ja, in Rechly kannst du in den Einstellungen deine IBAN hinterlegen. Auf Wunsch platziert Rechly den fertigen GiroCode automatisch auf jeder PDF-Rechnung.",
-            },
+            { question: "Ist der GiroCode Generator kostenlos und ohne Anmeldung nutzbar?", answer: "Ja. Du kannst den Code direkt im Browser erstellen und als PNG herunterladen. Eine Registrierung bei Rechly ist dafür nicht erforderlich." },
+            { question: "Kann ich den QR-Code als SVG herunterladen?", answer: "Der Generator bietet derzeit einen PNG-Download an. Ein SVG-Export ist nicht enthalten." },
+            { question: "Funktioniert ein GiroCode mit jeder Banking-App?", answer: "Die App muss EPC-QR-Codes für SEPA-Überweisungen unterstützen. Nutze den Überweisungs-Scanner deiner App und teste den Code vor dem Versand. Ein allgemeiner Kamera-Scanner erkennt das Zahlungsformat nicht immer." },
+            { question: "Kann ich den GiroCode direkt auf meine Rechly-Rechnungen drucken?", answer: "Ja. Hinterlege deine Bankverbindung in Rechly und aktiviere den GiroCode für den Rechnungs-PDF-Export. Prüfe vor dem Versand die hinterlegten Zahlungsdaten." },
         ],
         relatedToolIds: ["e-rechnung-viewer", "skontorechner", "verzugszinsen-rechner"],
     },
@@ -1143,7 +1131,8 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
             "Berechnen Sie blitzschnell Netto aus Brutto, Brutto aus Netto oder den Gesamtwert aus dem reinen Mehrwertsteuerbetrag – mit 19 %, 7 %, 0 % oder individuellem Steuersatz sowie praktischer Umrechnungstabelle.",
         metaTitle: "Mehrwertsteuer-Rechner (19 % & 7 %): Brutto ↔ Netto MwSt.",
         metaDescription:
-            "Kostenloser Mehrwertsteuer-Rechner (Umsatzsteuerrechner): Netto in Brutto (+19% / +7%) oder Brutto in Netto (-19% / -7%) sekundenschnell berechnen und für Ihre Rechnung kopieren.",
+            "Mehrwertsteuer mit 19 % oder 7 % berechnen: Netto in Brutto umrechnen oder MwSt. aus Brutto herausrechnen. Kostenloser Rechner mit Formeln und Beispielen.",
+        lastModified: "2026-11-09",
         keywords: [
             "Mehrwertsteuer Rechner",
             "Umsatzsteuer Rechner 19 Prozent",
@@ -1155,6 +1144,18 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
         icon: "PercentageOutlined",
         guideSections: [
             {
+                title: "Brutto und Netto: Formeln und Rechenbeispiele",
+                content: [
+                    "Netto zu Brutto: Brutto = Netto × (1 + Steuersatz / 100). Aus 100,00 € netto werden bei 19 % Umsatzsteuer 119,00 € brutto; der Steuerbetrag beträgt 19,00 €. Bei 7 % sind es 107,00 € brutto und 7,00 € Umsatzsteuer.",
+                    "Brutto zu Netto: Netto = Brutto ÷ (1 + Steuersatz / 100). Aus 119,00 € brutto werden bei 19 % genau 100,00 € netto. Ziehe nicht einfach 19 % vom Bruttobetrag ab: Die Steuer bezieht sich auf den Nettobetrag.",
+                    "„Zzgl. MwSt.“ bedeutet, dass die Steuer noch zum Nettopreis hinzukommt. Bei „inkl. MwSt.“ ist sie bereits im angegebenen Bruttopreis enthalten. Geldbeträge werden auf Cent gerundet; beim Runden einzelner Positionen können Differenzen zur Berechnung aus einer Gesamtsumme entstehen.",
+                ],
+                links: [
+                    { href: "/tools/rechnungsgenerator", label: "Berechnete Beträge in einer Rechnung verwenden" },
+                    { href: "https://www.gesetze-im-internet.de/ustg_1980/__12.html", label: "§ 12 UStG: Steuersätze und Voraussetzungen" },
+                ],
+            },
+            {
                 title: "So berechnen Sie die Mehrwertsteuer (19 % und 7 %) fehlerfrei",
                 content: [
                     "Der häufigste Rechenfehler im Büroalltag passiert beim Herausrechnen der Mehrwertsteuer aus einem Bruttobetrag: Wer von 100,00 € Brutto einfach 19 % abzieht (81,00 €), rechnet falsch! Denn der Bruttobetrag entspricht 119 % des Nettowerts.",
@@ -1163,7 +1164,7 @@ export const TOOLS_CATALOG: ToolDefinition[] = [
                 bullets: [
                     "19 % Regelsteuersatz (§ 12 Abs. 1 UStG): Gilt für fast alle gewerblichen Dienstleistungen, Handwerksarbeiten, Software, Beratung und Warenverkäufe.",
                     "7 % Ermäßigter Steuersatz (§ 12 Abs. 2 UStG): Gilt u. a. für Grundnahrungsmittel, Bücher, Zeitungen, Kunstgegenstände, Urheberrechte sowie den öffentlichen Nahverkehr.",
-                    "0 % Nullsteuersatz (§ 12 Abs. 3 UStG): Gilt seit 2023 für die Lieferung und Installation von Photovoltaikanlagen auf oder in der Nähe von Privatwohnungen.",
+                    "0 % Nullsteuersatz (§ 12 Abs. 3 UStG): Kann für bestimmte Photovoltaikanlagen gelten, wenn die gesetzlichen Voraussetzungen erfüllt sind. Eine Steuerbefreiung, etwa als Kleinunternehmer, ist davon zu unterscheiden.",
                 ],
             },
         ],
