@@ -81,7 +81,7 @@ export default function LexikonHubPage() {
             />
             <Navbar />
 
-            <header className="pt-28 pb-14 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200/80">
+            <section className="pt-28 pb-14 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200/80">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-5">
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold uppercase tracking-wider">
                         <BookOpen className="w-3.5 h-3.5" />
@@ -119,7 +119,7 @@ export default function LexikonHubPage() {
                         </Link>
                     </div>
                 </div>
-            </header>
+            </section>
 
             <main className="max-w-6xl mx-auto px-4 sm:px-6 py-12 space-y-12 flex-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

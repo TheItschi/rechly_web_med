@@ -21,7 +21,8 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Route changes and history restoration must not animate old page offsets. */
+  scroll-behavior: auto;
   overflow-x: hidden;
   max-width: 100vw;
 }

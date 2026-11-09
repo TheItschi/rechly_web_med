@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -14,25 +13,22 @@ import {
     FolderKanban,
     Globe2,
     Import,
-    Menu,
     Monitor,
     Receipt,
     Sparkles,
     Users,
-    X,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getRepoUrl } from "@/lib/env";
 import { homeFaqsDe, homeFaqsEn } from "@/lib/home-faq";
 import s from "./home.module.css";
+import Navbar from "./Navbar";
 
 const repoUrl = getRepoUrl();
 
 export default function HomeLanding() {
-    const { language, setLanguage } = useLanguage();
+    const { language } = useLanguage();
     const l = (de: string, en: string) => (language === "de" ? de : en);
-    const [menuOpen, setMenuOpen] = useState(false);
-    const menuButton = useRef<HTMLButtonElement>(null);
     const faqs = language === "de" ? homeFaqsDe : homeFaqsEn;
     const features = [
         {
@@ -91,88 +87,12 @@ export default function HomeLanding() {
             badge: l("Optional", "Optional"),
         },
     ];
-    const closeMenu = () => setMenuOpen(false);
     return (
         <div className={s.root} lang={language}>
             <a href="#inhalt" className={s.skip}>
                 {l("Zum Inhalt", "Skip to content")}
             </a>
-            <header
-                className={s.header}
-                onKeyDown={(event) => {
-                    if (event.key === "Escape" && menuOpen) {
-                        closeMenu();
-                        menuButton.current?.focus();
-                    }
-                }}
-            >
-                <div className={s.headerInner}>
-                    <Link
-                        prefetch={false}
-                        href="/"
-                        className={s.brand}
-                        aria-label={l("Rechly Startseite", "Rechly home")}
-                    >
-                        <Image src="/logo.png" width={34} height={34} alt="" priority />
-                        <span>
-                            Rechly<span className={s.brandDot}>.</span>
-                        </span>
-                    </Link>
-                    <button
-                        ref={menuButton}
-                        type="button"
-                        className={s.menuToggle}
-                        aria-expanded={menuOpen}
-                        aria-controls="home-navigation"
-                        aria-label={l(
-                            menuOpen ? "Menü schließen" : "Menü öffnen",
-                            menuOpen ? "Close menu" : "Open menu",
-                        )}
-                        onClick={() => setMenuOpen(!menuOpen)}
-                    >
-                        {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-                    </button>
-                    <nav
-                        id="home-navigation"
-                        className={[s.navigation, menuOpen ? s.navigationOpen : ""].join(" ")}
-                        aria-label={l("Hauptnavigation", "Main navigation")}
-                    >
-                        <div className={s.navLinks}>
-                            <Link prefetch={false} href="#funktionen" onClick={closeMenu}>
-                                {l("Funktionen", "Features")}
-                            </Link>
-                            <Link prefetch={false} href="#termine" onClick={closeMenu}>
-                                {l("Terminbuchung", "Booking")}
-                            </Link>
-                            <Link prefetch={false} href="/desktop" onClick={closeMenu}>
-                                Desktop
-                            </Link>
-                            <Link prefetch={false} href="/open-source" onClick={closeMenu}>
-                                Open Source
-                            </Link>
-                        </div>
-                        <div className={s.navActions}>
-                            <label className={s.language}>
-                                <span className={s.srOnly}>{l("Sprache", "Language")}</span>
-                                <select
-                                    value={language}
-                                    onChange={(event) => setLanguage(event.target.value as "de" | "en")}
-                                    aria-label={l("Sprache", "Language")}
-                                >
-                                    <option value="de">DE</option>
-                                    <option value="en">EN</option>
-                                </select>
-                            </label>
-                            <Link prefetch={false} href="/login" className={s.login}>
-                                {l("Anmelden", "Log in")}
-                            </Link>
-                            <Link prefetch={false} href="/register" className={s.buttonSmall}>
-                                {l("Kostenlos starten", "Get started free")}
-                            </Link>
-                        </div>
-                    </nav>
-                </div>
-            </header>
+            <Navbar reserveSpace />
 
             <main id="inhalt" tabIndex={-1}>
                 <section className={[s.container, s.hero].join(" ")} aria-labelledby="home-title">

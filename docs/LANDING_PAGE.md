@@ -19,6 +19,26 @@ Illustrations are explicitly labelled as examples with fictional data.
   Saved English preferences are restored after hydration to avoid mismatches.
 - Scoped styles keep the homepage redesign separate from application screens.
 
+The homepage and other public pages use the shared `Navbar` component. It keeps
+primary links consistent and groups tools, templates and guides under Resources.
+At widths below 1100 pixels it uses a scrollable native disclosure, with Escape,
+outside-click and route-change dismissal. The menu remains usable without
+JavaScript. Login/register pages retain `showAuth={false}`; the homepage uses
+`reserveSpace` because other public pages already offset their heroes for the
+fixed header. Page heroes use sections where needed to keep one site banner.
+
+Run `RECHLY_NAV_URL=http://127.0.0.1:3111 node tests/navbar.browser.cjs` against a
+local web server to check navigation consistency, active links, keyboard and
+mobile interactions, language persistence, auth pages and no-JavaScript access.
+
+Document scrolling uses `auto`: global CSS smooth scrolling interfered with
+Back/Forward restoration, even with Next.js's smooth-scroll declaration. Native
+history restoration and section anchors remain intact, without animating old
+page offsets. The Features download link targets `/desktop#download`; its former
+homepage target no longer exists. Run
+`RECHLY_NAV_URL=http://127.0.0.1:3111 node tests/navigation-scroll.browser.cjs`
+to check footer/menu navigation, history restoration and section targets.
+
 ## Search and sharing
 
 The homepage and features page have updated titles/descriptions. Canonical URLs,

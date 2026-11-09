@@ -121,7 +121,7 @@ export default function ToolsHubPage() {
             <Navbar />
 
             {/* Hero Section */}
-            <header
+            <section
                 style={{
                     paddingTop: 110,
                     paddingBottom: 48,
@@ -220,7 +220,7 @@ export default function ToolsHubPage() {
                         })}
                     </div>
                 </div>
-            </header>
+            </section>
 
             {/* Tools Grid Area */}
             <main style={{ maxWidth: 1140, margin: "0 auto", padding: "48px 24px" }}>

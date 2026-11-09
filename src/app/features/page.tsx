@@ -279,7 +279,7 @@ export default function FeaturesPage() {
 
                 <div style={{ textAlign: "center", marginTop: 40 }}>
                     <Link
-                        href="/#download"
+                        href="/desktop#download"
                         style={{
                             display: "inline-flex",
                             alignItems: "center",

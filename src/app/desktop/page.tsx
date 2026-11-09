@@ -203,7 +203,7 @@ export default function DesktopSeoPage() {
             <Navbar />
 
             {/* Hero Header */}
-            <header className="pt-28 pb-12 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white border-b border-slate-800">
+            <section className="pt-28 pb-12 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white border-b border-slate-800">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
                     {/* Breadcrumb */}
                     <nav
@@ -291,7 +291,7 @@ export default function DesktopSeoPage() {
                         </div>
                     </div>
                 </div>
-            </header>
+            </section>
 
             {/* Interactive OS-Aware Download Section */}
             <DownloadSection />

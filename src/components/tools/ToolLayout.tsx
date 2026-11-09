@@ -150,7 +150,7 @@ export default function ToolLayout({
             <Navbar />
 
             {/* Top Hero Section */}
-            <header
+            <section
                 style={{
                     paddingTop: "clamp(80px, 10vw, 110px)",
                     paddingBottom: "clamp(24px, 5vw, 40px)",
@@ -286,7 +286,7 @@ export default function ToolLayout({
                         </div>
                     </div>
                 </div>
-            </header>
+            </section>
 
             {/* Interactive Tool Main Area */}
             <main style={{ maxWidth: 1040, margin: "0 auto", padding: "clamp(20px, 4vw, 40px) clamp(12px, 3vw, 24px)" }}>

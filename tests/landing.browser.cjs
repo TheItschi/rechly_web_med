@@ -24,6 +24,7 @@ const canonical = process.env.RECHLY_CANONICAL_URL || origin;
         const overflow = await page.evaluate(() =>
             [...document.querySelectorAll("main *, header *, footer *")]
                 .filter((e) => {
+                    if (!e.checkVisibility()) return false;
                     const rect = e.getBoundingClientRect();
                     return (
                         rect.width > 0 &&
@@ -84,21 +85,18 @@ const canonical = process.env.RECHLY_CANONICAL_URL || origin;
         await page.setViewportSize({ width: 1440, height: 1000 });
         await screenshot("desktop");
         await page.setViewportSize({ width: 390, height: 844 });
-        const menu = page.getByRole("button", { name: "Menü öffnen" });
+        const menu = page.getByRole("button", { name: "Menü", exact: true });
         await menu.click();
-        assert.equal(
-            await page.getByRole("button", { name: "Menü schließen" }).getAttribute("aria-expanded"),
-            "true",
-        );
+        assert.equal(await menu.evaluate((e) => e.parentElement.open), true);
         await page.keyboard.press("Escape");
-        assert.equal(await menu.getAttribute("aria-expanded"), "false");
+        assert.equal(await menu.evaluate((e) => e.parentElement.open), false);
         assert.equal(await menu.evaluate((e) => e === document.activeElement), true);
         await menu.click();
         await page
             .getByRole("navigation", { name: "Hauptnavigation" })
             .getByRole("link", { name: "Terminbuchung", exact: true })
             .click();
-        assert.equal(await menu.getAttribute("aria-expanded"), "false");
+        assert.equal(await menu.evaluate((e) => e.parentElement.open), false);
         await page.waitForFunction(() => {
             const y = document.querySelector("#termine").getBoundingClientRect().top;
             return y >= 60 && y < 120;
@@ -106,7 +104,7 @@ const canonical = process.env.RECHLY_CANONICAL_URL || origin;
         await screenshot("mobile");
         await menu.click();
         await page.getByRole("combobox", { name: "Sprache" }).selectOption("en");
-        await page.getByRole("button", { name: "Close menu" }).click();
+        await page.getByRole("button", { name: "Menu", exact: true }).click();
         assert.match(await page.locator("h1").innerText(), /Invoicing sorted/);
         await page.reload();
         await page.waitForFunction(() =>
