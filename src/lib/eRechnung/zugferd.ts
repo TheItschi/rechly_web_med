@@ -8,13 +8,25 @@ import { identifierSummary } from "./identifierSummary";
 import PDFDocument from "pdfkit";
 import path from "node:path";
 import type { InvoiceWithDetails, UserCompany } from "@/types";
+import { isPdfSafeLogo } from "@/lib/companyLogo";
+
+/** Decode a PDF-safe logo data URL to a Buffer for pdfkit. Returns null when unusable. */
+function logoToBuffer(dataUrl: unknown): Buffer | null {
+    if (!isPdfSafeLogo(dataUrl)) return null;
+    const match = /^data:(image\/[a-z+]+);base64,([\s\S]*)$/i.exec(dataUrl);
+    if (!match) return null;
+    try {
+        return Buffer.from(match[2].replace(/\s/g, ""), "base64");
+    } catch {
+        return null;
+    }
+}
 import {
     generateXRechnungXML,
     validateXRechnung,
 } from "./xrechnung";
 
-function formatAmount(n: number): string {
-    return new Intl.NumberFormat("de-DE", {
+function formatAmount(n: number): string {    return new Intl.NumberFormat("de-DE", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(n);
@@ -64,6 +76,13 @@ export async function generateZUGFeRDPDF(
 
         // Header
         doc.fontSize(20).font("Invoice-Bold").text(company.name, 60, 50);
+        // Company logo top-right (PNG/JPEG only; failures must never break the compliant PDF).
+        try {
+            const logo = company.logo_base64 ? logoToBuffer(company.logo_base64) : null;
+            if (logo) doc.image(logo, 535 - 110, 45, { fit: [110, 55], align: "right" });
+        } catch {
+            // Skip unreadable logos silently.
+        }
         doc.fontSize(9).font("Invoice-Regular").fillColor("#666666");
         const companyLine = [
             company.address_line1,

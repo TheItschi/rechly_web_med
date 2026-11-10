@@ -39,6 +39,7 @@ import OnlineBookingSettingsTab from "@/components/termine/OnlineBookingSettings
 import { isTermineEnabled } from "@/lib/features";
 import type { UploadProps } from "antd";
 import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
+import { LogoError, normalizeLogoFile } from "@/lib/companyLogo";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -148,23 +149,18 @@ export default function SettingsPage() {
     };
 
     const handleLogoUpload: UploadProps["beforeUpload"] = (file) => {
-        const isImage = file.type.startsWith("image/");
-        if (!isImage) {
-            message.error(t("settings.imageOnly"));
-            return false;
-        }
-
-        const isLt2M = file.size / 1024 / 1024 < 2;
-        if (!isLt2M) {
-            message.error(t("settings.imageTooLarge"));
-            return false;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            setLogoPreview(e.target?.result as string);
-        };
-        reader.readAsDataURL(file);
+        void (async () => {
+            try {
+                const normalized = await normalizeLogoFile(file);
+                setLogoPreview(normalized);
+            } catch (error) {
+                if (error instanceof LogoError && error.code === "size") {
+                    message.error(t("settings.imageTooLarge"));
+                } else {
+                    message.error(t("settings.imageFormatUnsupported"));
+                }
+            }
+        })();
 
         return false; // Prevent auto upload
     };

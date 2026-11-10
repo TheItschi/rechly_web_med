@@ -27,6 +27,7 @@ import { getInvoiceById } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
+import { isPdfSafeLogo } from "@/lib/companyLogo";
 import { useLanguage, getTranslation, Language } from "@/contexts/LanguageContext";
 import type { InvoiceWithDetails, UserCompany, InvoiceItem } from "@/types";
 
@@ -284,7 +285,7 @@ const InvoicePDF = ({
 
                 {/* React PDF's Image is a PDF primitive and has no HTML alt attribute. */}
                 {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                {company?.logo_base64 && /^data:image\/(png|jpeg);base64,/.test(company.logo_base64) && <Image src={company.logo_base64} style={{ width: 100, maxHeight: 60, objectFit: "contain", marginBottom: 12 }} />}
+                {isPdfSafeLogo(company?.logo_base64) && <Image src={company!.logo_base64} style={{ width: 100, maxHeight: 60, objectFit: "contain", marginBottom: 12 }} />}
                 {identifierSummary(invoice.e_invoice) && <View style={{ marginBottom: 16 }}><Text>{identifierSummary(invoice.e_invoice)}</Text></View>}
                 {/* Addresses */}
                 <View style={styles.addresses}>

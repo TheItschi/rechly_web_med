@@ -80,6 +80,7 @@ export async function GET(
             bank_iban: companyDoc.bankIban || undefined,
             bank_bic: companyDoc.bankBic ?? undefined,
             bank_name: companyDoc.bankName ?? undefined,
+        logo_base64: companyDoc.logoBase64 ?? undefined,
             payment_terms_default: companyDoc.paymentTermsDefault ?? 14,
             invoice_number_prefix: companyDoc.invoiceNumberPrefix ?? "RE",
             next_invoice_number: companyDoc.nextInvoiceNumber ?? 1,

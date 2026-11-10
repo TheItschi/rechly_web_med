@@ -380,6 +380,7 @@ export const en = {
         "settings.invalidEmail": "Invalid email",
         "settings.imageOnly": "Only image files are allowed",
         "settings.imageTooLarge": "Image must be smaller than 2MB",
+        "settings.imageFormatUnsupported": "This image format cannot be used on invoices (PNG, JPG or WebP recommended)",
         "settings.accountInfo": "Account Information",
         "settings.accountEmail": "Email:",
         "settings.accountId": "Account ID:",

@@ -387,6 +387,7 @@ export const de = {
         "settings.invalidEmail": "Ungültige E-Mail",
         "settings.imageOnly": "Nur Bilddateien sind erlaubt",
         "settings.imageTooLarge": "Bild muss kleiner als 2MB sein",
+        "settings.imageFormatUnsupported": "Dieses Bildformat kann auf Rechnungen nicht verwendet werden (PNG, JPG oder WebP empfohlen)",
         "settings.accountInfo": "Kontoinformationen",
         "settings.accountEmail": "E-Mail:",
         "settings.accountId": "Konto-ID:",
