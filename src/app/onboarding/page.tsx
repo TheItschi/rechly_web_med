@@ -20,6 +20,7 @@ import {
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
+import { ApiError } from "@/lib/apiClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const { Title, Text, Paragraph } = Typography;
@@ -197,7 +198,7 @@ export default function OnboardingPage() {
             setCurrentStep(2);
         } catch (error) {
             console.error("Error saving company info:", error);
-            message.error("Fehler beim Speichern");
+            message.error(error instanceof ApiError ? error.message : "Fehler beim Speichern. Bitte die Verbindung prüfen und erneut versuchen.");
         } finally {
             setSaving(false);
         }

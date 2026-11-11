@@ -48,6 +48,7 @@ import {
     formatInvoiceNumber,
     validateNumberPattern,
 } from "@/lib/invoiceNumbering";
+import { ApiError } from "@/lib/apiClient";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -157,6 +158,8 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState("company");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [companyLoadError, setCompanyLoadError] = useState<string | null>(null);
+    const [companySaveError, setCompanySaveError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [aiLoading, setAiLoading] = useState(true);
@@ -197,13 +200,16 @@ export default function SettingsPage() {
     const loadCompanyInfo = async () => {
         try {
             setLoading(true);
-            const data = await getCompanyInfo();
+            setCompanyLoadError(null);
+            const data = await getCompanyInfo({ throwOnError: true });
             if (data) {
                 form.setFieldsValue(data);
                 setLogoPreview(data.logo_base64 || null);
             }
         } catch (error) {
-            console.error("Error loading company info:", error);
+            setCompanyLoadError(error instanceof ApiError && error.status === 401
+                ? (language === "de" ? "Ihre Sitzung ist abgelaufen. Bitte erneut anmelden." : "Your session has expired. Please sign in again.")
+                : (language === "de" ? "Die Firmendaten konnten nicht geladen werden. Bitte erneut laden, bevor Sie Änderungen speichern." : "Company details could not be loaded. Reload them before saving changes."));
         } finally {
             setLoading(false);
         }
@@ -237,16 +243,22 @@ export default function SettingsPage() {
     const handleSave = async (
         values: Omit<UserCompany, "id" | "created_at" | "updated_at">,
     ) => {
+        if (loading || companyLoadError) return;
         setSaving(true);
+        setCompanySaveError(null);
         try {
-            await saveCompanyInfo({
+            const saved = await saveCompanyInfo({
                 ...values,
-                logo_base64: logoPreview || undefined,
+                logo_base64: logoPreview || "",
             });
+            form.setFieldsValue(saved);
             message.success(t("settings.saved"));
         } catch (error) {
-            console.error("Error saving settings:", error);
-            message.error(t("settings.saveError"));
+            setCompanySaveError(error instanceof ApiError
+                ? (error.status === 401
+                    ? (language === "de" ? "Ihre Sitzung ist abgelaufen. Bitte erneut anmelden." : "Your session has expired. Please sign in again.")
+                    : error.message)
+                : (language === "de" ? "Speichern fehlgeschlagen. Bitte die Verbindung prüfen und erneut versuchen. Ihre Eingaben bleiben erhalten." : "Save failed. Check your connection and try again. Your entries have been kept."));
         } finally {
             setSaving(false);
         }
@@ -387,11 +399,15 @@ export default function SettingsPage() {
                 </span>
             ),
             children: (
+                <>
+                {companyLoadError && <Alert type="error" showIcon title={companyLoadError} style={{ marginBottom: 16 }}
+                    action={<Button onClick={loadCompanyInfo} loading={loading}>{language === "de" ? "Erneut laden" : "Retry"}</Button>} />}
+                {companySaveError && <Alert type="error" showIcon title={companySaveError} style={{ marginBottom: 16 }} />}
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleSave}
-                    disabled={loading}
+                    disabled={loading || !!companyLoadError}
                 >
                     {/* Logo */}
                     <Card size="small" style={{ marginBottom: 16 }}>
@@ -653,6 +669,7 @@ export default function SettingsPage() {
                         </Button>
                     </Form.Item>
                 </Form>
+                </>
             ),
         },
         ...(isTermineEnabled()

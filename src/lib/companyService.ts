@@ -11,11 +11,12 @@ import { logger } from "./logger";
 /**
  * Get company info for current user
  */
-export const getCompanyInfo = async (): Promise<UserCompany | null> => {
+export const getCompanyInfo = async (options: { throwOnError?: boolean } = {}): Promise<UserCompany | null> => {
     try {
         return await apiGet<UserCompany | null>("/api/company", "Failed to fetch company info");
     } catch (error) {
         logger.error("Error fetching company info:", error);
+        if (options.throwOnError) throw error;
         return null;
     }
 };
