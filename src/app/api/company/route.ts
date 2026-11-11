@@ -68,6 +68,9 @@ export async function GET() {
             bank_iban: doc.bankIban,
             bank_bic: doc.bankBic ?? undefined,
             logo_base64: doc.logoBase64 ?? undefined,
+            invoice_number_prefix: doc.invoiceNumberPrefix ?? undefined,
+            invoice_number_pattern: doc.invoiceNumberPattern ?? undefined,
+            next_invoice_number: doc.nextInvoiceNumber ?? undefined,
             is_small_business: doc.isSmallBusiness ?? false,
             payment_terms_default: doc.paymentTermsDefault,
             created_at: new Date(doc.$createdAt).getTime(),
@@ -145,6 +148,18 @@ export async function POST(request: NextRequest) {
             logoBase64: body.logo_base64 || null,
             isSmallBusiness: !!body.is_small_business,
             paymentTermsDefault: body.payment_terms_default,
+            invoiceNumberPrefix:
+                typeof body.invoice_number_prefix === "string" && body.invoice_number_prefix.trim()
+                    ? body.invoice_number_prefix.trim().slice(0, 32)
+                    : null,
+            invoiceNumberPattern:
+                typeof body.invoice_number_pattern === "string" && body.invoice_number_pattern.trim()
+                    ? body.invoice_number_pattern.trim().slice(0, 64)
+                    : null,
+            nextInvoiceNumber:
+                Number.isInteger(Number(body.next_invoice_number)) && Number(body.next_invoice_number) > 0
+                    ? Math.floor(Number(body.next_invoice_number))
+                    : null,
         };
 
         let doc;
@@ -194,6 +209,9 @@ export async function POST(request: NextRequest) {
             bank_iban: doc.bankIban,
             bank_bic: doc.bankBic ?? undefined,
             logo_base64: doc.logoBase64 ?? undefined,
+            invoice_number_prefix: doc.invoiceNumberPrefix ?? undefined,
+            invoice_number_pattern: doc.invoiceNumberPattern ?? undefined,
+            next_invoice_number: doc.nextInvoiceNumber ?? undefined,
             is_small_business: doc.isSmallBusiness ?? false,
             payment_terms_default: doc.paymentTermsDefault,
             created_at: new Date(doc.$createdAt).getTime(),

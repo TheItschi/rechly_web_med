@@ -28,6 +28,9 @@ export interface UserCompany {
     datev_chart_of_accounts?: "SKR03" | "SKR04";
     datev_consultant_number?: string;
     datev_client_number?: string;
+    invoice_number_prefix?: string;
+    invoice_number_pattern?: string;
+    next_invoice_number?: number;
     created_at: number;
     updated_at: number;
 }
@@ -79,6 +82,8 @@ export interface Invoice {
     notes?: string;
     purchase_order_ref?: string;
     delivery_date?: string;
+    delivery_date_start?: string;
+    delivery_date_end?: string;
     payment_terms?: string;
     correction_type?: "credit_note" | "correction" | null;
     corrects_invoice_id?: string | null;
@@ -97,6 +102,8 @@ export interface InvoiceItem {
     price: number;
     tax_rate_percent: number;
     discount_percent: number;
+    service_date_start?: string;
+    service_date_end?: string;
     subtotal: number;
     tax_amount: number;
     total: number;
@@ -172,6 +179,9 @@ export interface InvoiceItemFormData {
     price: number;
     tax_rate_percent: number;
     discount_percent: number;
+    /** Optional service period per line item (YYYY-MM-DD). Omitted when unset. */
+    service_date_start?: string;
+    service_date_end?: string;
 }
 
 export interface InvoiceFormData {
@@ -183,6 +193,9 @@ export interface InvoiceFormData {
     notes?: string;
     purchase_order_ref?: string;
     delivery_date?: string;
+    /** Optional overall service period (YYYY-MM-DD). Omitted when unset. */
+    delivery_date_start?: string;
+    delivery_date_end?: string;
     payment_terms?: string;
     items: InvoiceItemFormData[];
 }

@@ -3,9 +3,15 @@ import { InvoiceIdentifierEditor } from "@/components/dashboard/EInvoiceFields";
 import { type EInvoiceData } from "@/lib/eRechnung/identifiers";
 import {
     buildInvoiceFormData,
+    summarizeServicePeriod,
     validateInvoiceDraft,
     type InvoiceLineItem as LineItem,
 } from "@/lib/invoiceForm";
+import {
+    createInvoiceTemplate,
+    getAllInvoiceTemplates,
+    type InvoiceTemplate,
+} from "@/lib/invoiceTemplateService";
 import { defaultVatRate } from "@/lib/vatDefaults";
 
 import { useEffect, useState, useCallback } from "react";
@@ -26,6 +32,7 @@ import {
     Steps,
     Result,
     Modal,
+    Tooltip,
 } from "antd";
 import {
     PlusOutlined,
@@ -35,11 +42,13 @@ import {
     CheckOutlined,
     FileTextOutlined,
     RobotOutlined,
+    ReloadOutlined,
+    SaveOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import { getAllClients, createClient } from "@/lib/clientService";
 import { getAllProducts, createProduct } from "@/lib/productService";
-import { createInvoice } from "@/lib/invoiceService";
+import { createInvoice, getInvoiceById, getNextInvoiceNumber } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { runInvoiceAssistant, parseInvoiceDraftWithAI } from "@/lib/aiService";
 import {
@@ -74,8 +83,15 @@ export default function InvoiceCreatePage() {
     const [invoiceDate, setInvoiceDate] = useState(dayjs());
     const [dueDate, setDueDate] = useState(dayjs().add(14, "day"));
     const [invoiceNumber, setInvoiceNumber] = useState("");
+    const [numberTouched, setNumberTouched] = useState(false);
+    const [deliveryDateStart, setDeliveryDateStart] = useState<Dayjs | null>(null);
+    const [deliveryDateEnd, setDeliveryDateEnd] = useState<Dayjs | null>(null);
     const [notes, setNotes] = useState("");
     const [paymentTerms, setPaymentTerms] = useState("");
+    const [templates, setTemplates] = useState<InvoiceTemplate[]>([]);
+    const [templateModalOpen, setTemplateModalOpen] = useState(false);
+    const [templateSaving, setTemplateSaving] = useState(false);
+    const [templateForm] = Form.useForm();
     const [generatingNotes, setGeneratingNotes] = useState(false);
     const [generatingPaymentTerms, setGeneratingPaymentTerms] = useState(false);
     const [generatingLineItemKey, setGeneratingLineItemKey] = useState<
@@ -98,15 +114,18 @@ export default function InvoiceCreatePage() {
     const loadData = useCallback(async () => {
         try {
             setLoading(true);
-            const [clientsData, productsData, companyData] = await Promise.all([
-                getAllClients(),
-                getAllProducts(),
-                getCompanyInfo(),
-            ]);
+            const [clientsData, productsData, companyData, templatesData] =
+                await Promise.all([
+                    getAllClients(),
+                    getAllProducts(),
+                    getCompanyInfo(),
+                    getAllInvoiceTemplates().catch(() => [] as InvoiceTemplate[]),
+                ]);
             setClients(clientsData);
             setProducts(productsData);
             setCompany(companyData);
             setPaymentTerms(companyData?.payment_terms_default || "");
+            setTemplates(templatesData);
         } catch (error) {
             console.error("Error loading data:", error);
             message.error(t("invoiceCreate.loadError"));
@@ -115,19 +134,175 @@ export default function InvoiceCreatePage() {
         }
     }, [t]);
 
-    const generateInvoiceNumber = useCallback(() => {
+    const toLineItem = useCallback(
+        (item: {
+            description: string;
+            quantity: number;
+            unit_of_measure?: string;
+            price: number;
+            tax_rate_percent?: number;
+            discount_percent?: number;
+            product_id?: string;
+            service_date_start?: string;
+            service_date_end?: string;
+        }): LineItem => ({
+            key: `${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+            description: item.description,
+            service_summary: item.description,
+            quantity: item.quantity || 1,
+            unit_of_measure: item.unit_of_measure || t("invoiceCreate.unitPiece"),
+            price: item.price ?? 0,
+            tax_rate_percent:
+                typeof item.tax_rate_percent === "number"
+                    ? item.tax_rate_percent
+                    : defaultVatRate(company?.is_small_business),
+            discount_percent: item.discount_percent ?? 0,
+            ...(item.product_id ? { product_id: item.product_id } : {}),
+            ...(item.service_date_start ? { service_date_start: item.service_date_start } : {}),
+            ...(item.service_date_end ? { service_date_end: item.service_date_end } : {}),
+        }),
+        [company, t],
+    );
+
+    /** Fill the whole form from an existing invoice or template draft. */
+    const applyDraftData = useCallback(
+        (draft: {
+            clientId?: string;
+            notes?: string;
+            paymentTerms?: string;
+            deliveryDateStart?: string;
+            deliveryDateEnd?: string;
+            items: Array<{
+                description: string;
+                quantity: number;
+                unit_of_measure?: string;
+                price: number;
+                tax_rate_percent?: number;
+                discount_percent?: number;
+                product_id?: string;
+                service_date_start?: string;
+                service_date_end?: string;
+            }>;
+        }) => {
+            if (draft.clientId) {
+                const found = clients.find((c) => c.id === draft.clientId);
+                setSelectedClient(found ?? null);
+            } else {
+                setSelectedClient(null);
+            }
+            setEInvoice(undefined);
+            setNotes(draft.notes ?? "");
+            setPaymentTerms(draft.paymentTerms ?? company?.payment_terms_default ?? "");
+            setDeliveryDateStart(draft.deliveryDateStart ? dayjs(draft.deliveryDateStart) : null);
+            setDeliveryDateEnd(draft.deliveryDateEnd ? dayjs(draft.deliveryDateEnd) : null);
+            setLineItems(draft.items.map((item) => toLineItem(item)));
+        },
+        [clients, company, toLineItem],
+    );
+
+    const applyTemplate = useCallback(
+        (template: InvoiceTemplate) => {
+            applyDraftData({
+                clientId: template.payload.clientId,
+                notes: template.payload.notes,
+                paymentTerms: template.payload.paymentTerms,
+                deliveryDateStart: template.payload.deliveryDateStart,
+                deliveryDateEnd: template.payload.deliveryDateEnd,
+                items: template.payload.items.map((item) => ({
+                    description: item.description,
+                    quantity: item.quantity,
+                    unit_of_measure: item.unitOfMeasure,
+                    price: item.price,
+                    tax_rate_percent: item.taxRatePercent,
+                    discount_percent: item.discount,
+                    product_id: item.productId,
+                    service_date_start: item.serviceDateStart,
+                    service_date_end: item.serviceDateEnd,
+                })),
+            });
+            message.success(t("invoiceCreate.templateApplied"));
+        },
+        [applyDraftData, t],
+    );
+
+    const suggestDuplicatePrefill = useCallback(async () => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const duplicateId = params.get("duplicate");
+            const templateId = params.get("template");
+            if (duplicateId) {
+                const source = await getInvoiceById(duplicateId);
+                if (!source) {
+                    message.error(t("invoiceCreate.duplicateNotFound"));
+                    return;
+                }
+                applyDraftData({
+                    clientId: source.client_id,
+                    notes: source.notes,
+                    paymentTerms: source.payment_terms,
+                    deliveryDateStart: source.delivery_date_start,
+                    deliveryDateEnd: source.delivery_date_end ?? source.delivery_date,
+                    items: source.items.map((item) => ({
+                        description: item.description,
+                        quantity: item.quantity,
+                        unit_of_measure: item.unit_of_measure,
+                        price: item.price,
+                        tax_rate_percent: item.tax_rate_percent,
+                        discount_percent: item.discount_percent,
+                        product_id: item.product_id ?? undefined,
+                        service_date_start: item.service_date_start,
+                        service_date_end: item.service_date_end,
+                    })),
+                });
+                message.success(t("invoiceCreate.duplicatedNotice"));
+            } else if (templateId) {
+                const tpl = templates.find((item) => item.id === templateId);
+                if (!tpl) {
+                    message.error(t("invoiceCreate.templateNotFound"));
+                    return;
+                }
+                applyTemplate(tpl);
+            }
+        } catch (error) {
+            console.error("Error applying prefill:", error);
+        }
+    }, [templates, applyDraftData, applyTemplate, t]);
+
+    const generateInvoiceNumber = useCallback(async () => {
+        try {
+            const next = await getNextInvoiceNumber();
+            if (next?.number) {
+                setInvoiceNumber(next.number);
+                setNumberTouched(false);
+                return;
+            }
+        } catch (error) {
+            console.error("Error fetching next invoice number:", error);
+        }
+        // Fallback when the numbering endpoint is unavailable.
         const year = dayjs().format("YYYY");
         const month = dayjs().format("MM");
         const random = Math.floor(Math.random() * 1000)
             .toString()
             .padStart(3, "0");
         setInvoiceNumber(`RE-${year}${month}-${random}`);
+        setNumberTouched(false);
+    }, []);
+
+    const [prefillDone, setPrefillDone] = useState(false);
+
+    useEffect(() => {
+        void loadData();
+        void generateInvoiceNumber();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        loadData();
-        generateInvoiceNumber();
-    }, [loadData, generateInvoiceNumber]);
+        if (!loading && !prefillDone) {
+            setPrefillDone(true);
+            void suggestDuplicatePrefill();
+        }
+    }, [loading, prefillDone, suggestDuplicatePrefill]);
 
     const addLineItem = () => {
         const newItem: LineItem = {
@@ -243,6 +418,65 @@ export default function InvoiceCreatePage() {
         })),
     );
 
+    /** Adopt min start / max end from per-item service dates. */
+    const handleAdoptServicePeriod = () => {
+        const summary = summarizeServicePeriod(
+            lineItems.map((item) => ({
+                service_date_start: item.service_date_start,
+                service_date_end: item.service_date_end,
+            })),
+        );
+        if (!summary) {
+            message.info(t("invoiceCreate.noServiceDates"));
+            return;
+        }
+        setDeliveryDateStart(dayjs(summary.start));
+        setDeliveryDateEnd(dayjs(summary.end));
+        message.success(t("invoiceCreate.servicePeriodAdopted"));
+    };
+
+    /** Save the current draft as a reusable template. */
+    const handleSaveTemplate = async () => {
+        try {
+            const name = (templateForm.getFieldValue("name") as string | undefined)?.trim();
+            if (!name) {
+                message.warning(t("invoiceCreate.templateNameRequired"));
+                return;
+            }
+            setTemplateSaving(true);
+            const tpl = await createInvoiceTemplate({
+                name: name.slice(0, 120),
+                payload: {
+                    ...(selectedClient?.id ? { clientId: selectedClient.id } : {}),
+                    ...(notes.trim() ? { notes: notes.trim() } : {}),
+                    ...(paymentTerms.trim() ? { paymentTerms: paymentTerms.trim() } : {}),
+                    ...(deliveryDateStart ? { deliveryDateStart: deliveryDateStart.format("YYYY-MM-DD") } : {}),
+                    ...(deliveryDateEnd ? { deliveryDateEnd: deliveryDateEnd.format("YYYY-MM-DD") } : {}),
+                    items: lineItems.map((item) => ({
+                        description: item.description,
+                        quantity: item.quantity,
+                        unitOfMeasure: item.unit_of_measure,
+                        price: item.price,
+                        taxRatePercent: item.tax_rate_percent,
+                        discount: item.discount_percent,
+                        ...(item.product_id ? { productId: item.product_id } : {}),
+                        ...(item.service_date_start ? { serviceDateStart: item.service_date_start } : {}),
+                        ...(item.service_date_end ? { serviceDateEnd: item.service_date_end } : {}),
+                    })),
+                },
+            });
+            setTemplates((prev) => [tpl, ...prev]);
+            setTemplateModalOpen(false);
+            templateForm.resetFields();
+            message.success(t("invoiceCreate.templateSaved"));
+        } catch (error) {
+            console.error("Error saving template:", error);
+            message.error(error instanceof Error ? error.message : t("invoiceCreate.createError"));
+        } finally {
+            setTemplateSaving(false);
+        }
+    };
+
     const handleCreateInvoice = async () => {
         const draftError = validateInvoiceDraft(selectedClient?.id, lineItems.length);
         if (draftError === "missing-client") {
@@ -251,6 +485,10 @@ export default function InvoiceCreatePage() {
         }
         if (draftError === "missing-items") {
             message.error(t("invoiceCreate.addItemsError"));
+            return;
+        }
+        if (deliveryDateStart && deliveryDateEnd && deliveryDateStart.isAfter(deliveryDateEnd, "day")) {
+            message.error(t("invoiceCreate.servicePeriodInvalid"));
             return;
         }
 
@@ -264,18 +502,29 @@ export default function InvoiceCreatePage() {
                 dueDate: dueDate.format("YYYY-MM-DD"),
                 notes,
                 paymentTerms,
+                deliveryDateStart: deliveryDateStart?.format("YYYY-MM-DD"),
+                deliveryDateEnd: deliveryDateEnd?.format("YYYY-MM-DD"),
                 lineItems,
             });
 
-            const newInvoiceId = await createInvoice(invoiceData);
+            const created = await createInvoice(invoiceData);
+            // Use the server-assigned number (may differ after conflict resolution).
+            if (created.invoiceNumber) {
+                setInvoiceNumber(created.invoiceNumber);
+            }
 
-            setCreatedInvoiceId(newInvoiceId);
+            setCreatedInvoiceId(created.id);
             setCurrentStep(3);
             message.success(t("invoiceCreate.created"));
         } catch (error) {
             console.error("Error creating invoice:", error);
-            const errorMsg = error instanceof Error ? error.message : t("invoiceCreate.createError");
-            message.error(errorMsg);
+            const status = (error as { status?: number } | null)?.status;
+            if (status === 409) {
+                message.error(t("invoiceCreate.numberTaken"));
+            } else {
+                const errorMsg = error instanceof Error ? error.message : t("invoiceCreate.createError");
+                message.error(errorMsg);
+            }
         } finally {
             setSaving(false);
         }
@@ -596,6 +845,28 @@ export default function InvoiceCreatePage() {
             ),
         },
         {
+            title: t("invoiceCreate.itemServicePeriod"),
+            key: "service_period",
+            width: 210,
+            render: (_: unknown, record: LineItem) => (
+                <DatePicker.RangePicker
+                    size="small"
+                    format="DD.MM.YY"
+                    value={[
+                        record.service_date_start ? dayjs(record.service_date_start) : null,
+                        record.service_date_end ? dayjs(record.service_date_end) : null,
+                    ]}
+                    allowEmpty={[true, true]}
+                    onChange={(dates) => {
+                        const [start, end] = dates ?? [null, null];
+                        updateLineItem(record.key, "service_date_start", start ? start.format("YYYY-MM-DD") : undefined);
+                        updateLineItem(record.key, "service_date_end", end ? end.format("YYYY-MM-DD") : undefined);
+                    }}
+                    style={{ width: "100%" }}
+                />
+            ),
+        },
+        {
             title: t("invoiceCreate.lineTotal"),
             key: "line_total",
             width: 100,
@@ -624,6 +895,21 @@ export default function InvoiceCreatePage() {
             case 0:
                 return (
                     <Card title={t("invoiceCreate.selectClientCard")}>
+                        {templates.length > 0 && (
+                            <div style={{ marginBottom: 16 }}>
+                                <Select
+                                    style={{ width: "100%" }}
+                                    placeholder={t("invoiceCreate.fromTemplate")}
+                                    value={undefined}
+                                    onChange={(id: string) => {
+                                        const tpl = templates.find((item) => item.id === id);
+                                        if (tpl) applyTemplate(tpl);
+                                    }}
+                                    options={templates.map((tpl) => ({ value: tpl.id, label: tpl.name }))}
+                                    allowClear
+                                />
+                            </div>
+                        )}
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                             <Select
                                 showSearch
@@ -745,21 +1031,68 @@ export default function InvoiceCreatePage() {
 
             case 2:
                 return (
-                    <Card title={t("invoiceCreate.invoiceDetails")}>
+                    <Card
+                        title={t("invoiceCreate.invoiceDetails")}
+                        extra={
+                            <Button
+                                icon={<SaveOutlined />}
+                                onClick={() => setTemplateModalOpen(true)}
+                            >
+                                {t("invoiceCreate.saveAsTemplate")}
+                            </Button>
+                        }
+                    >
                         <Form layout="vertical">
                             <Space style={{ width: "100%" }}>
                                 <Form.Item
                                     label={t("invoiceCreate.invoiceNumber")}
                                     style={{ flex: 1 }}
                                 >
-                                    <Input
-                                        value={invoiceNumber}
-                                        onChange={(e) =>
-                                            setInvoiceNumber(e.target.value)
-                                        }
-                                    />
+                                    <Space.Compact style={{ width: "100%" }}>
+                                        <Input
+                                            value={invoiceNumber}
+                                            onChange={(e) => {
+                                                setInvoiceNumber(e.target.value);
+                                                setNumberTouched(true);
+                                            }}
+                                            placeholder={t("invoiceCreate.invoiceNumberPlaceholder")}
+                                        />
+                                        <Tooltip title={t("invoiceCreate.newNumberTooltip")}>
+                                            <Button
+                                                icon={<ReloadOutlined />}
+                                                onClick={() => void generateInvoiceNumber()}
+                                            />
+                                        </Tooltip>
+                                    </Space.Compact>
                                 </Form.Item>
                             </Space>
+                            {!numberTouched && invoiceNumber && (
+                                <Text type="secondary" style={{ display: "block", marginTop: -12, marginBottom: 16, fontSize: 12 }}>
+                                    {t("invoiceCreate.autoNumberHint")}
+                                </Text>
+                            )}
+
+                            <Form.Item
+                                label={t("invoiceCreate.deliveryPeriod")}
+                                extra={t("invoiceCreate.deliveryPeriodHelp")}
+                            >
+                                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                                    <DatePicker.RangePicker
+                                        format="DD.MM.YYYY"
+                                        value={[deliveryDateStart, deliveryDateEnd]}
+                                        onChange={(dates) => {
+                                            const [start, end] = dates ?? [null, null];
+                                            setDeliveryDateStart(start);
+                                            setDeliveryDateEnd(end);
+                                        }}
+                                        allowEmpty={[true, true]}
+                                        style={{ flex: "1 1 260px", minWidth: 0 }}
+                                    />
+                                    <Button onClick={handleAdoptServicePeriod}>
+                                        {t("invoiceCreate.deliveryPeriodAuto")}
+                                    </Button>
+                                </div>
+                            </Form.Item>
 
                             <Space style={{ width: "100%" }}>
                                 <Form.Item
@@ -1149,6 +1482,37 @@ export default function InvoiceCreatePage() {
                             ]}
                         />
                     </Form.Item>
+                </Form>
+            </Modal>
+
+            <Modal
+                title={t("invoiceCreate.saveAsTemplateTitle")}
+                open={templateModalOpen}
+                onOk={handleSaveTemplate}
+                onCancel={() => {
+                    setTemplateModalOpen(false);
+                    templateForm.resetFields();
+                }}
+                okText={t("invoiceCreate.saveAsTemplate")}
+                cancelText={t("clients.cancel")}
+                confirmLoading={templateSaving}
+                destroyOnHidden
+            >
+                <Form form={templateForm} layout="vertical" preserve={false}>
+                    <Form.Item
+                        label={t("invoiceCreate.templateName")}
+                        name="name"
+                        rules={[{ required: true }]}
+                    >
+                        <Input
+                            autoFocus
+                            maxLength={120}
+                            placeholder={t("invoiceCreate.templateNamePlaceholder")}
+                        />
+                    </Form.Item>
+                    <Text type="secondary">
+                        {t("invoiceCreate.saveAsTemplateHint")}
+                    </Text>
                 </Form>
             </Modal>
 

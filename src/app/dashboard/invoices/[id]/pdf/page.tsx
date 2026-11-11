@@ -27,6 +27,7 @@ import { getInvoiceById } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
+import { formatServicePeriod } from "@/lib/invoiceForm";
 import { isPdfSafeLogo } from "@/lib/companyLogo";
 import { useLanguage, getTranslation, Language } from "@/contexts/LanguageContext";
 import type { InvoiceWithDetails, UserCompany, InvoiceItem } from "@/types";
@@ -121,6 +122,10 @@ const styles = StyleSheet.create({
     },
     colDescription: {
         flex: 3,
+    },
+    itemServicePeriod: {
+        fontSize: 7,
+        color: "#666666",
     },
     colQuantity: {
         flex: 1,
@@ -337,6 +342,20 @@ const InvoicePDF = ({
                                 : "-"}
                         </Text>
                     </View>
+                    {formatServicePeriod(
+                        invoice.delivery_date_start,
+                        invoice.delivery_date_end ?? invoice.delivery_date,
+                    ) && (
+                        <View style={styles.infoItem}>
+                            <Text style={styles.infoLabel}>{t("invoicePdf.servicePeriod")}</Text>
+                            <Text style={styles.infoValue}>
+                                {formatServicePeriod(
+                                    invoice.delivery_date_start,
+                                    invoice.delivery_date_end ?? invoice.delivery_date,
+                                )}
+                            </Text>
+                        </View>
+                    )}
                     <View style={styles.infoItem}>
                         <Text style={styles.infoLabel}>{t("invoicePdf.currency")}</Text>
                         <Text style={styles.infoValue}>EUR</Text>
@@ -378,6 +397,11 @@ const InvoicePDF = ({
                             >
                                 <Text style={styles.colDescription}>
                                     {item.description}{item.gtin ? `\nGTIN: ${item.gtin}` : ""}
+                                    {formatServicePeriod(item.service_date_start, item.service_date_end) && (
+                                        <Text style={styles.itemServicePeriod}>
+                                            {`\n${t("invoicePdf.servicePeriodShort")}: ${formatServicePeriod(item.service_date_start, item.service_date_end)}`}
+                                        </Text>
+                                    )}
                                 </Text>
                                 <Text style={styles.colQuantity}>
                                     {item.quantity}

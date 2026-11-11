@@ -99,10 +99,10 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
     },
 
     addInvoice: async (data: InvoiceFormData) => {
-        const invoiceId = await apiCreateInvoice(data);
+        const created = await apiCreateInvoice(data);
         // Invalidate cache to refetch with new invoice
         set({ lastFetched: null, stats: null });
-        return invoiceId;
+        return created.id;
     },
 
     updateStatus: async (id: string, status: InvoiceStatus) => {

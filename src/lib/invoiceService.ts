@@ -39,8 +39,7 @@ const EMPTY_STATS: InvoiceStats = {
 /**
  * Get all invoices with client info
  */
-export const getAllInvoices = async (): Promise<InvoiceWithClient[]> => {
-    try {
+export const getAllInvoices = async (): Promise<InvoiceWithClient[]> => {    try {
         return await apiGet<InvoiceWithClient[]>(
             "/api/invoices",
             "Failed to fetch invoices",
@@ -72,14 +71,14 @@ export const getInvoiceById = async (
 /**
  * Create new invoice with items
  */
-export const createInvoice = async (data: InvoiceFormData): Promise<string> => {
+export const createInvoice = async (data: InvoiceFormData): Promise<{ id: string; invoiceNumber?: string }> => {
     try {
-        const result = await apiPost<{ id: string }>(
+        const result = await apiPost<{ id: string; invoiceNumber?: string }>(
             "/api/invoices",
             data,
             "Failed to create invoice",
         );
-        return result.id;
+        return { id: result.id, invoiceNumber: result.invoiceNumber };
     } catch (error) {
         logger.error("Error creating invoice:", error);
         throw error;
@@ -110,6 +109,24 @@ export const deleteInvoice = async (id: string): Promise<void> => {
     } catch (error) {
         logger.error("Error deleting invoice:", error);
         throw error;
+    }
+};
+
+/**
+ * Get the next sequential invoice number preview (not reserved).
+ * Falls back to null when the endpoint is unavailable (older backend).
+ */
+export const getNextInvoiceNumber = async (
+    suggest = false,
+): Promise<{ number: string; pattern: string; prefix: string; next: number } | null> => {
+    try {
+        return await apiGet<{ number: string; pattern: string; prefix: string; next: number }>(
+            suggest ? "/api/invoices/next-number?suggest=1" : "/api/invoices/next-number",
+            "Failed to fetch next invoice number",
+        );
+    } catch (error) {
+        logger.error("Error getting next invoice number:", error);
+        return null;
     }
 };
 

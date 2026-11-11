@@ -1229,6 +1229,134 @@ export async function POST() {
             ),
         );
 
+        // ── Sequential invoice numbering on user_company ─────────────────────
+        results.push(
+            await safeCreate(
+                () =>
+                    databases.createStringAttribute(
+                        DATABASE_ID,
+                        "user_company",
+                        "invoiceNumberPrefix",
+                        32,
+                        false,
+                    ),
+                "attr:user_company.invoiceNumberPrefix",
+            ),
+        );
+        results.push(
+            await safeCreate(
+                () =>
+                    databases.createStringAttribute(
+                        DATABASE_ID,
+                        "user_company",
+                        "invoiceNumberPattern",
+                        64,
+                        false,
+                    ),
+                "attr:user_company.invoiceNumberPattern",
+            ),
+        );
+        results.push(
+            await safeCreate(
+                () =>
+                    databases.createIntegerAttribute(
+                        DATABASE_ID,
+                        "user_company",
+                        "nextInvoiceNumber",
+                        false,
+                    ),
+                "attr:user_company.nextInvoiceNumber",
+            ),
+        );
+
+        // ── Invoice-level service period on invoices ─────────────────────────
+        for (const key of ["deliveryDateStart", "deliveryDateEnd"]) {
+            results.push(
+                await safeCreate(
+                    () =>
+                        databases.createDatetimeAttribute(
+                            DATABASE_ID,
+                            "invoices",
+                            key,
+                            false,
+                        ),
+                    `attr:invoices.${key}`,
+                ),
+            );
+        }
+
+        // ── Per-item service period on invoice_items ─────────────────────────
+        for (const key of ["serviceDateStart", "serviceDateEnd"]) {
+            results.push(
+                await safeCreate(
+                    () =>
+                        databases.createDatetimeAttribute(
+                            DATABASE_ID,
+                            "invoice_items",
+                            key,
+                            false,
+                        ),
+                    `attr:invoice_items.${key}`,
+                ),
+            );
+        }
+
+        // ── Invoice templates collection ───────────────────────────────────
+        results.push(
+            await safeCreate(
+                () =>
+                    databases.createCollection(DATABASE_ID, "invoice_templates", "invoice_templates", [
+                        Permission.create(Role.users()),
+                    ], true),
+                "collection:invoice_templates",
+            ),
+        );
+        for (const [key, size, required] of [
+            ["userId", 64, true],
+            ["name", 120, true],
+        ] as const) {
+            results.push(
+                await safeCreate(
+                    () =>
+                        databases.createStringAttribute(
+                            DATABASE_ID,
+                            "invoice_templates",
+                            key,
+                            size,
+                            required,
+                        ),
+                    `attr:invoice_templates.${key}`,
+                ),
+            );
+        }
+        results.push(
+            await safeCreate(
+                () =>
+                    databases.createStringAttribute(
+                        DATABASE_ID,
+                        "invoice_templates",
+                        "payload",
+                        16000,
+                        true,
+                    ),
+                "attr:invoice_templates.payload",
+            ),
+        );
+        results.push(
+            await safeCreate(
+                () =>
+                    databases.createIndex(
+                        DATABASE_ID,
+                        "invoice_templates",
+                        "userId_idx",
+                        IndexType.Key,
+                        ["userId"],
+                        ["ASC"],
+                    ),
+                "index:invoice_templates.userId",
+            ),
+        );
+
         const errors = results.filter((r) => r.status === "error");
         return NextResponse.json(
             {

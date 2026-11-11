@@ -16,6 +16,7 @@ import {
     Spin,
     Modal,
     Alert,
+    Input,
 } from "antd";
 import {
     ArrowLeftOutlined,
@@ -32,17 +33,20 @@ import {
     QrcodeOutlined,
     DownloadOutlined,
     FileTextOutlined,
+    SaveOutlined,
 } from "@ant-design/icons";
 import {
     getInvoiceById,
     updateInvoiceStatus,
     deleteInvoice,
 } from "@/lib/invoiceService";
+import { createInvoiceTemplate } from "@/lib/invoiceTemplateService";
 import { getCompanyInfo } from "@/lib/companyService";
 import DunningCard from "@/components/DunningCard";
 import { runInvoiceAssistant } from "@/lib/aiService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
+import { formatServicePeriod } from "@/lib/invoiceForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import QRCode from "qrcode";
 import { buildGirocodePayload } from "@/lib/girocode";
@@ -77,6 +81,49 @@ export default function InvoiceDetailPage() {
     const [draftingReminder, setDraftingReminder] = useState(false);
     const [reminderDraft, setReminderDraft] = useState("");
     const [reminderModalOpen, setReminderModalOpen] = useState(false);
+    const [templateModalOpen, setTemplateModalOpen] = useState(false);
+    const [templateName, setTemplateName] = useState("");
+    const [templateSaving, setTemplateSaving] = useState(false);
+
+    const handleSaveAsTemplate = async () => {
+        if (!invoice) return;
+        const name = templateName.trim();
+        if (!name) {
+            message.warning(t("invoiceCreate.templateNameRequired"));
+            return;
+        }
+        setTemplateSaving(true);
+        try {
+            await createInvoiceTemplate({
+                name: name.slice(0, 120),
+                payload: {
+                    ...(invoice.client_id ? { clientId: invoice.client_id } : {}),
+                    ...(invoice.notes?.trim() ? { notes: invoice.notes.trim() } : {}),
+                    ...(invoice.payment_terms?.trim() ? { paymentTerms: invoice.payment_terms.trim() } : {}),
+                    ...(invoice.delivery_date_start ? { deliveryDateStart: invoice.delivery_date_start } : {}),
+                    ...(invoice.delivery_date_end ? { deliveryDateEnd: invoice.delivery_date_end } : {}),
+                    items: invoice.items.map((item) => ({
+                        description: item.description,
+                        quantity: item.quantity,
+                        unitOfMeasure: item.unit_of_measure,
+                        price: item.price,
+                        taxRatePercent: item.tax_rate_percent,
+                        discount: item.discount_percent,
+                        ...(item.product_id ? { productId: item.product_id } : {}),
+                        ...(item.service_date_start ? { serviceDateStart: item.service_date_start } : {}),
+                        ...(item.service_date_end ? { serviceDateEnd: item.service_date_end } : {}),
+                    })),
+                },
+            });
+            setTemplateModalOpen(false);
+            setTemplateName("");
+            message.success(t("invoiceCreate.templateSaved"));
+        } catch (error) {
+            message.error(error instanceof Error ? error.message : t("invoiceCreate.createError"));
+        } finally {
+            setTemplateSaving(false);
+        }
+    };
 
     useEffect(() => {
         if (invoiceId) {
@@ -297,6 +344,19 @@ export default function InvoiceDetailPage() {
             title: t("invoiceDetail.description"),
             dataIndex: "description",
             key: "description",
+            render: (text: string, record: { service_date_start?: string; service_date_end?: string }) => (
+                <span>
+                    {text}
+                    {formatServicePeriod(record.service_date_start, record.service_date_end) && (
+                        <>
+                            <br />
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                {t("invoiceDetail.servicePeriod")}: {formatServicePeriod(record.service_date_start, record.service_date_end)}
+                            </Text>
+                        </>
+                    )}
+                </span>
+            ),
         },
         {
             title: t("invoiceDetail.quantity"),
@@ -411,6 +471,25 @@ export default function InvoiceDetailPage() {
                         XRechnung (XML)
                     </Button>
                     <Button
+                        icon={<CopyOutlined />}
+                        onClick={() =>
+                            router.push(
+                                `/dashboard/invoices/create?duplicate=${invoice.id}`,
+                            )
+                        }
+                    >
+                        {t("invoiceDetail.duplicateInvoice")}
+                    </Button>
+                    <Button
+                        icon={<SaveOutlined />}
+                        onClick={() => {
+                            setTemplateName(invoice.invoice_number);
+                            setTemplateModalOpen(true);
+                        }}
+                    >
+                        {t("invoiceDetail.saveAsTemplate")}
+                    </Button>
+                    <Button
                         danger
                         icon={<DeleteOutlined />}
                         onClick={handleDelete}
@@ -450,6 +529,11 @@ export default function InvoiceDetailPage() {
                                     ? formatDateGerman(invoice.due_date)
                                     : "-"}
                             </Descriptions.Item>
+                            {(invoice.delivery_date_start || invoice.delivery_date_end || invoice.delivery_date) && (
+                                <Descriptions.Item label={t("invoiceDetail.servicePeriod")}>
+                                    {formatServicePeriod(invoice.delivery_date_start, invoice.delivery_date_end, invoice.delivery_date)}
+                                </Descriptions.Item>
+                            )}
                             <Descriptions.Item label={t("invoiceDetail.currency")}>
                                 EUR
                             </Descriptions.Item>
@@ -812,6 +896,29 @@ export default function InvoiceDetailPage() {
                 width={760}
             >
                 <div style={{ whiteSpace: "pre-wrap" }}>{reminderDraft}</div>
+            </Modal>
+
+            <Modal
+                title={t("invoiceDetail.saveAsTemplateTitle")}
+                open={templateModalOpen}
+                onCancel={() => {
+                    setTemplateModalOpen(false);
+                    setTemplateName("");
+                }}
+                onOk={handleSaveAsTemplate}
+                okText={t("invoiceCreate.saveAsTemplate")}
+                cancelText={t("clients.cancel")}
+                confirmLoading={templateSaving}
+                destroyOnHidden
+            >
+                <Input
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    placeholder={t("invoiceCreate.templateNamePlaceholder")}
+                    maxLength={120}
+                    autoFocus
+                    onPressEnter={() => void handleSaveAsTemplate()}
+                />
             </Modal>
         </div>
     );
