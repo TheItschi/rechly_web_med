@@ -27,9 +27,9 @@ Avoid `latest` tags in production; Appwrite `2.x` requires major SDK upgrades (`
 3. Register your web frontend domain under **Overview → Platforms → Web** (required for CORS and OAuth redirect validation).
 4. If enabling Google Sign-In, add `https://<your-appwrite-domain>/v1/account/sessions/oauth2/callback/google/<project-id>` to your Google Cloud OAuth 2.0 Client's Authorized Redirect URIs.
 
-## 3. Environment Configuration (`deploy/vercel.self-hosted.env.example`)
+## 3. Environment Configuration (`deploy/self-hosted.env.example`)
 
-Configure your Next.js / Vercel environment variables using `deploy/vercel.self-hosted.env.example`. Because `NEXT_PUBLIC_APPWRITE_ENDPOINT` and `NEXT_PUBLIC_APPWRITE_PROJECT_ID` are inlined into the client bundle at build time, trigger a **full rebuild without cache** whenever they change.
+Configure your Next.js / Coolify environment variables using `deploy/self-hosted.env.example`. Because `NEXT_PUBLIC_APPWRITE_ENDPOINT` and `NEXT_PUBLIC_APPWRITE_PROJECT_ID` are inlined into the client bundle at build time, trigger a **full rebuild without cache** whenever they change.
 
 ## 4. Encrypted Daily Backups (`deploy/appwrite/backup-appwrite.sh`)
 

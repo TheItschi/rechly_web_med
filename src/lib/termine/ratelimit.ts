@@ -1,6 +1,6 @@
 /**
  * In-memory sliding-window rate limiter for public booking endpoints.
- * Single-instance scope: fine for one VPS + Vercel (per-instance budgets);
+ * Single-instance scope: fine for a single VPS deployment (per-instance budgets);
  * limits are abuse mitigation, the transactional booking guard is authoritative.
  */
 const hits = new Map<string, number[]>();

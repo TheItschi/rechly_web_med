@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
                             gap: "16px",
                         }}
                     >
-                        {/* @vercel/og renders JSX to PNG at request time — next/image pipeline doesn't apply */}
+                        {/* next/og ImageResponse renders JSX to PNG at request time — next/image pipeline doesn't apply */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={`${siteUrl}/logo.png`}

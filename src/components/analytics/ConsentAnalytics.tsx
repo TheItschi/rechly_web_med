@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { Analytics, type BeforeSendEvent } from "@vercel/analytics/next";
 
 interface ConsentAnalyticsProps {
     googleAnalyticsId?: string;
@@ -123,35 +122,27 @@ export default function ConsentAnalytics({
         };
     }, [googleAnalyticsId, privateBooking]);
 
-    if (!enabled || privateBooking) return null;
-
-    const filterVercelEvent = (event: BeforeSendEvent) =>
-        hasAnalyticsConsent() && !new URL(event.url).pathname.startsWith("/buchen/") ? event : null;
+    if (!enabled || privateBooking || !googleAnalyticsId) return null;
 
     return (
         <>
-            {googleAnalyticsId ? (
-                <>
-                    <Script
-                        src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-                        strategy="afterInteractive"
-                    />
-                    <Script id="google-analytics" strategy="afterInteractive">
-                        {`
-                            window.dataLayer = window.dataLayer || [];
-                            function gtag(){dataLayer.push(arguments);}
-                            gtag('js', new Date());
-                            gtag('config', '${googleAnalyticsId}', {
-                                anonymize_ip: true,
-                                allow_google_signals: false,
-                                allow_ad_personalization_signals: false,
-                                cookie_expires: 33696000
-                            });
-                        `}
-                    </Script>
-                </>
-            ) : null}
-            <Analytics beforeSend={filterVercelEvent} />
+            <Script
+                src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+                strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+                {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', '${googleAnalyticsId}', {
+                        anonymize_ip: true,
+                        allow_google_signals: false,
+                        allow_ad_personalization_signals: false,
+                        cookie_expires: 33696000
+                    });
+                `}
+            </Script>
         </>
     );
 }

@@ -3,10 +3,10 @@ import { slugFromHost } from "@/lib/termine/slug";
 
 /**
  * Subdomain routing for booking pages: <slug>.rechly.de/* -> /buchen/[slug]/*.
- * Runs on Vercel and behind the self-hosted Traefik (Host header preserved).
+ * Runs behind self-hosted Traefik / reverse proxy (Host header preserved).
  * Path-based /buchen/[slug] keeps working (local dev, previews, no-DNS setups).
  * Trust note: only the bare host is used; x-forwarded-host is ignored so a
- * client cannot spoof tenancy. Traefik/Vercel overwrite Host only from the
+ * client cannot spoof tenancy. Traefik overwrites Host only from the
  * actual SNI/connection, which is what we read.
  */
 const APEX = "rechly.de";
