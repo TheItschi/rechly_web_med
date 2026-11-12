@@ -21,7 +21,6 @@ import {
     SearchOutlined,
     MoreOutlined,
     EyeOutlined,
-    EditOutlined,
     DeleteOutlined,
     FilePdfOutlined,
     CheckCircleOutlined,
@@ -204,12 +203,6 @@ export default function InvoicesPage() {
             icon: <EyeOutlined />,
             label: t("invoices.view"),
             onClick: () => router.push(`/dashboard/invoices/${record.id}`),
-        },
-        {
-            key: "edit",
-            icon: <EditOutlined />,
-            label: t("invoices.edit"),
-            onClick: () => router.push(`/dashboard/invoices/${record.id}/edit`),
         },
         {
             key: "pdf",
