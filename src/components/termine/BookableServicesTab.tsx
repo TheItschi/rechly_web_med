@@ -1,5 +1,7 @@
 "use client";
 
+import DecimalInput from "@/components/DecimalInput";
+
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -391,7 +393,7 @@ export default function BookableServicesTab({
                         </Col>
                         <Col span={8}>
                             <Form.Item name="priceEur" label={l("Preis (EUR)", "Price (EUR)")}>
-                                <InputNumber min={0} max={100000} step={1} style={{ width: "100%" }} />
+                                <DecimalInput min={0} max={100000} step={0.01} precision={2} style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
                         <Col span={8}>

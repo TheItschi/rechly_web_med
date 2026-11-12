@@ -1,4 +1,6 @@
 "use client";
+
+import DecimalInput from "@/components/DecimalInput";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -56,9 +58,9 @@ export default function TimeTracking() {
                 <Form.Item name="description" label={l("Tätigkeit", "Description")} rules={required}><Input.TextArea maxLength={1000} rows={2} /></Form.Item>
                 <Form.Item name="date" label={l("Leistungsdatum", "Work date")} rules={required}><Input type="date" /></Form.Item>
                 <Form.Item name="minutes" label={l("Dauer in Minuten", "Duration in minutes")} rules={required}><InputNumber min={1} max={1440} precision={0} /></Form.Item>
-                <Form.Item name="rate" label={l("Stundensatz (netto, EUR)", "Hourly rate (net, EUR)")} rules={required}><InputNumber min={0} max={100000} precision={2} /></Form.Item>
+                <Form.Item name="rate" label={l("Stundensatz (netto, EUR)", "Hourly rate (net, EUR)")} rules={required}><DecimalInput min={0} max={100000} precision={2} /></Form.Item>
                 <Form.Item name="billable" valuePropName="checked"><Checkbox>{l("Abrechenbar", "Billable")}</Checkbox></Form.Item>
-                <Collapse items={[{ key: "cost", label: l("Optional: interne Kosten", "Optional: internal costs"), forceRender: true, children: <Form.Item name="cost_rate" label={l("Interne Kosten pro Stunde (EUR)", "Internal hourly cost (EUR)")} rules={required}><InputNumber min={0} max={100000} precision={2} /></Form.Item> }]} />
+                <Collapse items={[{ key: "cost", label: l("Optional: interne Kosten", "Optional: internal costs"), forceRender: true, children: <Form.Item name="cost_rate" label={l("Interne Kosten pro Stunde (EUR)", "Internal hourly cost (EUR)")} rules={required}><DecimalInput min={0} max={100000} precision={2} /></Form.Item> }]} />
                 <Space wrap style={{ marginTop: 20 }}><Button type="primary" htmlType="submit" loading={busy}>{l("Speichern", "Save")}</Button>{!editor?.id && <Button disabled={!!data?.timer || busy} onClick={async () => { try { const values = await form.validateFields(); await save(values, "start"); } catch { /* Form shows validation messages. */ } }}>{l("Timer starten", "Start timer")}</Button>}<Button onClick={close}>{l("Abbrechen", "Cancel")}</Button></Space>
             </Form>
         </Modal>

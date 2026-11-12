@@ -1,4 +1,6 @@
 "use client";
+
+import DecimalInput from "@/components/DecimalInput";
 import { InvoiceIdentifierEditor } from "@/components/dashboard/EInvoiceFields";
 import { type EInvoiceData } from "@/lib/eRechnung/identifiers";
 import {
@@ -26,7 +28,6 @@ import {
     Typography,
     Divider,
     Select,
-    InputNumber,
     Table,
     DatePicker,
     Steps,
@@ -767,7 +768,7 @@ export default function InvoiceCreatePage() {
             key: "quantity",
             width: 100,
             render: (_: unknown, record: LineItem) => (
-                <InputNumber
+                <DecimalInput
                     value={record.quantity}
                     min={0}
                     onChange={(val) =>
@@ -808,7 +809,7 @@ export default function InvoiceCreatePage() {
             width: 120,
             render: (_: unknown, record: LineItem) => (
                 <Space.Compact style={{ width: "100%" }}>
-                    <InputNumber
+                    <DecimalInput
                         value={record.price}
                         min={0}
                         step={0.01}
@@ -1467,7 +1468,7 @@ export default function InvoiceCreatePage() {
                             rules={[{ required: true }]}
                             style={{ flex: 1 }}
                         >
-                            <InputNumber min={0} step={0.01} precision={2} style={{ width: "100%" }} addonAfter="€" />
+                            <DecimalInput min={0} step={0.01} precision={2} style={{ width: "100%" }} addonAfter="€" />
                         </Form.Item>
                         <Form.Item label={t("products.unit")} name="unit_of_measure" style={{ flex: 1 }}>
                             <Input />

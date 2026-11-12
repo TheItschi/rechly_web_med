@@ -1,5 +1,7 @@
 "use client";
 
+import DecimalInput from "@/components/DecimalInput";
+
 import { useEffect, useState, useCallback } from "react";
 import dayjs from "dayjs";
 import {
@@ -14,7 +16,6 @@ import {
     Statistic,
     Modal,
     Input,
-    InputNumber,
     Select,
     DatePicker,
     Upload,
@@ -548,7 +549,7 @@ export default function ExpensesPage() {
                         <label style={{ display: "block", marginBottom: 4 }}>
                             {t("expenses.gross")} (€)
                         </label>
-                        <InputNumber
+                        <DecimalInput
                             value={form.amount_gross}
                             min={0}
                             step={0.01}

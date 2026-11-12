@@ -1,4 +1,6 @@
 "use client";
+
+import DecimalInput from "@/components/DecimalInput";
 import { useState } from "react";
 import Link from "next/link";
 import { Alert, Button, Card, Col, Form, Input, InputNumber, Modal, Popconfirm, Row, Select, Space, Statistic, Table, Typography } from "antd";
@@ -30,7 +32,7 @@ export default function ProjectReports({ embedded = false }: { embedded?: boolea
             <Form name="workspace-project-expense" form={form} layout="vertical" disabled={busy} onFinish={async values => { try { await resource.mutate({ ...values, action: mode === "add" ? "add_expense" : "link_expense" }); setMode(null); } catch (error) { setError((error as Error).message); } }}>
                 <Form.Item name="project_id" label={l("Projekt", "Project")} rules={required}><Select options={data?.projects.map(p => ({ value: p.id, label: p.name }))} /></Form.Item>
                 {mode === "link" ? <Form.Item name="expense_id" label={l("Ausgabe", "Expense")} rules={required}><Select showSearch optionFilterProp="label" options={data?.expenses.map(e => ({ value: e.id, label: `${e.date} · ${e.vendor_name} · ${money(e.amount_gross, language)}${e.project_id ? ' · ' + data.projects.find(p => p.id === e.project_id)?.name : ''}` }))} /></Form.Item> : <>
-                    <Form.Item name="vendor_name" label={l("Lieferant", "Supplier")} rules={required}><Input maxLength={200} /></Form.Item><Form.Item name="description" label={l("Beschreibung", "Description")}><Input maxLength={1000} /></Form.Item><Form.Item name="date" label={l("Datum", "Date")} rules={required}><Input type="date" /></Form.Item><Form.Item name="amount_gross" label={l("Bruttobetrag (EUR)", "Gross amount (EUR)")} rules={required}><InputNumber min={0} max={1e9} precision={2} /></Form.Item><Form.Item name="vat_rate" label={l("Umsatzsteuer (%)", "VAT (%)")} rules={required}><InputNumber min={0} max={100} /></Form.Item>
+                    <Form.Item name="vendor_name" label={l("Lieferant", "Supplier")} rules={required}><Input maxLength={200} /></Form.Item><Form.Item name="description" label={l("Beschreibung", "Description")}><Input maxLength={1000} /></Form.Item><Form.Item name="date" label={l("Datum", "Date")} rules={required}><Input type="date" /></Form.Item><Form.Item name="amount_gross" label={l("Bruttobetrag (EUR)", "Gross amount (EUR)")} rules={required}><DecimalInput min={0} max={1e9} precision={2} /></Form.Item><Form.Item name="vat_rate" label={l("Umsatzsteuer (%)", "VAT (%)")} rules={required}><InputNumber min={0} max={100} /></Form.Item>
                     <Typography.Paragraph type="secondary">{l("Die Ausgabe erscheint auch unter Ausgaben & Belege.", "This expense also appears in Expenses & receipts.")}</Typography.Paragraph>
                 </>}
                 <Button type="primary" htmlType="submit" loading={busy}>{l("Speichern", "Save")}</Button>

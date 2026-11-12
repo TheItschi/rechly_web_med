@@ -1,7 +1,9 @@
 "use client";
 
+import DecimalInput from "@/components/DecimalInput";
+
 import { useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Empty, Form, Input, InputNumber, Modal, Popconfirm, Progress, Row, Select, Segmented, Space, Spin, Tabs, Tag, Typography } from "antd";
+import { Alert, Button, Card, Col, Empty, Form, Input, Modal, Popconfirm, Progress, Row, Select, Segmented, Space, Spin, Tabs, Tag, Typography } from "antd";
 import { PlusOutlined, DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { BusinessCollection, BusinessData, BusinessDocument, BusinessTask } from "@/lib/workspace/domain";
@@ -178,7 +180,7 @@ export default function Workspace() {
                 {key === "projects" ? <>
                     <Form.Item name="client_id" label={l("Kunde (optional)", "Customer (optional)")}><Select showSearch optionFilterProp="label" options={[{ value: "", label: l("Ohne Kunde", "No customer") }, ...clients.map(c => ({ value: c.id, label: c.name }))]} /></Form.Item>
                     <Form.Item name="description" label={l("Beschreibung", "Description")}><Input.TextArea rows={3} maxLength={10000} /></Form.Item>
-                    <Form.Item name="budget" label={l("Planbudget (EUR)", "Planned budget (EUR)")} rules={[{ required: true }]}><InputNumber min={0} max={1e12} precision={2} style={{ width: "100%" }} /></Form.Item>
+                    <Form.Item name="budget" label={l("Planbudget (EUR)", "Planned budget (EUR)")} rules={[{ required: true }]}><DecimalInput min={0} max={1e12} precision={2} style={{ width: "100%" }} /></Form.Item>
                 </> : <Form.Item name="project_id" label={l("Projekt (optional)", "Project (optional)")}><Select showSearch optionFilterProp="label" options={[{ value: "", label: l("Ohne Projekt", "No project") }, ...data.projects.map(p => ({ value: p.id, label: p.name }))]} /></Form.Item>}
                 {key === "documents" ? <>
                     <Form.Item name="kind" label={l("Vorlage", "Template")}><Select onChange={template} options={statuses.documents.map(value => ({ value, label: labels[value] }))} /></Form.Item>

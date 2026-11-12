@@ -1,4 +1,6 @@
 "use client";
+
+import DecimalInput from "@/components/DecimalInput";
 import { getCompanyInfo } from "@/lib/companyService";
 import { defaultVatRate } from "@/lib/vatDefaults";
 
@@ -13,7 +15,6 @@ import {
     Typography,
     Divider,
     Select,
-    InputNumber,
     Table,
     DatePicker,
     Result,
@@ -218,7 +219,7 @@ export default function OfferCreatePage() {
             key: "quantity",
             width: 90,
             render: (_: unknown, record: LineItem) => (
-                <InputNumber
+                <DecimalInput
                     value={record.quantity}
                     min={0}
                     step={0.5}
@@ -234,7 +235,7 @@ export default function OfferCreatePage() {
             key: "price",
             width: 120,
             render: (_: unknown, record: LineItem) => (
-                <InputNumber
+                <DecimalInput
                     value={record.price}
                     min={0}
                     step={0.01}
