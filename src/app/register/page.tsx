@@ -21,8 +21,8 @@ import {
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Navbar from "@/components/landing/Navbar";
-import Footer from "@/components/landing/Footer";
+import { AuthFooter, AuthHeader } from "@/components/AuthChrome";
+import { PRIVACY_URL, TERMS_URL } from "@/lib/legal";
 import Link from "next/link";
 
 const { Title, Text } = Typography;
@@ -56,7 +56,7 @@ export default function RegisterPage() {
 
     return (
         <div style={{ minHeight: "100vh", background: "#fff" }}>
-            <Navbar showAuth={false} />
+            <AuthHeader />
 
             <main
                 style={{
@@ -174,6 +174,8 @@ export default function RegisterPage() {
                                 />
                             </Form.Item>
 
+                            {/* Only when the operator has configured own terms/privacy pages */}
+                            {TERMS_URL && PRIVACY_URL && (
                             <Form.Item
                                 name="acceptPolicy"
                                 valuePropName="checked"
@@ -193,7 +195,7 @@ export default function RegisterPage() {
                                 <Checkbox style={{ fontSize: 13, lineHeight: 1.5 }}>
                                     {t("auth.acceptPolicyPrefix")}{" "}
                                     <Link
-                                        href="/agb"
+                                        href={TERMS_URL}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{ color: "#1976d2" }}
@@ -202,7 +204,7 @@ export default function RegisterPage() {
                                     </Link>{" "}
                                     {t("auth.acceptPolicyAnd")}{" "}
                                     <Link
-                                        href="/datenschutz"
+                                        href={PRIVACY_URL}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{ color: "#1976d2" }}
@@ -212,6 +214,7 @@ export default function RegisterPage() {
                                     {t("auth.acceptPolicyOpenSource")}
                                 </Checkbox>
                             </Form.Item>
+                            )}
 
                             <Form.Item>
                                 <Button
@@ -264,7 +267,7 @@ export default function RegisterPage() {
                 </div>
             </main>
 
-            <Footer />
+            <AuthFooter />
         </div>
     );
 }

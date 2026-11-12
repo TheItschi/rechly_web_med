@@ -8,6 +8,15 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
 FROM deps AS builder
+# Operator legal pages / source link (baked into the client bundle)
+ARG NEXT_PUBLIC_IMPRINT_URL= \
+    NEXT_PUBLIC_PRIVACY_URL= \
+    NEXT_PUBLIC_TERMS_URL= \
+    NEXT_PUBLIC_SOURCE_URL=
+ENV NEXT_PUBLIC_IMPRINT_URL=$NEXT_PUBLIC_IMPRINT_URL \
+    NEXT_PUBLIC_PRIVACY_URL=$NEXT_PUBLIC_PRIVACY_URL \
+    NEXT_PUBLIC_TERMS_URL=$NEXT_PUBLIC_TERMS_URL \
+    NEXT_PUBLIC_SOURCE_URL=$NEXT_PUBLIC_SOURCE_URL
 COPY . .
 # NEXT_PUBLIC_* werden beim Build eingebacken.
 ENV NEXT_TELEMETRY_DISABLED=1 \

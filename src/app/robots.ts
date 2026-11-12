@@ -1,18 +1,6 @@
 import { MetadataRoute } from "next";
-import { getSiteUrl } from "@/lib/env";
 
-const siteUrl = getSiteUrl();
-
+// Private application with health data – keep all crawlers out.
 export default function robots(): MetadataRoute.Robots {
-    return {
-        rules: [
-            {
-                userAgent: "*",
-                allow: "/",
-                disallow: ["/api/", "/private/"],
-            },
-        ],
-        sitemap: `${siteUrl}/sitemap.xml`,
-        host: siteUrl,
-    };
+    return { rules: [{ userAgent: "*", disallow: "/" }] };
 }

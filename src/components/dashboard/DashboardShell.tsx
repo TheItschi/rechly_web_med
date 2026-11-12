@@ -255,6 +255,19 @@ export default function DashboardLayout({
                             textAlign: "center",
                         }}
                     >
+                        <Link
+                            href="/about"
+                            style={{
+                                color: "rgba(255,255,255,0.45)",
+                                fontSize: 12,
+                                textDecoration: "none",
+                                lineHeight: 1.4,
+                                display: "block",
+                                marginBottom: 6,
+                            }}
+                        >
+                            {collapsed ? "ⓘ" : "Über / Lizenz"}
+                        </Link>
                         <a
                             href="mailto:rechly-med@icsezer.de"
                             style={{
@@ -331,6 +344,12 @@ export default function DashboardLayout({
                         </Button>
                     )}
                     <div style={{ marginTop: 16, textAlign: "center" }}>
+                        <Link
+                            href="/about"
+                            style={{ color: "#64748b", fontSize: 13, textDecoration: "none", display: "block", marginBottom: 8 }}
+                        >
+                            Über / Lizenz
+                        </Link>
                         <a
                             href="mailto:rechly-med@icsezer.de"
                             style={{

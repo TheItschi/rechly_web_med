@@ -1,6 +1,34 @@
 import type { NextConfig } from "next";
+import { readFileSync } from "node:fs";
+
+/** Commit/branch of the build for the AGPL source link (works without git binary). */
+function readGitInfo(): { commit: string; branch: string } {
+    if (process.env.GIT_COMMIT) return { commit: process.env.GIT_COMMIT, branch: process.env.GIT_BRANCH || "" };
+    try {
+        const head = readFileSync(".git/HEAD", "utf8").trim();
+        if (!head.startsWith("ref: ")) return { commit: head, branch: "" };
+        const ref = head.slice(5);
+        const branch = ref.replace(/^refs\/heads\//, "");
+        try {
+            return { commit: readFileSync(`.git/${ref}`, "utf8").trim(), branch };
+        } catch {
+            const packed = readFileSync(".git/packed-refs", "utf8").split("\n").find((l) => l.endsWith(` ${ref}`));
+            return { commit: packed?.split(" ")[0] ?? "", branch };
+        }
+    } catch {
+        return { commit: "", branch: "" };
+    }
+}
+const git = readGitInfo();
+const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { version?: string };
 
 const nextConfig: NextConfig = {
+    env: {
+        NEXT_PUBLIC_SOURCE_COMMIT: git.commit,
+        NEXT_PUBLIC_SOURCE_BRANCH: git.branch,
+        NEXT_PUBLIC_APP_VERSION: pkg.version ?? "",
+    },
+
     // Standalone output for containerized deployments (Heroku, Docker, etc.)
     output: "standalone",
 
@@ -28,16 +56,7 @@ const nextConfig: NextConfig = {
     async headers() {
         return [
             {
-                source: "/dashboard/:path*",
-                headers: [
-                    {
-                        key: "X-Robots-Tag",
-                        value: "noindex, nofollow, noarchive",
-                    },
-                ],
-            },
-            {
-                source: "/:privateRoute(login|register|onboarding|auth)/:path*",
+                source: "/:path*",
                 headers: [
                     {
                         key: "X-Robots-Tag",
@@ -56,42 +75,6 @@ const nextConfig: NextConfig = {
             "dayjs",
             "@ant-design/nextjs-registry",
         ],
-    },
-
-    async rewrites() {
-        return [
-            { source: "/werkzeuge", destination: "/tools" },
-            { source: "/verzugszinsen-rechner", destination: "/tools/verzugszinsen-rechner" },
-            { source: "/girocode-generator", destination: "/tools/girocode-generator" },
-            { source: "/e-rechnung-viewer", destination: "/tools/e-rechnung-viewer" },
-            { source: "/stundensatz-rechner", destination: "/tools/stundensatz-rechner" },
-            { source: "/skontorechner", destination: "/tools/skontorechner" },
-            { source: "/arbeitstage-rechner", destination: "/tools/arbeitstage-rechner" },
-            { source: "/ust-idnr-pruefen", destination: "/tools/ust-idnr-pruefen" },
-            { source: "/kleinunternehmer-rechner", destination: "/tools/kleinunternehmer-rechner" },
-            { source: "/leitweg-id-pruefen", destination: "/tools/leitweg-id-pruefen" },
-            { source: "/gewerbesteuer-rechner", destination: "/tools/gewerbesteuer-rechner" },
-            { source: "/bewirtungsbeleg-rechner", destination: "/tools/bewirtungsbeleg-rechner" },
-            { source: "/impressum-generator", destination: "/tools/impressum-generator" },
-            { source: "/verpflegungsmehraufwand-rechner", destination: "/tools/verpflegungsmehraufwand-rechner" },
-            { source: "/kassenbuch-vorlage", destination: "/tools/kassenbuch-vorlage" },
-            { source: "/bautagebuch-vorlage", destination: "/tools/bautagebuch-vorlage" },
-            { source: "/steuerkalender-2026", destination: "/tools/steuerkalender-2026" },
-            { source: "/mahnung-generator", destination: "/tools/mahnung-generator" },
-            { source: "/euer-rechner", destination: "/tools/euer-rechner" },
-            { source: "/reverse-charge-rechner", destination: "/tools/reverse-charge-rechner" },
-            { source: "/afa-rechner", destination: "/tools/afa-rechner" },
-            { source: "/sepa-xml-generator", destination: "/tools/sepa-xml-generator" },
-            { source: "/rechnungsgenerator", destination: "/tools/rechnungsgenerator" },
-            { source: "/angebotsgenerator", destination: "/tools/angebotsgenerator" },
-            { source: "/mehrwertsteuer-rechner", destination: "/tools/mehrwertsteuer-rechner" },
-            { source: "/quittung-erstellen", destination: "/tools/quittung-erstellen" },
-            { source: "/lieferschein-generator", destination: "/tools/lieferschein-generator" },
-            { source: "/stornorechnung-generator", destination: "/tools/stornorechnung-generator" },
-            { source: "/fahrtkosten-rechner", destination: "/tools/fahrtkosten-rechner" },
-            { source: "/stundenzettel-generator", destination: "/tools/stundenzettel-generator" },
-            { source: "/marge-rechner", destination: "/tools/marge-rechner" },
-        ];
     },
 };
 

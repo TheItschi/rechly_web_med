@@ -23,8 +23,7 @@ import {
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Navbar from "@/components/landing/Navbar";
-import Footer from "@/components/landing/Footer";
+import { AuthFooter, AuthHeader } from "@/components/AuthChrome";
 import Link from "next/link";
 
 const { Title, Text } = Typography;
@@ -118,7 +117,7 @@ function LoginForm() {
 
     return (
         <div style={{ minHeight: "100vh", background: "#fff" }}>
-            <Navbar showAuth={false} />
+            <AuthHeader />
 
             <main
                 style={{
@@ -248,7 +247,7 @@ function LoginForm() {
                 </div>
             </main>
 
-            <Footer />
+            <AuthFooter />
 
             <Modal
                 title={

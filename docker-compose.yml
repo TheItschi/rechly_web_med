@@ -3,6 +3,12 @@ services:
     build:
       context: .
       target: runner
+      # Optional, from .env: own Impressum/Datenschutz/Nutzungsbedingungen
+      args:
+        NEXT_PUBLIC_IMPRINT_URL: ${NEXT_PUBLIC_IMPRINT_URL:-}
+        NEXT_PUBLIC_PRIVACY_URL: ${NEXT_PUBLIC_PRIVACY_URL:-}
+        NEXT_PUBLIC_TERMS_URL: ${NEXT_PUBLIC_TERMS_URL:-}
+        NEXT_PUBLIC_SOURCE_URL: ${NEXT_PUBLIC_SOURCE_URL:-}
     image: rechly-med:local
     container_name: rechly-med
     restart: unless-stopped

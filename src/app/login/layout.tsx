@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Anmelden",
     description:
-        "Melde dich bei Rechly an, um Rechnungen, Kunden und Zahlungserinnerungen zu verwalten.",
+        "Melde dich bei Rechly-Med an, um Rechnungen und Patienten zu verwalten.",
     alternates: {
         canonical: "/login",
     },

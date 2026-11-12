@@ -1,4 +1,8 @@
 .git
+# keep HEAD/refs so the build knows its commit (AGPL source link)
+!.git/HEAD
+!.git/refs
+!.git/packed-refs
 node_modules
 .next
 .desktop-data

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Registrieren",
     description:
-        "Erstelle dein Rechly-Konto, um Rechnungen online zu schreiben und deine Kunden zentral zu verwalten.",
+        "Erstelle dein Rechly-Med-Konto für die Privatliquidation.",
     alternates: {
         canonical: "/register",
     },

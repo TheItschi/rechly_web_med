@@ -169,9 +169,6 @@ export default function SettingsPage() {
     const handleLogoUpload = readImage(setLogoPreview);
     const handleSignatureUpload = readImage(setSignaturePreview);
 
-    const handleRemoveLogo = () => {
-        setLogoPreview(null);
-    };
 
     const handleLogout = async () => {
         await logout();

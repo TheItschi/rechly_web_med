@@ -3,7 +3,6 @@ type RequiredEnvKey =
     | "NEXT_PUBLIC_APPWRITE_PROJECT_ID";
 
 const PRODUCTION_SITE_URL = "https://rechly.de";
-const PRODUCTION_REPOSITORY_URL = "https://github.com/myaxyo/rechly_web";
 
 function trimTrailingSlashes(value: string): string {
     return value.replace(/\/+$/, "");
@@ -74,29 +73,8 @@ export function getSiteUrl(): string {
     return normalized;
 }
 
-export function getOptionalAnalyticsId(): string | undefined {
-    return getOptionalEnv("NEXT_PUBLIC_GOOGLE_ANALYTICS_ID");
-}
 
-export function getRepoUrl(): string {
-    return (
-        getOptionalEnv("NEXT_PUBLIC_REPOSITORY_URL") ||
-        PRODUCTION_REPOSITORY_URL
-    );
-}
 
-export function getContactEmail(): string {
-    return getOptionalEnv("NEXT_PUBLIC_CONTACT_EMAIL") || "contact@example.com";
-}
 
-export function getOptionalLinkedInUrl(): string | undefined {
-    return getOptionalEnv("NEXT_PUBLIC_LINKEDIN_URL");
-}
 
-export function getTwitterHandle(): string | undefined {
-    return getOptionalEnv("NEXT_PUBLIC_TWITTER_HANDLE");
-}
 
-export function getGoogleSiteVerification(): string | undefined {
-    return getOptionalEnv("NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION");
-}

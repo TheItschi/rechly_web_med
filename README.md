@@ -1,3 +1,26 @@
+# Rechly-Med
+
+**Rechly-Med** ist eine einfache Privatliquidation für selbstständige Ärztinnen und Ärzte – ein Fork von
+[Rechly](https://github.com/myaxyo/rechly_web) (© Rechly contributors, AGPL-3.0).
+
+**Änderungen gegenüber dem Original** (ab November 2026, Yavuz Icsezer):
+
+- Abrechnung nach GOÄ mit Steigerungssatz, Begründungspflicht und Prüfmodul (Ausschlüsse, Behandlungsfall, Zeiträume), inkl. Leichenschau und Wegegeld
+- Diagnosen nach ICD-10-GM (Import der BfArM-Systematik), Upload von ICD- und GOÄ-Katalog in den Einstellungen
+- Rechnungs-PDF nach § 12 GOÄ mit Briefkopf, Faksimile und Girocode
+- Patienten statt Kunden, Docker-Betrieb, Backup/Restore-Skripte für Windows
+- Öffentliche Marketing-, SEO- und Rechtsseiten sowie Analytics von Rechly entfernt; `/` führt direkt in die Anwendung
+
+Details: [docs/privatliquidation.md](docs/privatliquidation.md). Lizenz- und Quellcode-Hinweise zeigt die App unter **Über / Lizenz**.
+
+Wer Rechly-Med für Dritte betreibt, muss eigene Rechtstexte hinterlegen
+(`NEXT_PUBLIC_IMPRINT_URL`, `NEXT_PUBLIC_PRIVACY_URL`, `NEXT_PUBLIC_TERMS_URL`) und den Nutzern den Quellcode der
+laufenden Version zugänglich machen (AGPL-3.0 § 13 – der Link in der App zeigt auf den gebauten Commit).
+
+---
+
+*Ursprüngliche README von Rechly:*
+
 # Rechly
 
 Rechly is an open-source invoicing app for freelancers and small businesses. In addition to the Next.js web application, Rechly is available as a standalone 100% offline desktop application: **[Rechly Desktop](https://github.com/myaxyo/rechly_desktop)**.
