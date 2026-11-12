@@ -15,6 +15,7 @@ import {
     Dropdown,
     Spin,
     Modal,
+    Tooltip,
 } from "antd";
 import {
     ArrowLeftOutlined,
@@ -146,6 +147,23 @@ export default function InvoiceDetailPage() {
         } catch (error) {
             console.error("Error copying reminder draft:", error);
             message.error(t("invoiceDetail.copyFailed"));
+        }
+    };
+
+    const [preparingEmail, setPreparingEmail] = useState(false);
+    const handleEmailDraft = async () => {
+        if (!invoice) return;
+        if (!invoice.client?.email) message.warning(`${t("invoiceDetail.noEmail")} – Empfänger bitte im Entwurf ergänzen.`);
+        setPreparingEmail(true);
+        try {
+            const { downloadInvoiceEmailDraft } = await import("@/components/pdf/InvoicePDFDocument");
+            await downloadInvoiceEmailDraft(invoice, company, t);
+            message.success("E-Mail-Entwurf heruntergeladen – Datei öffnen, um ihn in Outlook zu bearbeiten und zu senden.", 6);
+        } catch (error) {
+            console.error("Error creating e-mail draft:", error);
+            message.error("E-Mail-Entwurf konnte nicht erstellt werden.");
+        } finally {
+            setPreparingEmail(false);
         }
     };
 
@@ -544,23 +562,15 @@ export default function InvoiceDetailPage() {
                     >
                         {t("invoiceDetail.aiReminder")}
                     </Button>
-                    <Button
-                        icon={<MailOutlined />}
-                        onClick={() => {
-                            if (invoice.client?.email) {
-                                window.open(
-                                    `mailto:${invoice.client.email}?subject=${t("invoiceDetail.invoiceSubject")} ${invoice.invoice_number}`,
-                                    "_blank",
-                                );
-                            } else {
-                                message.warning(
-                                    t("invoiceDetail.noEmail"),
-                                );
-                            }
-                        }}
-                    >
-                        {t("invoiceDetail.sendEmail")}
-                    </Button>
+                    <Tooltip title="Erzeugt einen E-Mail-Entwurf (.eml) mit Standardtext und der Rechnung als PDF-Anhang. Datei öffnen – Outlook zeigt die Mail sendebereit an.">
+                        <Button
+                            icon={<MailOutlined />}
+                            loading={preparingEmail}
+                            onClick={handleEmailDraft}
+                        >
+                            {t("invoiceDetail.sendEmail")}
+                        </Button>
+                    </Tooltip>
                 </Space>
             </Card>
 
