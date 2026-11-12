@@ -86,6 +86,19 @@ export const createInvoice = async (data: InvoiceFormData): Promise<string> => {
     }
 };
 
+/** Replace content and items of a draft invoice. */
+export const updateDraftInvoice = async (id: string, data: InvoiceFormData): Promise<void> => {
+    const res = await fetch(`/api/invoices/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.error || "Rechnung konnte nicht gespeichert werden");
+    }
+};
+
 /**
  * Update invoice status
  */

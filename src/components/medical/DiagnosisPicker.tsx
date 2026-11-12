@@ -75,7 +75,7 @@ export function DiagnosisPicker({ diagnoses, display, onChange, onDisplayChange 
                     type="info"
                     showIcon
                     message="Kein ICD-10-GM-Katalog importiert"
-                    description="Diagnosen können frei erfasst werden. Für die Suche die BfArM-Systematik (EDV-Fassung TXT) herunterladen und mit „npm run import:icd10gm -- <datei>“ importieren."
+                    description="Diagnosen können frei erfasst werden. Für die Suche die BfArM-Systematik unter Einstellungen → ICD-10 Codes hochladen."
                 />
             )}
             {catalog?.available && (

@@ -1,8 +1,9 @@
-import { readEInvoiceData } from "@/lib/eRechnung/identifiers";
-import { parseGoaeLineData } from "@/lib/goae/line";
-import { parseMedicalData } from "@/lib/icd10";
+import { IdentifierValidationError, readEInvoiceData } from "@/lib/eRechnung/identifiers";
+import { GoaeValidationError, parseGoaeLineData } from "@/lib/goae/line";
+import { MedicalDataError, parseMedicalData } from "@/lib/icd10";
+import { InvoiceWriteError, prepareInvoiceWrite } from "@/lib/server/invoiceWrite";
 import { NextRequest, NextResponse } from "next/server";
-import { Query } from "node-appwrite";
+import { ID, Permission, Query, Role } from "node-appwrite";
 import {
     createSessionClient,
     createAdminClient,
@@ -211,13 +212,50 @@ export async function PUT(
 
         const body = await request.json();
 
-        // Update status
+        // Full update (content + items): only drafts may be edited. Issued
+        // invoices are corrected via /correction (credit note / correction).
+        if (Array.isArray(body.items)) {
+            if (existing.status !== "draft") {
+                return NextResponse.json({ error: "Nur Entwürfe können bearbeitet werden – für versendete Rechnungen bitte eine Korrektur erstellen." }, { status: 409 });
+            }
+            const { invoiceData, items, medical } = await prepareInvoiceWrite(databases, user.$id, body);
+            const permissions = [
+                Permission.read(Role.user(user.$id)),
+                Permission.update(Role.user(user.$id)),
+                Permission.delete(Role.user(user.$id)),
+            ];
+            const oldItems = await databases.listDocuments(DATABASE_ID, COLLECTIONS.INVOICE_ITEMS, [Query.equal("invoiceId", id), Query.limit(500)]);
+            // Create the new items first; roll back on failure so the draft is never left without positions.
+            const created: string[] = [];
+            try {
+                for (const item of items) {
+                    const doc = await databases.createDocument(DATABASE_ID, COLLECTIONS.INVOICE_ITEMS, ID.unique(), { invoiceId: id, ...item }, permissions);
+                    created.push(doc.$id);
+                }
+                await databases.updateDocument(DATABASE_ID, COLLECTIONS.INVOICES, id, {
+                    ...invoiceData,
+                    ...(medical ? { medicalData: JSON.stringify(medical) } : "medicalData" in existing ? { medicalData: null } : {}),
+                    ...(!invoiceData.eInvoiceData && existing.eInvoiceData ? { eInvoiceData: null } : {}),
+                });
+            } catch (writeError) {
+                for (const docId of created) await databases.deleteDocument(DATABASE_ID, COLLECTIONS.INVOICE_ITEMS, docId).catch(() => undefined);
+                throw writeError;
+            }
+            for (const old of oldItems.documents) await databases.deleteDocument(DATABASE_ID, COLLECTIONS.INVOICE_ITEMS, old.$id);
+            return NextResponse.json({ id, success: true });
+        }
+
+        // Status-only update
         await databases.updateDocument(DATABASE_ID, COLLECTIONS.INVOICES, id, {
             status: body.status,
         });
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (error instanceof InvoiceWriteError) return NextResponse.json({ error: error.message }, { status: error.status });
+        if (error instanceof IdentifierValidationError || error instanceof GoaeValidationError || error instanceof MedicalDataError) {
+            return NextResponse.json({ error: error.message }, { status: 400 });
+        }
         console.error("Error updating invoice:", error);
         return NextResponse.json(
             { error: "Failed to update invoice" },

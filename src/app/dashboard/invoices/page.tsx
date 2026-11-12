@@ -20,6 +20,7 @@ import {
     PlusOutlined,
     SearchOutlined,
     MoreOutlined,
+    EditOutlined,
     EyeOutlined,
     DeleteOutlined,
     FilePdfOutlined,
@@ -204,6 +205,16 @@ export default function InvoicesPage() {
             label: t("invoices.view"),
             onClick: () => router.push(`/dashboard/invoices/${record.id}`),
         },
+        ...(record.status === "draft"
+            ? [
+                  {
+                      key: "edit",
+                      icon: <EditOutlined />,
+                      label: t("invoices.edit"),
+                      onClick: () => router.push(`/dashboard/invoices/${record.id}/edit`),
+                  },
+              ]
+            : []),
         {
             key: "pdf",
             icon: <FilePdfOutlined />,

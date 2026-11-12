@@ -385,6 +385,14 @@ export default function InvoiceDetailPage() {
                     >
                         <Button>{ t("invoiceDetail.changeStatus") }</Button>
                     </Dropdown>
+                    {invoice.status === "draft" && (
+                        <Button
+                            icon={<EditOutlined />}
+                            onClick={() => router.push(`/dashboard/invoices/${invoice.id}/edit`)}
+                        >
+                            {t("invoices.edit")}
+                        </Button>
+                    )}
                     <Button
                         type="primary"
                         icon={<FilePdfOutlined />}

@@ -1,8 +1,8 @@
-import { IdentifierValidationError, parseGTIN, readEInvoiceData, snapshotIdentifiers } from "@/lib/eRechnung/identifiers";
+import { IdentifierValidationError } from "@/lib/eRechnung/identifiers";
 import { NextRequest, NextResponse } from "next/server";
-import { GoaeValidationError, normalizeGoaeLine } from "@/lib/goae/line";
-import { MedicalDataError, normalizeMedicalData } from "@/lib/icd10";
-import { loadGoaeCatalog } from "@/lib/server/goaeCatalogStore";
+import { GoaeValidationError } from "@/lib/goae/line";
+import { MedicalDataError } from "@/lib/icd10";
+import { InvoiceWriteError, prepareInvoiceWrite } from "@/lib/server/invoiceWrite";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import {
     createSessionClient,
@@ -11,10 +11,6 @@ import {
     COLLECTIONS,
 } from "@/lib/appwrite-server";
 import { isCollectionNotFound } from "@/lib/appwrite-errors";
-import {
-    calculateInvoiceTotals,
-    calculateLineItemTotals,
-} from "@/lib/currencyUtils";
 
 // GET all invoices with client info
 export async function GET() {
@@ -144,59 +140,12 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        // Resolve only tenant-owned source records before taking an immutable identifier snapshot.
-        const customer = await databases.getDocument(DATABASE_ID, COLLECTIONS.CLIENTS, body.client_id);
-        if (customer.userId !== user.$id) return NextResponse.json({ error: "Not found" }, { status: 404 });
-        const companies = await databases.listDocuments(DATABASE_ID, COLLECTIONS.COMPANY_INFO, [Query.equal("userId", user.$id), Query.limit(1)]);
-        const identifiers = snapshotIdentifiers(readEInvoiceData(customer.eInvoiceData), readEInvoiceData(companies.documents[0]?.eInvoiceData), body.e_invoice);
-        if (!Array.isArray(body.items)) return NextResponse.json({ error: "Invalid items" }, { status: 400 });
-        await loadGoaeCatalog(); // activates an uploaded GOÄ catalogue for price/points
-        for (const item of body.items) {
-            item.gtin = parseGTIN(item.gtin);
-            // GOÄ lines: the price is always Einfachsatz × Steigerungssatz.
-            if (item.goae) {
-                const { data, unitPrice } = normalizeGoaeLine(item.goae);
-                item.goae = data;
-                item.price = unitPrice;
-            }
-        }
-        const medical = normalizeMedicalData(body.medical);
+        const { invoiceData: prepared, items, medical } = await prepareInvoiceWrite(databases, user.$id, body);
         const invoiceId = ID.unique();
-
-        // Calculate totals
-        const totals = calculateInvoiceTotals(
-            body.items.map(
-                (item: {
-                    quantity: number;
-                    price: number;
-                    tax_rate_percent: number;
-                    discount_percent?: number;
-                }) => ({
-                    quantity: item.quantity,
-                    price: item.price,
-                    tax_rate_percent: item.tax_rate_percent,
-                    discount_percent: item.discount_percent || 0,
-                }),
-            ),
-        );
-
-        // Create invoice document with permissions
-        // Build document data, keeping optional/newer attributes separate
         const invoiceData: Record<string, unknown> = {
             userId: user.$id,
-            ...(Object.keys(identifiers).length ? { eInvoiceData: JSON.stringify(identifiers) } : {}),
-            clientId: body.client_id,
-            invoiceNumber: body.invoice_number,
-            issueDate: body.issue_date,
-            dueDate: body.due_date || null,
-            subtotal: totals.netAfterDiscount,
-            totalVat: totals.totalVAT,
-            totalGross: totals.totalGross,
+            ...prepared,
             status: "draft",
-            notes: body.notes || null,
-            purchaseOrderRef: body.purchase_order_ref || null,
-            deliveryDate: body.delivery_date || null,
-            paymentTerms: body.payment_terms || null,
             ...(medical ? { medicalData: JSON.stringify(medical) } : {}),
         };
 
@@ -242,33 +191,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Create invoice items
-        for (const item of body.items) {
-            const itemCalc = calculateLineItemTotals(
-                item.quantity,
-                item.price,
-                item.tax_rate_percent,
-                item.discount_percent || 0,
-            );
-
+        for (const item of items) {
             await databases.createDocument(
                 DATABASE_ID,
                 COLLECTIONS.INVOICE_ITEMS,
                 ID.unique(),
-                {
-                    invoiceId: invoiceId,
-                    productId: item.product_id || null,
-                    description: item.description,
-                    ...(item.gtin ? { gtin: item.gtin } : {}),
-                    ...(item.goae ? { goaeData: JSON.stringify(item.goae) } : {}),
-                    quantity: item.quantity,
-                    unitOfMeasure: item.unit_of_measure || "Stück",
-                    price: item.price,
-                    taxRatePercent: item.tax_rate_percent,
-                    discountPercent: item.discount_percent || 0,
-                    subtotal: itemCalc.subtotal,
-                    taxAmount: itemCalc.taxAmount,
-                    total: itemCalc.total,
-                },
+                { invoiceId, ...item },
                 [
                     Permission.read(Role.user(user.$id)),
                     Permission.update(Role.user(user.$id)),
@@ -279,6 +207,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ id: invoiceId });
     } catch (error) {
+        if (error instanceof InvoiceWriteError) return NextResponse.json({ error: error.message }, { status: error.status });
         if (error instanceof IdentifierValidationError || error instanceof GoaeValidationError || error instanceof MedicalDataError) {
             return NextResponse.json({ error: error.message }, { status: 400 });
         }

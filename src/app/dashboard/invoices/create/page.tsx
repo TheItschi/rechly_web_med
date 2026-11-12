@@ -4,7 +4,7 @@ import { type EInvoiceData, parseEInvoiceData, parseGTIN } from "@/lib/eRechnung
 import { defaultVatRate } from "@/lib/vatDefaults";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
     Card,
     Form,
@@ -36,7 +36,7 @@ import {
 import dayjs from "dayjs";
 import { getAllClients } from "@/lib/clientService";
 import { getAllProducts } from "@/lib/productService";
-import { createInvoice } from "@/lib/invoiceService";
+import { createInvoice, getInvoiceById, updateDraftInvoice } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { runInvoiceAssistant, parseInvoiceDraftWithAI } from "@/lib/aiService";
 import {
@@ -78,6 +78,9 @@ interface LineItem {
 export default function InvoiceCreatePage() {
     const router = useRouter();
     const { t } = useLanguage();
+    // Also mounted at /dashboard/invoices/[id]/edit to edit a draft.
+    const params = useParams();
+    const editId = typeof params?.id === "string" ? params.id : undefined;
 
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -128,18 +131,20 @@ export default function InvoiceCreatePage() {
         }
         let cancelled = false;
         setLoadingHistory(true);
-        getGoaeHistory(selectedClient.id)
+        // When editing, the draft's own (old) lines must not count as history.
+        getGoaeHistory(selectedClient.id, editId)
             .then((h) => !cancelled && setGoaeHistory(h))
             .catch(() => !cancelled && setGoaeHistory([]))
             .finally(() => !cancelled && setLoadingHistory(false));
         return () => {
             cancelled = true;
         };
-    }, [selectedClient?.id]);
+    }, [selectedClient?.id, editId]);
 
     useEffect(() => {
         loadData();
-        generateInvoiceNumber();
+        if (!editId) generateInvoiceNumber();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
     }, []);
 
     const loadData = async () => {
@@ -154,12 +159,57 @@ export default function InvoiceCreatePage() {
             setProducts(productsData);
             setCompany(companyData);
             setPaymentTerms(companyData?.payment_terms_default || "");
+            if (editId) await loadDraft(clientsData);
         } catch (error) {
             console.error("Error loading data:", error);
             message.error(t("invoiceCreate.loadError"));
         } finally {
             setLoading(false);
         }
+    };
+
+    /** Prefill the wizard from an existing draft. */
+    const loadDraft = async (clientsData: Client[]) => {
+        const invoice = await getInvoiceById(editId!);
+        if (!invoice) throw new Error("Rechnung nicht gefunden");
+        if (invoice.status !== "draft") {
+            message.warning("Nur Entwürfe können bearbeitet werden – für versendete Rechnungen bitte eine Korrektur erstellen.");
+            router.replace(`/dashboard/invoices/${editId}`);
+            return;
+        }
+        setSelectedClient(clientsData.find((c) => c.id === invoice.client_id) ?? null);
+        setInvoiceNumber(invoice.invoice_number);
+        setInvoiceDate(dayjs(invoice.issue_date));
+        if (invoice.due_date) setDueDate(dayjs(invoice.due_date));
+        setNotes(invoice.notes || "");
+        setPaymentTerms(invoice.payment_terms || "");
+        if (invoice.e_invoice) setEInvoice(invoice.e_invoice);
+        setDiagnoses(invoice.medical?.diagnoses ?? []);
+        setDiagnosisDisplay(invoice.medical?.diagnosis_display ?? "both");
+        setLineItems((invoice.items ?? []).map((item, index) => ({
+            key: `${item.id ?? "item"}-${index}`,
+            description: item.description,
+            service_summary: "",
+            quantity: item.quantity,
+            unit_of_measure: item.unit_of_measure || t("invoiceCreate.unitPiece"),
+            price: item.price,
+            tax_rate_percent: item.tax_rate_percent,
+            discount_percent: item.discount_percent || 0,
+            gtin: item.gtin,
+            ...(item.goae
+                ? {
+                      goae: {
+                          number: item.goae.number,
+                          factor: item.goae.factor,
+                          serviceDate: item.goae.service_date,
+                          justification: item.goae.justification,
+                          feeType: item.goae.fee_type,
+                          baseFee: findGoaeEntry(item.goae.number) ? undefined : item.goae.base_fee,
+                          feeAgreement: item.goae.fee_agreement,
+                      },
+                  }
+                : {}),
+        })));
     };
 
     const generateInvoiceNumber = () => {
@@ -297,8 +347,8 @@ export default function InvoiceCreatePage() {
             const proceed = await new Promise<boolean>((resolve) =>
                 Modal.confirm({
                     title: "GOÄ-Prüfung meldet Fehler",
-                    content: `${goaeErrorCount} Regelverstöße gefunden (siehe Schritt „Positionen“). Rechnung trotzdem als Entwurf anlegen?`,
-                    okText: "Trotzdem anlegen",
+                    content: `${goaeErrorCount} Regelverstöße gefunden (siehe Schritt „Positionen“). Rechnung trotzdem als Entwurf ${editId ? "speichern" : "anlegen"}?`,
+                    okText: editId ? "Trotzdem speichern" : "Trotzdem anlegen",
                     cancelText: "Zurück",
                     onOk: () => resolve(true),
                     onCancel: () => resolve(false),
@@ -359,6 +409,13 @@ export default function InvoiceCreatePage() {
                 medical: diagnoses.length ? { diagnoses, diagnosis_display: diagnosisDisplay } : undefined,
                 items,
             };
+
+            if (editId) {
+                await updateDraftInvoice(editId, invoiceData);
+                message.success("Entwurf gespeichert");
+                router.push(`/dashboard/invoices/${editId}`);
+                return;
+            }
 
             const newInvoiceId = await createInvoice(invoiceData);
 
@@ -1070,12 +1127,12 @@ export default function InvoiceCreatePage() {
             <Space style={{ marginBottom: 16 }}>
                 <Button
                     icon={<ArrowLeftOutlined />}
-                    onClick={() => router.push("/dashboard/invoices")}
+                    onClick={() => router.push(editId ? `/dashboard/invoices/${editId}` : "/dashboard/invoices")}
                 >
                     {t("invoiceCreate.backBtn")}
                 </Button>
                 <Title level={4} style={{ margin: 0 }}>
-                    {t("invoiceCreate.newInvoiceTitle")}
+                    {editId ? `Entwurf ${invoiceNumber} bearbeiten` : t("invoiceCreate.newInvoiceTitle")}
                 </Title>
             </Space>
 
@@ -1190,7 +1247,7 @@ export default function InvoiceCreatePage() {
                                 loading={saving}
                                 disabled={!canProceed()}
                             >
-                                <CheckOutlined /> {t("invoiceCreate.createBtn")}
+                                <CheckOutlined /> {editId ? "Änderungen speichern" : t("invoiceCreate.createBtn")}
                             </Button>
                         )}
                     </Space>
