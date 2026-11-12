@@ -92,3 +92,6 @@ docs/TRAIN_LOCAL_AI_MODEL.md
 
 # Local backups (scripts/backup.bat)
 /backups
+
+# Local Docker overrides (e.g. LAN port binding)
+docker-compose.override.yml
