@@ -3,6 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoaeValidationError } from "@/lib/goae/line";
 import { MedicalDataError } from "@/lib/icd10";
 import { InvoiceWriteError, prepareInvoiceWrite } from "@/lib/server/invoiceWrite";
+import {
+    advanceNumberCounter,
+    allocateInvoiceNumber,
+    numberExists,
+    NUMBER_TAKEN_MESSAGE,
+    repairDuplicateNumber,
+} from "@/lib/server/invoiceNumberAllocation";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import {
     createSessionClient,
@@ -140,11 +147,26 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { invoiceData: prepared, items, medical } = await prepareInvoiceWrite(databases, user.$id, body);
+        const { invoiceData: prepared, items, medical, companyDoc } = await prepareInvoiceWrite(databases, user.$id, body);
+        const issueDate: string = typeof body.issue_date === "string" && body.issue_date ? body.issue_date : new Date().toISOString().slice(0, 10);
+
+        // Sequential invoice number: allocate when blank, validate when explicit.
+        let invoiceNumber: string = typeof body.invoice_number === "string" ? body.invoice_number.trim() : "";
+        let allocatedSeq = 0;
+        if (!invoiceNumber) {
+            const allocated = await allocateInvoiceNumber(databases, user.$id, companyDoc, issueDate);
+            invoiceNumber = allocated.number;
+            allocatedSeq = allocated.seq;
+        } else if (await numberExists(databases, user.$id, invoiceNumber)) {
+            return NextResponse.json({ error: NUMBER_TAKEN_MESSAGE }, { status: 409 });
+        }
+
         const invoiceId = ID.unique();
         const invoiceData: Record<string, unknown> = {
             userId: user.$id,
             ...prepared,
+            invoiceNumber,
+            issueDate,
             status: "draft",
             ...(medical ? { medicalData: JSON.stringify(medical) } : {}),
         };
@@ -205,7 +227,10 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        return NextResponse.json({ id: invoiceId });
+        if (allocatedSeq > 0) await advanceNumberCounter(databases, user.$id, allocatedSeq);
+        invoiceNumber = await repairDuplicateNumber(databases, user.$id, invoiceId, invoiceNumber, companyDoc, issueDate);
+
+        return NextResponse.json({ id: invoiceId, invoiceNumber });
     } catch (error) {
         if (error instanceof InvoiceWriteError) return NextResponse.json({ error: error.message }, { status: error.status });
         if (error instanceof IdentifierValidationError || error instanceof GoaeValidationError || error instanceof MedicalDataError) {

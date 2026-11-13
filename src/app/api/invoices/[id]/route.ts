@@ -2,6 +2,7 @@ import { IdentifierValidationError, readEInvoiceData } from "@/lib/eRechnung/ide
 import { GoaeValidationError, parseGoaeLineData } from "@/lib/goae/line";
 import { MedicalDataError, parseMedicalData } from "@/lib/icd10";
 import { InvoiceWriteError, prepareInvoiceWrite } from "@/lib/server/invoiceWrite";
+import { numberExists, NUMBER_TAKEN_MESSAGE } from "@/lib/server/invoiceNumberAllocation";
 import { NextRequest, NextResponse } from "next/server";
 import { ID, Permission, Query, Role } from "node-appwrite";
 import {
@@ -219,6 +220,14 @@ export async function PUT(
                 return NextResponse.json({ error: "Nur Entwürfe können bearbeitet werden – für versendete Rechnungen bitte eine Korrektur erstellen." }, { status: 409 });
             }
             const { invoiceData, items, medical } = await prepareInvoiceWrite(databases, user.$id, body);
+            // Empty number keeps the draft's number; a changed number must be unique.
+            const requestedNumber = typeof body.invoice_number === "string" ? body.invoice_number.trim() : "";
+            const invoiceNumber = requestedNumber || existing.invoiceNumber;
+            if (invoiceNumber !== existing.invoiceNumber && (await numberExists(databases, user.$id, invoiceNumber, id))) {
+                return NextResponse.json({ error: NUMBER_TAKEN_MESSAGE }, { status: 409 });
+            }
+            invoiceData.invoiceNumber = invoiceNumber;
+            invoiceData.issueDate = typeof body.issue_date === "string" && body.issue_date ? body.issue_date : existing.issueDate;
             const permissions = [
                 Permission.read(Role.user(user.$id)),
                 Permission.update(Role.user(user.$id)),
@@ -242,7 +251,7 @@ export async function PUT(
                 throw writeError;
             }
             for (const old of oldItems.documents) await databases.deleteDocument(DATABASE_ID, COLLECTIONS.INVOICE_ITEMS, old.$id);
-            return NextResponse.json({ id, success: true });
+            return NextResponse.json({ id, invoiceNumber, success: true });
         }
 
         // Status-only update

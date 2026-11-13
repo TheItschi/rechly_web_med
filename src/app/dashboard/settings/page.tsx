@@ -22,6 +22,7 @@ import {
     Col,
     Progress,
     Switch,
+    InputNumber,
 } from "antd";
 import {
     SaveOutlined,
@@ -34,6 +35,13 @@ import {
 } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
+import { getNextInvoiceNumber } from "@/lib/invoiceService";
+import {
+    DEFAULT_NUMBER_PATTERN,
+    DEFAULT_NUMBER_PREFIX,
+    formatInvoiceNumber,
+    validateNumberPattern,
+} from "@/lib/invoiceNumbering";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -44,6 +52,103 @@ import type { AIProvider, UserCompany } from "@/types";
 
 const { Title, Text } = Typography;
 
+/** Live-validated invoice numbering settings with format preview (from upstream Rechly). */
+function NumberingSection({
+    t,
+    form,
+}: {
+    t: (key: string) => string;
+    form: ReturnType<typeof Form.useForm>[0];
+}) {
+    const pattern = Form.useWatch("invoice_number_pattern", form) as string | undefined;
+    const prefix = Form.useWatch("invoice_number_prefix", form) as string | undefined;
+    const next = Form.useWatch("next_invoice_number", form) as number | undefined;
+    const [suggesting, setSuggesting] = useState(false);
+
+    const activePattern =
+        pattern && pattern.trim() ? pattern.trim() : DEFAULT_NUMBER_PATTERN;
+    const activePrefix =
+        prefix && prefix.trim() ? prefix.trim().slice(0, 32) : DEFAULT_NUMBER_PREFIX;
+    const patternError = validateNumberPattern(activePattern);
+    const preview =
+        patternError === null
+            ? formatInvoiceNumber({
+                  pattern: activePattern,
+                  prefix: activePrefix,
+                  dateISO: new Date().toISOString().slice(0, 10),
+                  seq: typeof next === "number" && next > 0 ? Math.floor(next) : 1,
+              })
+            : null;
+
+    return (
+        <>
+            <Row gutter={[16, 0]}>
+                <Col xs={24} sm={8}>
+                    <Form.Item label={t("settings.numberPrefix")} name="invoice_number_prefix">
+                        <Input placeholder="RE" maxLength={32} />
+                    </Form.Item>
+                </Col>
+                <Col xs={24} sm={16}>
+                    <Form.Item
+                        label={t("settings.numberPattern")}
+                        name="invoice_number_pattern"
+                        extra={t("settings.numberPatternHelp")}
+                        validateStatus={patternError ? "error" : undefined}
+                        help={patternError ? t("settings.numberPatternInvalid") : undefined}
+                    >
+                        <Input placeholder={DEFAULT_NUMBER_PATTERN} maxLength={64} />
+                    </Form.Item>
+                </Col>
+            </Row>
+            <Row gutter={[16, 0]}>
+                <Col xs={24} sm={12}>
+                    <Form.Item
+                        label={t("settings.nextInvoiceNumber")}
+                        name="next_invoice_number"
+                        extra={t("settings.nextInvoiceNumberHint")}
+                    >
+                        <InputNumber min={1} precision={0} style={{ width: "100%" }} />
+                    </Form.Item>
+                </Col>
+                <Col xs={24} sm={12}>
+                    <Form.Item label=" ">
+                        <Space direction="vertical" style={{ width: "100%" }}>
+                            <Button
+                                loading={suggesting}
+                                onClick={async () => {
+                                    setSuggesting(true);
+                                    try {
+                                        const suggestion = await getNextInvoiceNumber(true);
+                                        if (suggestion) {
+                                            form.setFieldsValue({
+                                                next_invoice_number: suggestion.next,
+                                            });
+                                            message.success(t("settings.numberSuggested"));
+                                        }
+                                    } catch {
+                                        message.error(t("settings.saveError"));
+                                    } finally {
+                                        setSuggesting(false);
+                                    }
+                                }}
+                            >
+                                {t("settings.suggestFromHistory")}
+                            </Button>
+                            <Text type="secondary">
+                                {t("settings.numberPreview")}:{" "}
+                                <Text strong code={!!preview}>
+                                    {preview ?? "—"}
+                                </Text>
+                            </Text>
+                        </Space>
+                    </Form.Item>
+                </Col>
+            </Row>
+        </>
+    );
+}
+
+
 export default function SettingsPage() {
     const { user, logout, deleteAccount } = useAuth();
     const { t } = useLanguage();
@@ -52,6 +157,7 @@ export default function SettingsPage() {
     const [deleting, setDeleting] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
+    const [numberingConfigured, setNumberingConfigured] = useState(false);
     const [aiLoading, setAiLoading] = useState(true);
     const [aiSaving, setAiSaving] = useState(false);
     const [aiTesting, setAiTesting] = useState(false);
@@ -91,6 +197,7 @@ export default function SettingsPage() {
                 form.setFieldsValue(data);
                 setLogoPreview(data.logo_base64 || null);
                 setSignaturePreview(data.signature_base64 || null);
+                setNumberingConfigured(!!(data.invoice_number_prefix || data.invoice_number_pattern || data.next_invoice_number));
             }
         } catch (error) {
             console.error("Error loading company info:", error);
@@ -134,6 +241,15 @@ export default function SettingsPage() {
                 logo_base64: logoPreview || undefined,
                 signature_base64: signaturePreview || "",
                 professional_title: values.professional_title || "",
+                // Numbering fields are only sent once configured, so unmigrated
+                // Appwrite schemas keep saving the rest of the company data.
+                ...(values.invoice_number_prefix || values.invoice_number_pattern || values.next_invoice_number || numberingConfigured
+                    ? {
+                          invoice_number_prefix: values.invoice_number_prefix || "",
+                          invoice_number_pattern: values.invoice_number_pattern || "",
+                          next_invoice_number: values.next_invoice_number,
+                      }
+                    : {}),
             });
             message.success(t("settings.saved"));
         } catch (error) {
@@ -490,6 +606,9 @@ export default function SettingsPage() {
                     <Form.Item name="bank_bic" label={t("settings.bic")}>
                         <Input placeholder="COBADEFFXXX" />
                     </Form.Item>
+
+                    <Divider>{t("settings.numberingTitle")}</Divider>
+                    <NumberingSection t={t} form={form} />
 
                     <Divider>{t("settings.invoiceSettings")}</Divider>
 

@@ -72,8 +72,6 @@ export async function prepareInvoiceWrite(databases: Databases, userId: string, 
     const invoiceData: Record<string, unknown> = {
         ...(Object.keys(identifiers).length ? { eInvoiceData: JSON.stringify(identifiers) } : {}),
         clientId: body.client_id,
-        invoiceNumber: body.invoice_number,
-        issueDate: body.issue_date,
         dueDate: body.due_date || null,
         subtotal: totals.netAfterDiscount,
         totalVat: totals.totalVAT,
@@ -83,5 +81,5 @@ export async function prepareInvoiceWrite(databases: Databases, userId: string, 
         deliveryDate: body.delivery_date || null,
         paymentTerms: body.payment_terms || null,
     };
-    return { invoiceData, items, medical };
+    return { invoiceData, items, medical, companyDoc: companies.documents[0] ?? null };
 }

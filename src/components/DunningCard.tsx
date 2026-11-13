@@ -1,10 +1,11 @@
 "use client";
 
+import DecimalInput from "@/components/DecimalInput";
+
 import { useCallback, useEffect, useState } from "react";
 import {
     Button,
     Card,
-    InputNumber,
     List,
     Modal,
     Tag,
@@ -179,7 +180,7 @@ export default function DunningCard({ invoice, company }: DunningCardProps) {
                     erstellt. Die Mahngebühr wird zum offenen Betrag addiert
                     (Girocode inklusive).
                 </p>
-                <InputNumber
+                <DecimalInput
                     addonBefore="Mahngebühr"
                     addonAfter="€"
                     min={0}

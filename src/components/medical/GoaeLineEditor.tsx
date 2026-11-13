@@ -1,6 +1,8 @@
 "use client";
 
-import { AutoComplete, Button, Checkbox, DatePicker, Input, InputNumber, Select, Space, Tag, Tooltip, Typography } from "antd";
+import DecimalInput from "@/components/DecimalInput";
+
+import { AutoComplete, Button, Checkbox, DatePicker, Input, Select, Space, Tag, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import {
     catalogBaseFee,
@@ -111,7 +113,7 @@ export function GoaeLineEditor({ value, hasError, onChange }: Props) {
                 ) : (
                 <Tooltip title={isSurcharge ? "Zuschläge nur mit einfachem Satz" : `Schwellenwert ${formatFactor(frame.threshold)} · Höchstsatz ${formatFactor(frame.max)}`}>
                     <Space.Compact>
-                        <InputNumber
+                        <DecimalInput
                             aria-label="Steigerungssatz"
                             value={value.factor}
                             min={isSurcharge ? 0.5 : 1}
@@ -143,7 +145,7 @@ export function GoaeLineEditor({ value, hasError, onChange }: Props) {
                         />
                         <Tooltip title="Einfachsatz (1,0-fach) in Euro">
                             <Space.Compact>
-                                <InputNumber
+                                <DecimalInput
                                     aria-label="Einfachsatz"
                                     value={value.baseFee}
                                     min={0}

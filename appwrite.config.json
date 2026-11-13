@@ -318,6 +318,33 @@
                     "size": 5000000,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "invoiceNumberPrefix",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 32,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "invoiceNumberPattern",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "nextInvoiceNumber",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "min": 1,
+                    "max": 9223372036854775807,
+                    "default": null
                 }
             ],
             "indexes": []

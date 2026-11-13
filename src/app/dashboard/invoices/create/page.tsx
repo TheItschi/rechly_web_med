@@ -15,8 +15,8 @@ import {
     Typography,
     Divider,
     Select,
-    InputNumber,
     Table,
+    Tooltip,
     DatePicker,
     Steps,
     Result,
@@ -32,11 +32,13 @@ import {
     FileTextOutlined,
     RobotOutlined,
     MedicineBoxOutlined,
+    ReloadOutlined,
 } from "@ant-design/icons";
+import DecimalInput from "@/components/DecimalInput";
 import dayjs from "dayjs";
 import { getAllClients } from "@/lib/clientService";
 import { getAllProducts } from "@/lib/productService";
-import { createInvoice, getInvoiceById, updateDraftInvoice } from "@/lib/invoiceService";
+import { createInvoice, getInvoiceById, getNextInvoiceNumber, updateDraftInvoice } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { runInvoiceAssistant, parseInvoiceDraftWithAI } from "@/lib/aiService";
 import {
@@ -96,6 +98,8 @@ export default function InvoiceCreatePage() {
     const [invoiceDate, setInvoiceDate] = useState(dayjs());
     const [dueDate, setDueDate] = useState(dayjs().add(14, "day"));
     const [invoiceNumber, setInvoiceNumber] = useState("");
+    // false while the number is the server's preview of the next sequential number
+    const [numberTouched, setNumberTouched] = useState(false);
     const [notes, setNotes] = useState("");
     const [paymentTerms, setPaymentTerms] = useState("");
     const [generatingNotes, setGeneratingNotes] = useState(false);
@@ -143,7 +147,7 @@ export default function InvoiceCreatePage() {
 
     useEffect(() => {
         loadData();
-        if (!editId) generateInvoiceNumber();
+        if (!editId) void generateInvoiceNumber();
         // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
     }, []);
 
@@ -179,6 +183,7 @@ export default function InvoiceCreatePage() {
         }
         setSelectedClient(clientsData.find((c) => c.id === invoice.client_id) ?? null);
         setInvoiceNumber(invoice.invoice_number);
+        setNumberTouched(true);
         setInvoiceDate(dayjs(invoice.issue_date));
         if (invoice.due_date) setDueDate(dayjs(invoice.due_date));
         setNotes(invoice.notes || "");
@@ -212,13 +217,11 @@ export default function InvoiceCreatePage() {
         })));
     };
 
-    const generateInvoiceNumber = () => {
-        const year = dayjs().format("YYYY");
-        const month = dayjs().format("MM");
-        const random = Math.floor(Math.random() * 1000)
-            .toString()
-            .padStart(3, "0");
-        setInvoiceNumber(`RE-${year}${month}-${random}`);
+    /** Preview of the next sequential number (assigned for real on save). */
+    const generateInvoiceNumber = async () => {
+        const next = await getNextInvoiceNumber();
+        setInvoiceNumber(next?.number ?? "");
+        setNumberTouched(false);
     };
 
     const addLineItem = () => {
@@ -401,7 +404,8 @@ export default function InvoiceCreatePage() {
                     // An explicitly cleared buyer ID must not reapply the customer default.
                     ...(Object.hasOwn(eInvoice, "buyer_identifier") ? { buyer_identifier: eInvoice.buyer_identifier || { value: "" } } : {}),
                 },
-                invoice_number: invoiceNumber,
+                // An untouched preview is sent empty so the server allocates the number atomically.
+                invoice_number: editId || numberTouched ? invoiceNumber.trim() : "",
                 issue_date: invoiceDate.format("YYYY-MM-DD"),
                 due_date: dueDate.format("YYYY-MM-DD"),
                 notes: notes || undefined,
@@ -417,9 +421,10 @@ export default function InvoiceCreatePage() {
                 return;
             }
 
-            const newInvoiceId = await createInvoice(invoiceData);
+            const created = await createInvoice(invoiceData);
+            if (created.invoiceNumber) setInvoiceNumber(created.invoiceNumber);
 
-            setCreatedInvoiceId(newInvoiceId);
+            setCreatedInvoiceId(created.id);
             setCurrentStep(3);
             message.success(t("invoiceCreate.created"));
         } catch (error) {
@@ -675,7 +680,7 @@ export default function InvoiceCreatePage() {
             key: "quantity",
             width: 100,
             render: (_: unknown, record: LineItem) => (
-                <InputNumber
+                <DecimalInput
                     value={record.quantity}
                     min={0}
                     onChange={(val) =>
@@ -721,7 +726,7 @@ export default function InvoiceCreatePage() {
                 </Space>
             ) : (
                 <Space.Compact style={{ width: "100%" }}>
-                    <InputNumber
+                    <DecimalInput
                         value={record.price}
                         min={0}
                         step={0.01}
@@ -931,14 +936,28 @@ export default function InvoiceCreatePage() {
                                     label={t("invoiceCreate.invoiceNumber")}
                                     style={{ flex: 1 }}
                                 >
-                                    <Input
-                                        value={invoiceNumber}
-                                        onChange={(e) =>
-                                            setInvoiceNumber(e.target.value)
-                                        }
-                                    />
+                                    <Space.Compact style={{ width: "100%" }}>
+                                        <Input
+                                            value={invoiceNumber}
+                                            onChange={(e) => {
+                                                setInvoiceNumber(e.target.value);
+                                                setNumberTouched(true);
+                                            }}
+                                            placeholder={t("invoiceCreate.invoiceNumberPlaceholder")}
+                                        />
+                                        {!editId && (
+                                            <Tooltip title={t("invoiceCreate.newNumberTooltip")}>
+                                                <Button icon={<ReloadOutlined />} onClick={() => void generateInvoiceNumber()} />
+                                            </Tooltip>
+                                        )}
+                                    </Space.Compact>
                                 </Form.Item>
                             </Space>
+                            {!editId && !numberTouched && (
+                                <Text type="secondary" style={{ display: "block", marginTop: -12, marginBottom: 16, fontSize: 12 }}>
+                                    {t("invoiceCreate.autoNumberHint")}
+                                </Text>
+                            )}
 
                             <Space style={{ width: "100%" }}>
                                 <Form.Item
@@ -1112,7 +1131,7 @@ export default function InvoiceCreatePage() {
             case 1:
                 return lineItems.length > 0;
             case 2:
-                return !!invoiceNumber;
+                return true; // empty number = automatic sequential number
             default:
                 return true;
         }

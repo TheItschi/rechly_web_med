@@ -21,7 +21,7 @@
     "desktop:pack": "npm run desktop:build:web && electron-builder --dir",
     "desktop:dist": "npm run desktop:build:web && electron-builder",
     "test:einvoice": "tsx --test tests/einvoice.test.ts",
-    "test:medical": "tsx --test tests/goae.test.ts tests/icd10.test.ts tests/invoiceEmail.test.ts",
+    "test:medical": "tsx --test tests/goae.test.ts tests/icd10.test.ts tests/invoiceEmail.test.ts tests/invoiceNumbering.test.ts tests/decimalInput.test.ts",
     "import:icd10gm": "tsx scripts/import-icd10gm.mts",
     "migrate:medical": "node --env-file=.env.local scripts/migrate-medical.mjs",
     "migrate:einvoice": "node --env-file=.env.local scripts/migrate-einvoice.mjs"

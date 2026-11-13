@@ -65,7 +65,7 @@ export const getInvoiceById = async (
 /**
  * Create new invoice with items
  */
-export const createInvoice = async (data: InvoiceFormData): Promise<string> => {
+export const createInvoice = async (data: InvoiceFormData): Promise<{ id: string; invoiceNumber?: string }> => {
     try {
         const res = await fetch("/api/invoices", {
             method: "POST",
@@ -79,10 +79,25 @@ export const createInvoice = async (data: InvoiceFormData): Promise<string> => {
         }
 
         const result = await res.json();
-        return result.id;
+        return { id: result.id, invoiceNumber: result.invoiceNumber };
     } catch (error) {
         console.error("Error creating invoice:", error);
         throw error;
+    }
+};
+
+/**
+ * Next sequential invoice number preview (not reserved). With `suggest`,
+ * the counter is derived from existing invoice numbers. Null if unavailable.
+ */
+export const getNextInvoiceNumber = async (
+    suggest = false,
+): Promise<{ number: string; pattern: string; prefix: string; next: number } | null> => {
+    try {
+        const res = await fetch(suggest ? "/api/invoices/next-number?suggest=1" : "/api/invoices/next-number");
+        return res.ok ? await res.json() : null;
+    } catch {
+        return null;
     }
 };
 

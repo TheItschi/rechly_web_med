@@ -70,6 +70,9 @@ export async function GET() {
             logo_base64: doc.logoBase64 ?? undefined,
             professional_title: doc.professionalTitle ?? undefined,
             signature_base64: doc.signatureBase64 ?? undefined,
+            invoice_number_prefix: doc.invoiceNumberPrefix ?? undefined,
+            invoice_number_pattern: doc.invoiceNumberPattern ?? undefined,
+            next_invoice_number: doc.nextInvoiceNumber ?? undefined,
             is_small_business: doc.isSmallBusiness ?? false,
             payment_terms_default: doc.paymentTermsDefault,
             created_at: new Date(doc.$createdAt).getTime(),
@@ -149,6 +152,23 @@ export async function POST(request: NextRequest) {
             // knows these fields, so unmigrated Appwrite schemas keep working.
             ...("professional_title" in body ? { professionalTitle: body.professional_title || null } : {}),
             ...("signature_base64" in body ? { signatureBase64: body.signature_base64 || null } : {}),
+            // Sequential numbering – only when the client sends these fields.
+            ...("invoice_number_pattern" in body
+                ? {
+                      invoiceNumberPrefix:
+                          typeof body.invoice_number_prefix === "string" && body.invoice_number_prefix.trim()
+                              ? body.invoice_number_prefix.trim().slice(0, 32)
+                              : null,
+                      invoiceNumberPattern:
+                          typeof body.invoice_number_pattern === "string" && body.invoice_number_pattern.trim()
+                              ? body.invoice_number_pattern.trim().slice(0, 64)
+                              : null,
+                      nextInvoiceNumber:
+                          Number.isInteger(Number(body.next_invoice_number)) && Number(body.next_invoice_number) > 0
+                              ? Math.floor(Number(body.next_invoice_number))
+                              : null,
+                  }
+                : {}),
             isSmallBusiness: !!body.is_small_business,
             paymentTermsDefault: body.payment_terms_default,
         };
@@ -202,6 +222,9 @@ export async function POST(request: NextRequest) {
             logo_base64: doc.logoBase64 ?? undefined,
             professional_title: doc.professionalTitle ?? undefined,
             signature_base64: doc.signatureBase64 ?? undefined,
+            invoice_number_prefix: doc.invoiceNumberPrefix ?? undefined,
+            invoice_number_pattern: doc.invoiceNumberPattern ?? undefined,
+            next_invoice_number: doc.nextInvoiceNumber ?? undefined,
             is_small_business: doc.isSmallBusiness ?? false,
             payment_terms_default: doc.paymentTermsDefault,
             created_at: new Date(doc.$createdAt).getTime(),
@@ -212,8 +235,8 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         if (error instanceof IdentifierValidationError) return NextResponse.json({ error: error.message }, { status: 400 });
         console.error("Error saving company:", error);
-        if (/Unknown attribute: "?(professionalTitle|signatureBase64)/.test((error as { message?: string })?.message || "")) {
-            return NextResponse.json({ error: "Datenbankschema für Briefkopf/Faksimile fehlt – bitte `npm run migrate:medical` ausführen" }, { status: 400 });
+        if (/Unknown attribute: "?(professionalTitle|signatureBase64|invoiceNumberPrefix|invoiceNumberPattern|nextInvoiceNumber)/.test((error as { message?: string })?.message || "")) {
+            return NextResponse.json({ error: "Datenbankschema für Briefkopf/Faksimile/Rechnungsnummern fehlt – bitte `npm run migrate:medical` ausführen" }, { status: 400 });
         }
         return NextResponse.json(
             { error: "Failed to save company" },

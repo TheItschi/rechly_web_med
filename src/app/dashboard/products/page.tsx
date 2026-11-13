@@ -1,5 +1,7 @@
 "use client";
 
+import DecimalInput from "@/components/DecimalInput";
+
 import { useEffect, useState } from "react";
 import {
     Table,
@@ -8,7 +10,6 @@ import {
     Space,
     Modal,
     Form,
-    InputNumber,
     Select,
     message,
     Popconfirm,
@@ -528,24 +529,12 @@ export default function ProductsPage() {
                                     },
                                 ]}
                             >
-                                <InputNumber
-                                    placeholder="0.00"
+                                <DecimalInput
+                                    placeholder="0,00"
+                                    step={0.01}
                                     min={0}
                                     precision={2}
                                     style={{ width: "100%" }}
-                                    formatter={(value) =>
-                                        `${value}`.replace(
-                                            /\B(?=(\d{3})+(?!\d))/g,
-                                            ".",
-                                        )
-                                    }
-                                    parser={(value) =>
-                                        Number(
-                                            value
-                                                ?.replace(/\./g, "")
-                                                .replace(",", "."),
-                                        ) as unknown as 0
-                                    }
                                 />
                             </Form.Item>
                         </Col>

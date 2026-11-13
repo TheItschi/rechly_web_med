@@ -12,6 +12,8 @@ for (const [collection, attribute, size, encrypt = true] of [
     ["invoice_items", "goaeData", 4000],
     ["user_company", "professionalTitle", 255, false],
     ["user_company", "signatureBase64", 5000000, false],
+    ["user_company", "invoiceNumberPrefix", 32, false],
+    ["user_company", "invoiceNumberPattern", 64, false],
 ]) {
     try {
         await db.createStringAttribute("rechly-db", collection, attribute, size, false, undefined, false, encrypt);
@@ -34,3 +36,11 @@ for (const [collection, attribute, size, encrypt = true] of [
     if (!ready) throw new Error(`Attribute still pending: ${collection}.${attribute}; retry later.`);
     console.log(`${collection}.${attribute}: ready`);
 }
+
+// Counter for sequential invoice numbers (integer attribute).
+try {
+    await db.createIntegerAttribute("rechly-db", "user_company", "nextInvoiceNumber", false, 1);
+} catch (error) {
+    if (error.code !== 409) throw error;
+}
+console.log("user_company.nextInvoiceNumber: ready");
