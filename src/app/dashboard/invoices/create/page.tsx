@@ -38,6 +38,7 @@ import {
 import {
     PlusOutlined,
     DeleteOutlined,
+    CopyOutlined,
     ArrowLeftOutlined,
     ArrowRightOutlined,
     CheckOutlined,
@@ -305,6 +306,8 @@ export default function InvoiceCreatePage() {
         }
     }, [loading, prefillDone, suggestDuplicatePrefill]);
 
+    const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+
     const addLineItem = () => {
         const newItem: LineItem = {
             key: Date.now().toString(),
@@ -336,6 +339,53 @@ export default function InvoiceCreatePage() {
 
     const removeLineItem = (key: string) => {
         setLineItems(lineItems.filter((item) => item.key !== key));
+        setSelectedRowKeys((prev) => prev.filter((k) => k !== key));
+    };
+
+    const makeItemKey = () =>
+        `${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+
+    /** Duplicate a single line item, inserted directly below the original. */
+    const duplicateLineItem = (key: string) => {
+        const index = lineItems.findIndex((item) => item.key === key);
+        if (index === -1) return;
+        const copy: LineItem = { ...lineItems[index], key: makeItemKey() };
+        const next = [...lineItems];
+        next.splice(index + 1, 0, copy);
+        setLineItems(next);
+        message.success(t("invoiceCreate.lineItemDuplicated"));
+    };
+
+    /** Duplicate all selected line items, appended in their current order. */
+    const duplicateSelectedItems = () => {
+        const selected = lineItems.filter((item) =>
+            selectedRowKeys.includes(item.key),
+        );
+        if (selected.length === 0) return;
+        setLineItems([
+            ...lineItems,
+            ...selected.map((item) => ({ ...item, key: makeItemKey() })),
+        ]);
+        setSelectedRowKeys([]);
+        message.success(
+            t("invoiceCreate.selectedDuplicated").replace(
+                "{count}",
+                String(selected.length),
+            ),
+        );
+    };
+
+    /** Delete all selected line items. */
+    const removeSelectedItems = () => {
+        const count = selectedRowKeys.length;
+        if (count === 0) return;
+        setLineItems(
+            lineItems.filter((item) => !selectedRowKeys.includes(item.key)),
+        );
+        setSelectedRowKeys([]);
+        message.success(
+            t("invoiceCreate.selectedDeleted").replace("{count}", String(count)),
+        );
     };
 
     const addProductAsLineItem = (productId: string) => {
@@ -490,6 +540,16 @@ export default function InvoiceCreatePage() {
         }
         if (deliveryDateStart && deliveryDateEnd && deliveryDateStart.isAfter(deliveryDateEnd, "day")) {
             message.error(t("invoiceCreate.servicePeriodInvalid"));
+            return;
+        }
+        const hasInvalidItemPeriod = lineItems.some(
+            (item) =>
+                item.service_date_start &&
+                item.service_date_end &&
+                item.service_date_start > item.service_date_end,
+        );
+        if (hasInvalidItemPeriod) {
+            message.error(t("invoiceCreate.itemServicePeriodInvalid"));
             return;
         }
 
@@ -852,7 +912,7 @@ export default function InvoiceCreatePage() {
             render: (_: unknown, record: LineItem) => (
                 <DatePicker.RangePicker
                     size="small"
-                    format="DD.MM.YY"
+                    format="DD.MM.YYYY"
                     value={[
                         record.service_date_start ? dayjs(record.service_date_start) : null,
                         record.service_date_end ? dayjs(record.service_date_end) : null,
@@ -879,14 +939,25 @@ export default function InvoiceCreatePage() {
         {
             title: "",
             key: "actions",
-            width: 50,
+            width: 96,
             render: (_: unknown, record: LineItem) => (
-                <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => removeLineItem(record.key)}
-                />
+                <Space size={0}>
+                    <Tooltip title={t("invoiceCreate.duplicateLineItem")}>
+                        <Button
+                            type="text"
+                            icon={<CopyOutlined />}
+                            onClick={() => duplicateLineItem(record.key)}
+                        />
+                    </Tooltip>
+                    <Tooltip title={t("invoiceCreate.deleteLineItem")}>
+                        <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => removeLineItem(record.key)}
+                        />
+                    </Tooltip>
+                </Space>
             ),
         },
     ];
@@ -1001,8 +1072,38 @@ export default function InvoiceCreatePage() {
                             dataSource={lineItems}
                             pagination={false}
                             rowKey="key"
+                            scroll={{ x: 1000 }}
+                            rowSelection={{
+                                selectedRowKeys,
+                                onChange: (keys) =>
+                                    setSelectedRowKeys(keys as string[]),
+                            }}
                             locale={{ emptyText: t("invoiceDetail.noPositions") }}
                         />
+
+                        {selectedRowKeys.length > 0 && (
+                            <Space style={{ marginTop: 12 }} wrap>
+                                <Text type="secondary">
+                                    {t("invoiceCreate.selectedCount").replace(
+                                        "{count}",
+                                        String(selectedRowKeys.length),
+                                    )}
+                                </Text>
+                                <Button
+                                    icon={<CopyOutlined />}
+                                    onClick={duplicateSelectedItems}
+                                >
+                                    {t("invoiceCreate.duplicateSelected")}
+                                </Button>
+                                <Button
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={removeSelectedItems}
+                                >
+                                    {t("invoiceCreate.deleteSelected")}
+                                </Button>
+                            </Space>
+                        )}
 
                         <Divider />
 

@@ -165,8 +165,16 @@ describe("formatServicePeriod", () => {
         assert.equal(formatServicePeriod("2026-01-05", "2026-01-05"), "05.01.2026");
     });
 
+    it("normalizes Appwrite datetime values to the calendar day", () => {
+        assert.equal(
+            formatServicePeriod("2026-01-05T00:00:00.000Z", "2026-01-12T00:00:00.000Z"),
+            "05.01.2026 – 12.01.2026",
+        );
+    });
+
     it("falls back to a legacy delivery date and null otherwise", () => {
         assert.equal(formatServicePeriod(undefined, undefined, "2026-01-05"), "05.01.2026");
+        assert.equal(formatServicePeriod(undefined, undefined, "2026-01-05T00:00:00.000Z"), "05.01.2026");
         assert.equal(formatServicePeriod(undefined, undefined, undefined), null);
         assert.equal(formatServicePeriod(undefined, undefined, "garbage"), null);
     });

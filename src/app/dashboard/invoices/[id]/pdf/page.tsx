@@ -1,7 +1,7 @@
 "use client";
 import { identifierSummary } from "@/lib/eRechnung/identifierSummary";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { Button, Space, message, Spin, Card, Alert, Segmented } from "antd";
 import {
@@ -20,6 +20,7 @@ import {
     PDFViewer,
     PDFDownloadLink,
     Image,
+    pdf,
 } from "@react-pdf/renderer";
 import QRCode from "qrcode";
 import { buildGirocodePayload } from "@/lib/girocode";
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     infoItem: {
-        width: "30%",
+        flex: 1,
     },
     infoLabel: {
         fontSize: 8,
@@ -563,6 +564,8 @@ export default function InvoicePDFPage() {
     const [invoice, setInvoice] = useState<InvoiceWithDetails | null>(null);
     const [company, setCompany] = useState<UserCompany | null>(null);
     const [girocodeUrl, setGirocodeUrl] = useState<string | null>(null);
+    const [printing, setPrinting] = useState(false);
+    const printFrameRef = useRef<HTMLIFrameElement>(null);
 
     useEffect(() => {
         if (invoiceId) {
@@ -626,9 +629,52 @@ export default function InvoicePDFPage() {
         }
     }, [invoice, company, pdfLanguage]);
 
-    const handlePrint = useCallback(() => {
-        window.print();
-    }, []);
+    /**
+     * Print the actual A4 PDF document (not the on-screen viewer).
+     * The viewer renders inside an iframe/canvas, so printing the page
+     * directly produces a framed, off-white bitmap in the printout —
+     * printing the PDF blob itself keeps vector quality and exact A4
+     * edges, including macOS "Save as PDF".
+     */
+    const handlePrint = useCallback(async () => {
+        if (!invoice) return;
+        setPrinting(true);
+        try {
+            const blob = await pdf(
+                <InvoicePDF
+                    invoice={invoice}
+                    company={company}
+                    t={t}
+                    girocodeUrl={girocodeUrl}
+                    language={pdfLanguage}
+                />,
+            ).toBlob();
+            const url = URL.createObjectURL(blob);
+            const frame = printFrameRef.current;
+            if (!frame || !frame.contentWindow) {
+                throw new Error("print frame unavailable");
+            }
+            await new Promise<void>((resolve, reject) => {
+                const timer = setTimeout(
+                    () => reject(new Error("print frame timed out")),
+                    15000,
+                );
+                frame.onload = () => {
+                    clearTimeout(timer);
+                    resolve();
+                };
+                frame.src = url;
+            });
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+        } catch (error) {
+            console.error("PDF print failed, falling back to page print:", error);
+            window.print();
+        } finally {
+            setPrinting(false);
+        }
+    }, [invoice, company, t, girocodeUrl, pdfLanguage]);
 
     useEffect(() => {
         if (!loading && invoice && shouldPrint) {
@@ -732,7 +778,8 @@ export default function InvoicePDFPage() {
 
                         <Button
                             icon={<PrinterOutlined />}
-                            onClick={handlePrint}
+                            onClick={() => void handlePrint()}
+                            loading={printing}
                         >
                             {t("invoicePdf.print")}
                         </Button>
@@ -787,9 +834,22 @@ export default function InvoicePDFPage() {
                 </PDFViewer>
             </div>
 
-            {/* Print Styles */}
+            {/* Hidden frame that prints the true PDF document */}
+            <iframe
+                ref={printFrameRef}
+                title="print"
+                style={{ display: "none" }}
+                aria-hidden="true"
+                tabIndex={-1}
+            />
+
+            {/* Print Styles (fallback path) */}
             <style jsx global>{`
                 @media print {
+                    @page {
+                        size: A4;
+                        margin: 0;
+                    }
                     .no-print {
                         display: none !important;
                     }

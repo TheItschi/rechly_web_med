@@ -721,6 +721,15 @@ export const de = {
         "invoiceCreate.servicePeriodAdopted": "Leistungszeitraum aus Positionen übernommen",
         "invoiceCreate.servicePeriodInvalid": "Startdatum darf nicht nach dem Enddatum liegen",
         "invoiceCreate.itemServicePeriod": "Leistungszeitraum",
+        "invoiceCreate.itemServicePeriodInvalid": "Eine Position hat einen ungültigen Leistungszeitraum (Start nach Ende).",
+        "invoiceCreate.duplicateLineItem": "Position duplizieren",
+        "invoiceCreate.deleteLineItem": "Position löschen",
+        "invoiceCreate.lineItemDuplicated": "Position dupliziert",
+        "invoiceCreate.duplicateSelected": "Ausgewählte duplizieren",
+        "invoiceCreate.deleteSelected": "Ausgewählte löschen",
+        "invoiceCreate.selectedCount": "{count} ausgewählt",
+        "invoiceCreate.selectedDuplicated": "{count} Positionen dupliziert",
+        "invoiceCreate.selectedDeleted": "{count} Positionen gelöscht",
 
         // Dashboard nav items
         "dashboard.offers": "Angebote",

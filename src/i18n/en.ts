@@ -710,6 +710,15 @@ export const en = {
         "invoiceCreate.servicePeriodAdopted": "Service period adopted from line items",
         "invoiceCreate.servicePeriodInvalid": "Start date must not be after end date",
         "invoiceCreate.itemServicePeriod": "Service period",
+        "invoiceCreate.itemServicePeriodInvalid": "One line item has an invalid service period (start after end).",
+        "invoiceCreate.duplicateLineItem": "Duplicate line item",
+        "invoiceCreate.deleteLineItem": "Delete line item",
+        "invoiceCreate.lineItemDuplicated": "Line item duplicated",
+        "invoiceCreate.duplicateSelected": "Duplicate selected",
+        "invoiceCreate.deleteSelected": "Delete selected",
+        "invoiceCreate.selectedCount": "{count} selected",
+        "invoiceCreate.selectedDuplicated": "Duplicated {count} line items",
+        "invoiceCreate.selectedDeleted": "Deleted {count} line items",
 
         // Dashboard nav items
         "dashboard.offers": "Offers",

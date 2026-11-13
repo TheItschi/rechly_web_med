@@ -114,15 +114,23 @@ export function buildInvoiceFormData({
  * Human-readable service period for display ("05.01.2025 – 12.01.2025",
  * single date if start equals end, fallback to a legacy delivery date).
  * Returns null when nothing usable is present.
+ *
+ * Appwrite datetime attributes may carry a time component
+ * ("2026-11-01T00:00:00.000Z"); values are normalized to the calendar
+ * day so backend timezones can never shift the displayed date.
  */
 export function formatServicePeriod(
     start?: string | null,
     end?: string | null,
     fallback?: string | null,
 ): string | null {
-    const isDate = (d: unknown): d is string => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d);
-    const s = isDate(start) ? start : undefined;
-    const e = isDate(end) ? end : undefined;
+    const toDay = (d: unknown): string | undefined => {
+        if (typeof d !== "string") return undefined;
+        const day = d.length > 10 ? d.slice(0, 10) : d;
+        return /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : undefined;
+    };
+    const s = toDay(start);
+    const e = toDay(end);
     if (s && e) {
         return s === e
             ? formatDateGerman(s)
@@ -130,7 +138,8 @@ export function formatServicePeriod(
     }
     if (s) return `${formatDateGerman(s)} – …`;
     if (e) return `… – ${formatDateGerman(e)}`;
-    if (isDate(fallback)) return formatDateGerman(fallback);
+    const f = toDay(fallback);
+    if (f) return formatDateGerman(f);
     return null;
 }
 
