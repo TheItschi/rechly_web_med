@@ -13,6 +13,7 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 | Leichenschau | Nr. 100–102 (nur Faktor 1,0 bzw. 0,6 bei verkürzter Dauer), 106–109, Zuschläge F/G/H, Wegegeld § 8 als W1–W4 (Tag) und W1N–W4N (Nacht) mit Festbeträgen. |
 | Rechnungsnummern | Fortlaufend und eindeutig (aus dem Original-Rechly übernommen): Format, Prefix und nächste Nummer unter *Einstellungen → Unternehmen*; leeres Nummernfeld = automatische Vergabe beim Speichern, doppelte Nummern werden abgelehnt. |
 | Vorlagen & Duplizieren | Im Rechnungsassistenten „Als Vorlage speichern“ (GOÄ-Ziffern, Faktor, Begründung; Patient/Diagnosen optional) und „Vorlage übernehmen“ (hängt die Positionen an, Leistungsdatum wählbar, Beträge aus dem aktuellen Katalog). Auf der Rechnungsseite „Duplizieren“ – neuer Entwurf mit Leistungsdatum heute. |
+| E-Mail-Versand | „per E-Mail senden“ erzeugt einen Outlook-Entwurf (.eml) mit Standardtext und PDF. Optional PDF mit Passwort (AES-256, Passwort nicht in der Mail) und neutraler Betreff. S/MIME zusätzlich in Outlook (*Optionen → Verschlüsseln*). |
 | Briefkopf | *Einstellungen → Unternehmen*: Briefkopf-Grafik, Berufsbezeichnung und Faksimile-Unterschrift (PNG/JPEG). Bilder liegen in der Datenbank, nicht im Repo. |
 | PDF | Leistungstabelle nach § 12 Abs. 2 (Datum, Ziffer, Bezeichnung, Faktor, Betrag, Begründung), Diagnosen, Hinweis § 4 Nr. 14 UStG, Girocode (EPC-QR). |
 

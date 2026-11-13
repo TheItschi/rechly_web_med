@@ -23,18 +23,36 @@ const encodeHeader = (value: string): string =>
     /^[\x20-\x7e]*$/.test(value) ? value : `=?UTF-8?B?${utf8Base64(value)}?=`;
 const formatIban = (iban: string) => iban.replace(/\s+/g, "").replace(/(.{4})/g, "$1 ").trim();
 
-export function invoiceEmailSubject(invoice: InvoiceWithDetails, company: UserCompany | null): string {
+export interface InvoiceEmailOptions {
+    /** Subject without "Rechnung" and practice name (headers are never encrypted, not even with S/MIME) */
+    neutralSubject?: boolean;
+    /** The attached PDF is password protected */
+    passwordProtected?: boolean;
+    /** How the recipient gets the password; the password itself never goes into the mail */
+    passwordHint?: string;
+}
+
+export const DEFAULT_PASSWORD_HINT = "Das Passwort teile ich Ihnen auf separatem Weg mit.";
+
+export function invoiceEmailSubject(invoice: InvoiceWithDetails, company: UserCompany | null, options: InvoiceEmailOptions = {}): string {
+    if (options.neutralSubject) return `Ihre Unterlagen – ${invoice.invoice_number}`;
     return `Rechnung ${invoice.invoice_number}${company?.name ? ` – ${company.name}` : ""}`;
 }
 
 /** Standard text with a request for payment. */
-export function invoiceEmailBody(invoice: InvoiceWithDetails, company: UserCompany | null): string {
+export function invoiceEmailBody(invoice: InvoiceWithDetails, company: UserCompany | null, options: InvoiceEmailOptions = {}): string {
     const name = invoice.client?.name?.trim();
     const lines: string[] = [
         name ? `Guten Tag ${name},` : "Sehr geehrte Damen und Herren,",
         "",
         `anbei erhalten Sie meine Rechnung ${invoice.invoice_number} vom ${formatDateGerman(invoice.issue_date)} über ${formatCurrency(invoice.total_gross)}.`,
         "",
+        ...(options.passwordProtected
+            ? [
+                  `Aus Datenschutzgründen ist die Rechnung (PDF) mit einem Passwort geschützt. ${(options.passwordHint || DEFAULT_PASSWORD_HINT).trim()}`,
+                  "",
+              ]
+            : []),
         invoice.due_date
             ? `Bitte überweisen Sie den Rechnungsbetrag bis zum ${formatDateGerman(invoice.due_date)} unter Angabe der Rechnungsnummer auf folgendes Konto:`
             : "Bitte überweisen Sie den Rechnungsbetrag unter Angabe der Rechnungsnummer auf folgendes Konto:",

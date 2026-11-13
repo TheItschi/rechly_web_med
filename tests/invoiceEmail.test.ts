@@ -24,3 +24,11 @@ test("eml is an Outlook draft with encoded subject and PDF attachment", () => {
     assert.ok(eml.includes('Content-Disposition: attachment; filename="Rechnung_1.pdf"'));
     assert.ok(!/[^\r]\n/.test(eml), "all line breaks are CRLF");
 });
+
+test("neutral subject and password notice never leak the password", () => {
+    const subject = invoiceEmailSubject(invoice, company, { neutralSubject: true });
+    assert.equal(subject, "Ihre Unterlagen – PL-2026-001");
+    const body = invoiceEmailBody(invoice, company, { passwordProtected: true, passwordHint: "Passwort: Ihr Geburtsdatum (TTMMJJJJ)." });
+    assert.match(body, /mit einem Passwort geschützt\. Passwort: Ihr Geburtsdatum/);
+    assert.doesNotMatch(invoiceEmailBody(invoice, company), /Passwort/);
+});

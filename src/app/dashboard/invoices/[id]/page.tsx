@@ -44,6 +44,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { InvoiceItem, InvoiceWithDetails, UserCompany } from "@/types";
 import { formatFactor } from "@/lib/goae/fees";
 import { formatDiagnosis } from "@/lib/icd10";
+import { EmailDraftModal, type EmailDraftOptions } from "@/components/invoices/EmailDraftModal";
 
 const { Title, Text } = Typography;
 
@@ -151,14 +152,22 @@ export default function InvoiceDetailPage() {
     };
 
     const [preparingEmail, setPreparingEmail] = useState(false);
-    const handleEmailDraft = async () => {
+    const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+    const handleEmailDraft = async (options: EmailDraftOptions) => {
         if (!invoice) return;
-        if (!invoice.client?.email) message.warning(`${t("invoiceDetail.noEmail")} – Empfänger bitte im Entwurf ergänzen.`);
         setPreparingEmail(true);
         try {
             const { downloadInvoiceEmailDraft } = await import("@/components/pdf/InvoicePDFDocument");
-            await downloadInvoiceEmailDraft(invoice, company, t);
-            message.success("E-Mail-Entwurf heruntergeladen – Datei öffnen, um ihn in Outlook zu bearbeiten und zu senden.", 6);
+            await downloadInvoiceEmailDraft(invoice, company, t, options);
+            setEmailDialogOpen(false);
+            if (options.password) {
+                Modal.success({
+                    title: "E-Mail-Entwurf mit geschütztem PDF erstellt",
+                    content: `Passwort für den Patienten: ${options.password} – bitte auf separatem Weg mitteilen (z. B. telefonisch oder per SMS). Die Datei öffnen, um den Entwurf in Outlook zu senden.`,
+                });
+            } else {
+                message.success("E-Mail-Entwurf heruntergeladen – Datei öffnen, um ihn in Outlook zu bearbeiten und zu senden.", 6);
+            }
         } catch (error) {
             console.error("Error creating e-mail draft:", error);
             message.error("E-Mail-Entwurf konnte nicht erstellt werden.");
@@ -582,11 +591,20 @@ export default function InvoiceDetailPage() {
                         <Button
                             icon={<MailOutlined />}
                             loading={preparingEmail}
-                            onClick={handleEmailDraft}
+                            onClick={() => setEmailDialogOpen(true)}
                         >
                             {t("invoiceDetail.sendEmail")}
                         </Button>
                     </Tooltip>
+                    {emailDialogOpen && (
+                    <EmailDraftModal
+                        open={emailDialogOpen}
+                        loading={preparingEmail}
+                        hasRecipient={!!invoice.client?.email}
+                        onCancel={() => setEmailDialogOpen(false)}
+                        onConfirm={(options) => void handleEmailDraft(options)}
+                    />
+                    )}
                 </Space>
             </Card>
 

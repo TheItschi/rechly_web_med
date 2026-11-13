@@ -620,14 +620,21 @@ export async function downloadInvoiceEmailDraft(
     invoice: InvoiceWithDetails,
     company: UserCompany | null,
     t: (key: string) => string,
+    options: { password?: string; passwordHint?: string; neutralSubject?: boolean } = {},
 ): Promise<void> {
     const { buildEml, invoiceEmailBody, invoiceEmailSubject } = await import("@/lib/invoiceEmail");
-    const pdfBlob = await renderInvoicePdfBlob(invoice, company, t);
+    let pdfBlob = await renderInvoicePdfBlob(invoice, company, t);
+    if (options.password) {
+        const { protectPdf } = await import("@/lib/pdfProtect");
+        const encrypted = await protectPdf(new Uint8Array(await pdfBlob.arrayBuffer()), options.password);
+        pdfBlob = new Blob([encrypted as BlobPart], { type: "application/pdf" });
+    }
     const fileName = invoicePdfFileName(invoice);
+    const emailOptions = { neutralSubject: options.neutralSubject, passwordProtected: !!options.password, passwordHint: options.passwordHint };
     const eml = buildEml({
         to: invoice.client?.email || undefined,
-        subject: invoiceEmailSubject(invoice, company),
-        body: invoiceEmailBody(invoice, company),
+        subject: invoiceEmailSubject(invoice, company, emailOptions),
+        body: invoiceEmailBody(invoice, company, emailOptions),
         attachment: { fileName, base64: await blobToBase64(pdfBlob) },
     });
     const url = URL.createObjectURL(new Blob([eml], { type: "message/rfc822" }));
