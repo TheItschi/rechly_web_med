@@ -123,6 +123,11 @@ async function bill(store: WorkspaceStore, raw: Record<string, unknown>) {
 }
 
 /** Called even when the module is disabled: deleting a linked draft releases its entries atomically. */
+/** True when the invoice was generated from time entries (a billing record links them). */
+export async function isTimeInvoice(db: Databases, user: string, invoiceId: string): Promise<boolean> {
+    try { return !!await new WorkspaceStore(db, user).find("billings", billingId(user, invoiceId)); } catch (error) { if (missing(error)) return false; throw error; }
+}
+
 export async function deleteTimeInvoice(db: Databases, user: string, invoiceId: string): Promise<boolean> {
     const id = billingId(user, invoiceId), store = new WorkspaceStore(db, user);
     try { if (!await store.find("billings", id)) return false; } catch (error) { if (missing(error)) return false; throw error; }

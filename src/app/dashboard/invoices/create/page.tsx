@@ -17,7 +17,7 @@ import {
 import { defaultVatRate } from "@/lib/vatDefaults";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
     Card,
     Form,
@@ -50,7 +50,7 @@ import {
 import dayjs, { type Dayjs } from "dayjs";
 import { getAllClients, createClient } from "@/lib/clientService";
 import { getAllProducts, createProduct } from "@/lib/productService";
-import { createInvoice, getInvoiceById, getNextInvoiceNumber } from "@/lib/invoiceService";
+import { createInvoice, getInvoiceById, getNextInvoiceNumber, updateDraftInvoice } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { runInvoiceAssistant, parseInvoiceDraftWithAI } from "@/lib/aiService";
 import {
@@ -70,6 +70,9 @@ const { Title, Text } = Typography;
 export default function InvoiceCreatePage() {
     const router = useRouter();
     const { language, t } = useLanguage();
+    // Also mounted at /dashboard/invoices/[id]/edit to edit a draft invoice.
+    const params = useParams<{ id?: string }>();
+    const editId = typeof params?.id === "string" ? params.id : undefined;
 
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -145,6 +148,7 @@ export default function InvoiceCreatePage() {
             tax_rate_percent?: number;
             discount_percent?: number;
             product_id?: string;
+            gtin?: string;
             service_date_start?: string;
             service_date_end?: string;
         }): LineItem => ({
@@ -160,6 +164,7 @@ export default function InvoiceCreatePage() {
                     : defaultVatRate(company?.is_small_business),
             discount_percent: item.discount_percent ?? 0,
             ...(item.product_id ? { product_id: item.product_id } : {}),
+            ...(item.gtin ? { gtin: item.gtin } : {}),
             ...(item.service_date_start ? { service_date_start: item.service_date_start } : {}),
             ...(item.service_date_end ? { service_date_end: item.service_date_end } : {}),
         }),
@@ -182,6 +187,7 @@ export default function InvoiceCreatePage() {
                 tax_rate_percent?: number;
                 discount_percent?: number;
                 product_id?: string;
+                gtin?: string;
                 service_date_start?: string;
                 service_date_end?: string;
             }>;
@@ -227,8 +233,53 @@ export default function InvoiceCreatePage() {
         [applyDraftData, t],
     );
 
+    /** Edit mode: load the draft and fill the whole wizard with its data. */
+    const prefillDraftForEdit = useCallback(async (id: string) => {
+        const source = await getInvoiceById(id);
+        if (!source) {
+            message.error(t("invoiceCreate.duplicateNotFound"));
+            router.replace("/dashboard/invoices");
+            return;
+        }
+        if (source.status !== "draft") {
+            message.warning(t("invoiceEdit.onlyDrafts"));
+            router.replace(`/dashboard/invoices/${id}`);
+            return;
+        }
+        applyDraftData({
+            clientId: source.client_id,
+            notes: source.notes,
+            paymentTerms: source.payment_terms,
+            deliveryDateStart: source.delivery_date_start,
+            deliveryDateEnd: source.delivery_date_end ?? source.delivery_date,
+            items: source.items.map((item) => ({
+                description: item.description,
+                quantity: item.quantity,
+                unit_of_measure: item.unit_of_measure,
+                price: item.price,
+                tax_rate_percent: item.tax_rate_percent,
+                discount_percent: item.discount_percent,
+                product_id: item.product_id ?? undefined,
+                gtin: item.gtin,
+                service_date_start: item.service_date_start,
+                service_date_end: item.service_date_end,
+            })),
+        });
+        // applyDraftData resets these for duplicates; a draft keeps its own values.
+        if (source.e_invoice) setEInvoice(source.e_invoice);
+        setPaymentTerms(source.payment_terms ?? "");
+        setInvoiceNumber(source.invoice_number);
+        setNumberTouched(true);
+        setInvoiceDate(dayjs(source.issue_date));
+        if (source.due_date) setDueDate(dayjs(source.due_date));
+    }, [applyDraftData, router, t]);
+
     const suggestDuplicatePrefill = useCallback(async () => {
         try {
+            if (editId) {
+                await prefillDraftForEdit(editId);
+                return;
+            }
             const params = new URLSearchParams(window.location.search);
             const duplicateId = params.get("duplicate");
             const templateId = params.get("template");
@@ -268,7 +319,7 @@ export default function InvoiceCreatePage() {
         } catch (error) {
             console.error("Error applying prefill:", error);
         }
-    }, [templates, applyDraftData, applyTemplate, t]);
+    }, [templates, applyDraftData, applyTemplate, editId, prefillDraftForEdit, t]);
 
     const generateInvoiceNumber = useCallback(async () => {
         try {
@@ -295,7 +346,7 @@ export default function InvoiceCreatePage() {
 
     useEffect(() => {
         void loadData();
-        void generateInvoiceNumber();
+        if (!editId) void generateInvoiceNumber();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -568,6 +619,13 @@ export default function InvoiceCreatePage() {
                 lineItems,
             });
 
+            if (editId) {
+                await updateDraftInvoice(editId, invoiceData);
+                message.success(t("invoiceEdit.saved"));
+                router.push(`/dashboard/invoices/${editId}`);
+                return;
+            }
+
             const created = await createInvoice(invoiceData);
             // Use the server-assigned number (may differ after conflict resolution).
             if (created.invoiceNumber) {
@@ -580,7 +638,8 @@ export default function InvoiceCreatePage() {
         } catch (error) {
             console.error("Error creating invoice:", error);
             const status = (error as { status?: number } | null)?.status;
-            if (status === 409) {
+            // In edit mode a 409 can also mean "no longer a draft"; show the server message.
+            if (status === 409 && !editId) {
                 message.error(t("invoiceCreate.numberTaken"));
             } else {
                 const errorMsg = error instanceof Error ? error.message : t("invoiceCreate.createError");
@@ -1388,12 +1447,12 @@ export default function InvoiceCreatePage() {
             <Space style={{ marginBottom: 16 }}>
                 <Button
                     icon={<ArrowLeftOutlined />}
-                    onClick={() => router.push("/dashboard/invoices")}
+                    onClick={() => router.push(editId ? `/dashboard/invoices/${editId}` : "/dashboard/invoices")}
                 >
                     {t("invoiceCreate.backBtn")}
                 </Button>
                 <Title level={4} style={{ margin: 0 }}>
-                    {t("invoiceCreate.newInvoiceTitle")}
+                    {editId ? t("invoiceEdit.title") : t("invoiceCreate.newInvoiceTitle")}
                 </Title>
             </Space>
 
@@ -1644,7 +1703,7 @@ export default function InvoiceCreatePage() {
                                 loading={saving}
                                 disabled={!canProceed()}
                             >
-                                <CheckOutlined /> {t("invoiceCreate.createBtn")}
+                                <CheckOutlined /> {editId ? t("invoiceEdit.saveBtn") : t("invoiceCreate.createBtn")}
                             </Button>
                         )}
                     </Space>

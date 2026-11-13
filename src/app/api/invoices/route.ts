@@ -1,4 +1,4 @@
-import { IdentifierValidationError, parseGTIN, readEInvoiceData, snapshotIdentifiers } from "@/lib/eRechnung/identifiers";
+import { IdentifierValidationError } from "@/lib/eRechnung/identifiers";
 import { NextRequest, NextResponse } from "next/server";
 import { Query, ID, Permission, Role, type Databases } from "node-appwrite";
 import {
@@ -9,9 +9,14 @@ import {
 } from "@/lib/appwrite-server";
 import { isCollectionNotFound } from "@/lib/appwrite-errors";
 import {
-    calculateInvoiceTotals,
-    calculateLineItemTotals,
-} from "@/lib/currencyUtils";
+    buildInvoiceContent,
+    buildItemDocuments,
+    createItemDocuments,
+    InvoiceWriteError,
+    numberExists,
+    NUMBER_TAKEN_MESSAGE,
+    resolveInvoiceSource,
+} from "@/lib/server/invoiceWrite";
 import {
     DEFAULT_NUMBER_PATTERN,
     DEFAULT_NUMBER_PREFIX,
@@ -63,20 +68,6 @@ async function allocateInvoiceNumber(
         seq += 1;
     }
     throw Object.assign(new Error("Keine freie Rechnungsnummer gefunden. Bitte Prefix oder Startnummer anpassen."), { code: 409 });
-}
-
-async function numberExists(
-    databases: Databases,
-    userId: string,
-    invoiceNumber: string,
-    excludeId?: string,
-): Promise<boolean> {
-    const res = await databases.listDocuments(DATABASE_ID, COLLECTIONS.INVOICES, [
-        Query.equal("userId", userId),
-        Query.equal("invoiceNumber", invoiceNumber),
-        Query.limit(10),
-    ]);
-    return res.documents.some((d: { $id: string }) => d.$id !== excludeId);
 }
 
 // GET all invoices with client info
@@ -210,13 +201,7 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
         // Resolve only tenant-owned source records before taking an immutable identifier snapshot.
-        const customer = await databases.getDocument(DATABASE_ID, COLLECTIONS.CLIENTS, body.client_id);
-        if (customer.userId !== user.$id) return NextResponse.json({ error: "Not found" }, { status: 404 });
-        const companies = await databases.listDocuments(DATABASE_ID, COLLECTIONS.COMPANY_INFO, [Query.equal("userId", user.$id), Query.limit(1)]);
-        const identifiers = snapshotIdentifiers(readEInvoiceData(customer.eInvoiceData), readEInvoiceData(companies.documents[0]?.eInvoiceData), body.e_invoice);
-        if (!Array.isArray(body.items)) return NextResponse.json({ error: "Invalid items" }, { status: 400 });
-        for (const item of body.items) item.gtin = parseGTIN(item.gtin);
-        const companyDoc = companies.documents[0] ?? null;
+        const { identifiers, companyDoc, items } = await resolveInvoiceSource(databases, user.$id, body);
         const issueDate: string = typeof body.issue_date === "string" && body.issue_date ? body.issue_date : new Date().toISOString().slice(0, 10);
 
         // Sequential invoice number: allocate when blank, validate when explicit.
@@ -227,53 +212,19 @@ export async function POST(request: NextRequest) {
             invoiceNumber = allocated.number;
             allocatedSeq = allocated.seq;
         } else if (await numberExists(databases, user.$id, invoiceNumber)) {
-            return NextResponse.json(
-                { error: "Rechnungsnummer bereits vergeben. Bitte eine andere Nummer wählen oder leer lassen für automatische Vergabe." },
-                { status: 409 },
-            );
+            return NextResponse.json({ error: NUMBER_TAKEN_MESSAGE }, { status: 409 });
         }
-        // Overall service period: explicit invoice range wins, then legacy single date.
-        const deliveryDateStart = typeof body.delivery_date_start === "string" && body.delivery_date_start ? body.delivery_date_start : undefined;
-        const deliveryDateEnd = typeof body.delivery_date_end === "string" && body.delivery_date_end ? body.delivery_date_end : undefined;
-        const legacyDeliveryDate = typeof body.delivery_date === "string" && body.delivery_date ? body.delivery_date : undefined;
-        const effectiveDeliveryDate = deliveryDateEnd ?? deliveryDateStart ?? legacyDeliveryDate ?? null;
-
+        const { fields, deliveryDateStart, deliveryDateEnd } = buildInvoiceContent(body, items, identifiers);
         const invoiceId = ID.unique();
-
-        // Calculate totals
-        const totals = calculateInvoiceTotals(
-            body.items.map(
-                (item: {
-                    quantity: number;
-                    price: number;
-                    tax_rate_percent: number;
-                    discount_percent?: number;
-                }) => ({
-                    quantity: item.quantity,
-                    price: item.price,
-                    tax_rate_percent: item.tax_rate_percent,
-                    discount_percent: item.discount_percent || 0,
-                }),
-            ),
-        );
 
         // Create invoice document with permissions
         // Build document data, keeping optional/newer attributes separate
         const invoiceData: Record<string, unknown> = {
             userId: user.$id,
-            ...(Object.keys(identifiers).length ? { eInvoiceData: JSON.stringify(identifiers) } : {}),
-            clientId: body.client_id,
+            ...fields,
             invoiceNumber,
             issueDate,
-            dueDate: body.due_date || null,
-            subtotal: totals.netAfterDiscount,
-            totalVat: totals.totalVAT,
-            totalGross: totals.totalGross,
             status: "draft",
-            notes: body.notes || null,
-            purchaseOrderRef: body.purchase_order_ref || null,
-            deliveryDate: effectiveDeliveryDate,
-            paymentTerms: body.payment_terms || null,
         };
 
         // Newer invoice-level service-period attrs (may not exist pre-migration).
@@ -338,66 +289,7 @@ export async function POST(request: NextRequest) {
 
         // Create invoice items (service dates omitted when empty; unknown
         // attributes fall back for schemas that predate the migration).
-        for (const item of body.items) {
-            const itemCalc = calculateLineItemTotals(
-                item.quantity,
-                item.price,
-                item.tax_rate_percent,
-                item.discount_percent || 0,
-            );
-
-            const itemData: Record<string, unknown> = {
-                invoiceId: invoiceId,
-                productId: item.product_id || null,
-                description: item.description,
-                ...(item.gtin ? { gtin: item.gtin } : {}),
-                quantity: item.quantity,
-                unitOfMeasure: item.unit_of_measure || "Stück",
-                price: item.price,
-                taxRatePercent: item.tax_rate_percent,
-                discountPercent: item.discount_percent || 0,
-                ...(typeof item.service_date_start === "string" && item.service_date_start
-                    ? { serviceDateStart: item.service_date_start }
-                    : {}),
-                ...(typeof item.service_date_end === "string" && item.service_date_end
-                    ? { serviceDateEnd: item.service_date_end }
-                    : {}),
-                subtotal: itemCalc.subtotal,
-                taxAmount: itemCalc.taxAmount,
-                total: itemCalc.total,
-            };
-
-            try {
-                await databases.createDocument(
-                    DATABASE_ID,
-                    COLLECTIONS.INVOICE_ITEMS,
-                    ID.unique(),
-                    itemData,
-                    [
-                        Permission.read(Role.user(user.$id)),
-                        Permission.update(Role.user(user.$id)),
-                        Permission.delete(Role.user(user.$id)),
-                    ],
-                );
-            } catch (itemError) {
-                const errMsg = (itemError as { message?: string })?.message || "";
-                if (!errMsg.includes("Unknown attribute")) throw itemError;
-                const { serviceDateStart: _dropStart, serviceDateEnd: _dropEnd, ...legacyItem } = itemData;
-                void _dropStart;
-                void _dropEnd;
-                await databases.createDocument(
-                    DATABASE_ID,
-                    COLLECTIONS.INVOICE_ITEMS,
-                    ID.unique(),
-                    legacyItem,
-                    [
-                        Permission.read(Role.user(user.$id)),
-                        Permission.update(Role.user(user.$id)),
-                        Permission.delete(Role.user(user.$id)),
-                    ],
-                );
-            }
-        }
+        await createItemDocuments(databases, user.$id, buildItemDocuments(invoiceId, items));
 
         if (allocatedSeq > 0) {
             try {
@@ -447,6 +339,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ id: invoiceId, invoiceNumber });
     } catch (error) {
         if (error instanceof IdentifierValidationError) return NextResponse.json({ error: error.message }, { status: 400 });
+        if (error instanceof InvoiceWriteError) return NextResponse.json({ error: error.message }, { status: error.status });
         console.error("Error creating invoice:", error);
         const appwriteError = error as {
             code?: number;

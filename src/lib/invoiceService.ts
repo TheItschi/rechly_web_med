@@ -86,6 +86,22 @@ export const createInvoice = async (data: InvoiceFormData): Promise<{ id: string
 };
 
 /**
+ * Replace content and line items of a draft invoice (rejected with 409
+ * once the invoice is no longer a draft).
+ */
+export const updateDraftInvoice = async (
+    id: string,
+    data: InvoiceFormData,
+): Promise<{ id: string; invoiceNumber?: string }> => {
+    try {
+        return await apiPut<{ id: string; invoiceNumber?: string }>(`/api/invoices/${id}`, data, "Failed to update invoice");
+    } catch (error) {
+        logger.error("Error updating draft invoice:", error);
+        throw error;
+    }
+};
+
+/**
  * Update invoice status
  */
 export const updateInvoiceStatus = async (
