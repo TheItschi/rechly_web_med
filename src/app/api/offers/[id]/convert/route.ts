@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { orderedIds } from "@/lib/server/orderedIds";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import { invoiceIdentifierDefaults } from "@/lib/server/invoiceIdentifiers";
 import {
@@ -108,11 +109,12 @@ export async function POST(
         }
 
         // Copy offer items to invoice items
+        const nextItemId = orderedIds(); // keeps the position order
         for (const item of itemsRes.documents) {
             await databases.createDocument(
                 DATABASE_ID,
                 COLLECTIONS.INVOICE_ITEMS,
-                ID.unique(),
+                nextItemId(),
                 {
                     invoiceId,
                     productId: item.productId || null,

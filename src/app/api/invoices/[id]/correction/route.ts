@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { orderedIds } from "@/lib/server/orderedIds";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import {
     createSessionClient,
@@ -125,11 +126,12 @@ export async function POST(
             permissions,
         );
 
+        const nextItemId = orderedIds(); // keeps the position order
         for (const item of clonedItems) {
             await databases.createDocument(
                 DATABASE_ID,
                 COLLECTIONS.INVOICE_ITEMS,
-                ID.unique(),
+                nextItemId(),
                 {
                     invoiceId: newId,
                     ...item,

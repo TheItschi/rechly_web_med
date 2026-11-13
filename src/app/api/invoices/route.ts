@@ -1,4 +1,5 @@
 import { IdentifierValidationError } from "@/lib/eRechnung/identifiers";
+import { orderedIds } from "@/lib/server/orderedIds";
 import { NextRequest, NextResponse } from "next/server";
 import { GoaeValidationError } from "@/lib/goae/line";
 import { MedicalDataError } from "@/lib/icd10";
@@ -213,11 +214,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Create invoice items
+        const nextItemId = orderedIds(); // keeps the position order
         for (const item of items) {
             await databases.createDocument(
                 DATABASE_ID,
                 COLLECTIONS.INVOICE_ITEMS,
-                ID.unique(),
+                nextItemId(),
                 { invoiceId, ...item },
                 [
                     Permission.read(Role.user(user.$id)),

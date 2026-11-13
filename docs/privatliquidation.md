@@ -12,12 +12,13 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 | Diagnosen | ICD-10-GM-Suche (nach Import) oder Freitext; Zusatzkennzeichen G/V/Z/A und Seite R/L/B; Ausgabe als Klartext, Schlüssel oder beides. |
 | Leichenschau | Nr. 100–102 (nur Faktor 1,0 bzw. 0,6 bei verkürzter Dauer), 106–109, Zuschläge F/G/H, Wegegeld § 8 als W1–W4 (Tag) und W1N–W4N (Nacht) mit Festbeträgen. |
 | Rechnungsnummern | Fortlaufend und eindeutig (aus dem Original-Rechly übernommen): Format, Prefix und nächste Nummer unter *Einstellungen → Unternehmen*; leeres Nummernfeld = automatische Vergabe beim Speichern, doppelte Nummern werden abgelehnt. |
+| Vorlagen & Duplizieren | Im Rechnungsassistenten „Als Vorlage speichern“ (GOÄ-Ziffern, Faktor, Begründung; Patient/Diagnosen optional) und „Vorlage übernehmen“ (hängt die Positionen an, Leistungsdatum wählbar, Beträge aus dem aktuellen Katalog). Auf der Rechnungsseite „Duplizieren“ – neuer Entwurf mit Leistungsdatum heute. |
 | Briefkopf | *Einstellungen → Unternehmen*: Briefkopf-Grafik, Berufsbezeichnung und Faksimile-Unterschrift (PNG/JPEG). Bilder liegen in der Datenbank, nicht im Repo. |
 | PDF | Leistungstabelle nach § 12 Abs. 2 (Datum, Ziffer, Bezeichnung, Faktor, Betrag, Begründung), Diagnosen, Hinweis § 4 Nr. 14 UStG, Girocode (EPC-QR). |
 
 ## Einrichtung
 
-1. **Schema** (Appwrite): `npm run migrate:medical` legt `invoices.medicalData`, `invoice_items.goaeData` (verschlüsselt, sofern unterstützt) sowie `user_company.professionalTitle`, `signatureBase64`, `invoiceNumberPrefix`, `invoiceNumberPattern` und `nextInvoiceNumber` an. Desktop-Modus (SQLite) braucht keine Migration.
+1. **Schema** (Appwrite): `npm run migrate:medical` legt `invoices.medicalData`, `invoice_items.goaeData` (verschlüsselt, sofern unterstützt) sowie `user_company.professionalTitle`, `signatureBase64`, `invoiceNumberPrefix`, `invoiceNumberPattern` und `nextInvoiceNumber` sowie die Collection `invoice_templates` an. Desktop-Modus (SQLite) braucht keine Migration.
 2. **ICD-10-GM**: *Einstellungen → ICD-10 Codes*: die BfArM-Systematik (EDV-Fassung TXT) als ZIP oder
    `icd10gmJJJJsyst_kodes.txt` hochladen. Das Alphabetische Verzeichnis wird erkannt und abgelehnt.
    Alternativ per CLI: `npm run import:icd10gm -- <zip|txt>`. Ablage: `<RECHLY_DATA_DIR|./data>/icd10gm.json`.

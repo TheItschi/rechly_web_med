@@ -40,6 +40,7 @@ export const COLLECTIONS = {
     EXPENSES: "expenses",
     BANK_TRANSACTIONS: "bank_transactions",
     DUNNING_NOTICES: "dunning_notices",
+    INVOICE_TEMPLATES: "invoice_templates",
 } as const;
 
 export const STORAGE = {

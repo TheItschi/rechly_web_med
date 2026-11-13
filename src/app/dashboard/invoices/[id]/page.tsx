@@ -393,6 +393,14 @@ export default function InvoiceDetailPage() {
                             {t("invoices.edit")}
                         </Button>
                     )}
+                    {!invoice.correction_type && (
+                        <Button
+                            icon={<CopyOutlined />}
+                            onClick={() => router.push(`/dashboard/invoices/create?duplicate=${invoice.id}`)}
+                        >
+                            Duplizieren
+                        </Button>
+                    )}
                     <Button
                         type="primary"
                         icon={<FilePdfOutlined />}

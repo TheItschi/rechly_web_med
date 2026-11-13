@@ -1,12 +1,19 @@
 // Operator-only additive migration for the medical extension (GOÄ + ICD-10-GM).
 // Diagnoses and Begründungen are health data: the attributes are created with
 // Appwrite's at-rest encryption when the server supports it.
-import { Client, Databases } from "node-appwrite";
+import { Client, Databases, IndexType, Permission, Role } from "node-appwrite";
 const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
 const project = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 const key = process.env.APPWRITE_API_KEY;
 if (!endpoint || !project || !key) throw new Error("Set Appwrite endpoint, project and scoped API key in the environment.");
 const db = new Databases(new Client().setEndpoint(endpoint).setProject(project).setKey(key));
+// Rechnungsvorlagen (invoice_templates): per-user documents with row security.
+try {
+    await db.createCollection("rechly-db", "invoice_templates", "invoice_templates", [Permission.create(Role.users())], true);
+    console.log("invoice_templates: collection created");
+} catch (error) {
+    if (error.code !== 409) throw error;
+}
 for (const [collection, attribute, size, encrypt = true] of [
     ["invoices", "medicalData", 16000],
     ["invoice_items", "goaeData", 4000],
@@ -14,6 +21,9 @@ for (const [collection, attribute, size, encrypt = true] of [
     ["user_company", "signatureBase64", 5000000, false],
     ["user_company", "invoiceNumberPrefix", 32, false],
     ["user_company", "invoiceNumberPattern", 64, false],
+    ["invoice_templates", "userId", 64, false],
+    ["invoice_templates", "name", 120, false],
+    ["invoice_templates", "payload", 16000],
 ]) {
     try {
         await db.createStringAttribute("rechly-db", collection, attribute, size, false, undefined, false, encrypt);
@@ -44,3 +54,10 @@ try {
     if (error.code !== 409) throw error;
 }
 console.log("user_company.nextInvoiceNumber: ready");
+
+try {
+    await db.createIndex("rechly-db", "invoice_templates", "userId_idx", IndexType.Key, ["userId"], ["ASC"]);
+} catch (error) {
+    if (error.code !== 409) throw error;
+}
+console.log("invoice_templates.userId_idx: ready");

@@ -1,10 +1,11 @@
 import { IdentifierValidationError, readEInvoiceData } from "@/lib/eRechnung/identifiers";
+import { orderedIds } from "@/lib/server/orderedIds";
 import { GoaeValidationError, parseGoaeLineData } from "@/lib/goae/line";
 import { MedicalDataError, parseMedicalData } from "@/lib/icd10";
 import { InvoiceWriteError, prepareInvoiceWrite } from "@/lib/server/invoiceWrite";
 import { numberExists, NUMBER_TAKEN_MESSAGE } from "@/lib/server/invoiceNumberAllocation";
 import { NextRequest, NextResponse } from "next/server";
-import { ID, Permission, Query, Role } from "node-appwrite";
+import { Permission, Query, Role } from "node-appwrite";
 import {
     createSessionClient,
     createAdminClient,
@@ -237,8 +238,9 @@ export async function PUT(
             // Create the new items first; roll back on failure so the draft is never left without positions.
             const created: string[] = [];
             try {
+                const nextItemId = orderedIds(); // keeps the position order
                 for (const item of items) {
-                    const doc = await databases.createDocument(DATABASE_ID, COLLECTIONS.INVOICE_ITEMS, ID.unique(), { invoiceId: id, ...item }, permissions);
+                    const doc = await databases.createDocument(DATABASE_ID, COLLECTIONS.INVOICE_ITEMS, nextItemId(), { invoiceId: id, ...item }, permissions);
                     created.push(doc.$id);
                 }
                 await databases.updateDocument(DATABASE_ID, COLLECTIONS.INVOICES, id, {

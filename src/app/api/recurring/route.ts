@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { orderedIds } from "@/lib/server/orderedIds";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import {
     createSessionClient,
@@ -177,6 +178,7 @@ export async function POST(request: NextRequest) {
             permissions,
         );
 
+        const nextItemId = orderedIds(); // keeps the position order
         for (const item of body.items) {
             const itemCalc = calculateLineItemTotals(
                 item.quantity,
@@ -187,7 +189,7 @@ export async function POST(request: NextRequest) {
             await databases.createDocument(
                 DATABASE_ID,
                 COLLECTIONS.RECURRING_INVOICE_ITEMS,
-                ID.unique(),
+                nextItemId(),
                 {
                     recurringInvoiceId: templateId,
                     productId: item.product_id || null,

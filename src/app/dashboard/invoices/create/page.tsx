@@ -22,6 +22,9 @@ import {
     Result,
     Modal,
     Tag,
+    Checkbox,
+    Radio,
+    Popconfirm,
 } from "antd";
 import {
     PlusOutlined,
@@ -33,7 +36,11 @@ import {
     RobotOutlined,
     MedicineBoxOutlined,
     ReloadOutlined,
+    SaveOutlined,
+    CopyOutlined,
 } from "@ant-design/icons";
+import { createInvoiceTemplate, deleteInvoiceTemplate, getAllInvoiceTemplates } from "@/lib/invoiceTemplateService";
+import type { InvoiceTemplate, InvoiceTemplateItem } from "@/lib/invoiceTemplates";
 import DecimalInput from "@/components/DecimalInput";
 import dayjs from "dayjs";
 import { getAllClients } from "@/lib/clientService";
@@ -59,6 +66,7 @@ import type {
     InvoiceFormData,
     InvoiceItemFormData,
     UserCompany,
+    InvoiceWithDetails,
 } from "@/types";
 
 const { Title, Text } = Typography;
@@ -98,6 +106,16 @@ export default function InvoiceCreatePage() {
     const [invoiceDate, setInvoiceDate] = useState(dayjs());
     const [dueDate, setDueDate] = useState(dayjs().add(14, "day"));
     const [invoiceNumber, setInvoiceNumber] = useState("");
+    // Rechnungsvorlagen
+    const [templates, setTemplates] = useState<InvoiceTemplate[]>([]);
+    const [templateApplyOpen, setTemplateApplyOpen] = useState(false);
+    const [templateSaveOpen, setTemplateSaveOpen] = useState(false);
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
+    const [templateServiceDate, setTemplateServiceDate] = useState(dayjs());
+    const [templateName, setTemplateName] = useState("");
+    const [templateWithPatient, setTemplateWithPatient] = useState(false);
+    const [templateWithDiagnoses, setTemplateWithDiagnoses] = useState(false);
+    const [templateSaving, setTemplateSaving] = useState(false);
     // false while the number is the server's preview of the next sequential number
     const [numberTouched, setNumberTouched] = useState(false);
     const [notes, setNotes] = useState("");
@@ -154,16 +172,23 @@ export default function InvoiceCreatePage() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [clientsData, productsData, companyData] = await Promise.all([
+            const [clientsData, productsData, companyData, templatesData] = await Promise.all([
                 getAllClients(),
                 getAllProducts(),
                 getCompanyInfo(),
+                getAllInvoiceTemplates().catch(() => [] as InvoiceTemplate[]),
             ]);
             setClients(clientsData);
             setProducts(productsData);
             setCompany(companyData);
+            setTemplates(templatesData);
             setPaymentTerms(companyData?.payment_terms_default || "");
-            if (editId) await loadDraft(clientsData);
+            if (editId) {
+                await loadDraft(clientsData);
+            } else {
+                const duplicateId = new URLSearchParams(window.location.search).get("duplicate");
+                if (duplicateId) await loadDuplicate(clientsData, duplicateId);
+            }
         } catch (error) {
             console.error("Error loading data:", error);
             message.error(t("invoiceCreate.loadError"));
@@ -191,8 +216,13 @@ export default function InvoiceCreatePage() {
         if (invoice.e_invoice) setEInvoice(invoice.e_invoice);
         setDiagnoses(invoice.medical?.diagnoses ?? []);
         setDiagnosisDisplay(invoice.medical?.diagnosis_display ?? "both");
-        setLineItems((invoice.items ?? []).map((item, index) => ({
-            key: `${item.id ?? "item"}-${index}`,
+        setLineItems(lineItemsFromInvoice(invoice));
+    };
+
+    /** Line items of an existing invoice; GOÄ service dates can be replaced (duplicate). */
+    const lineItemsFromInvoice = (invoice: InvoiceWithDetails, serviceDate?: string): LineItem[] =>
+        (invoice.items ?? []).map((item, index) => ({
+            key: `${item.id ?? "item"}-${index}-${Date.now()}`,
             description: item.description,
             service_summary: "",
             quantity: item.quantity,
@@ -206,7 +236,7 @@ export default function InvoiceCreatePage() {
                       goae: {
                           number: item.goae.number,
                           factor: item.goae.factor,
-                          serviceDate: item.goae.service_date,
+                          serviceDate: serviceDate ?? item.goae.service_date,
                           justification: item.goae.justification,
                           feeType: item.goae.fee_type,
                           baseFee: findGoaeEntry(item.goae.number) ? undefined : item.goae.base_fee,
@@ -214,7 +244,22 @@ export default function InvoiceCreatePage() {
                       },
                   }
                 : {}),
-        })));
+        }));
+
+    /** Duplicate: new draft with the same patient, positions and diagnoses, dated today. */
+    const loadDuplicate = async (clientsData: Client[], sourceId: string) => {
+        const source = await getInvoiceById(sourceId);
+        if (!source) {
+            message.error("Rechnung zum Duplizieren nicht gefunden");
+            return;
+        }
+        setSelectedClient(clientsData.find((c) => c.id === source.client_id) ?? null);
+        setNotes(source.notes || "");
+        if (source.payment_terms) setPaymentTerms(source.payment_terms);
+        setDiagnoses(source.medical?.diagnoses ?? []);
+        setDiagnosisDisplay(source.medical?.diagnosis_display ?? "both");
+        setLineItems(lineItemsFromInvoice(source, dayjs().format("YYYY-MM-DD")));
+        message.info(`Rechnung ${source.invoice_number} dupliziert – Leistungsdatum auf heute gesetzt, bitte prüfen.`);
     };
 
     /** Preview of the next sequential number (assigned for real on save). */
@@ -258,6 +303,104 @@ export default function InvoiceCreatePage() {
     };
 
     const goaePrice = (g: GoaeLineState) => goaeLinePrice(g.number, g.factor, g.baseFee);
+
+    /** Append the positions of a template; GOÄ lines get the chosen Leistungsdatum. */
+    const applyTemplate = (template: InvoiceTemplate, serviceDate: string) => {
+        const { payload } = template;
+        const items: LineItem[] = payload.items.map((item: InvoiceTemplateItem, index) => {
+            const base: LineItem = {
+                key: `tpl-${Date.now()}-${index}`,
+                description: item.description,
+                service_summary: "",
+                quantity: item.quantity,
+                unit_of_measure: item.unitOfMeasure || t("invoiceCreate.unitPiece"),
+                price: item.price,
+                tax_rate_percent: item.taxRatePercent,
+                discount_percent: item.discount,
+            };
+            if (!item.goae) return base;
+            const known = findGoaeEntry(item.goae.number);
+            const goae: GoaeLineState = {
+                number: item.goae.number,
+                factor: item.goae.factor,
+                feeType: known?.feeType ?? item.goae.feeType,
+                serviceDate,
+                justification: item.goae.justification,
+                baseFee: known ? undefined : item.goae.baseFee,
+                feeAgreement: item.goae.feeAgreement,
+            };
+            // Amount always from the current catalogue
+            return { ...base, goae, price: goaePrice(goae) };
+        });
+        setLineItems((current) => [...current, ...items]);
+        if (payload.clientId && !selectedClient) {
+            const client = clients.find((c) => c.id === payload.clientId);
+            if (client) setSelectedClient(client);
+        }
+        if (payload.notes && !notes) setNotes(payload.notes);
+        if (payload.paymentTerms) setPaymentTerms(payload.paymentTerms);
+        if (payload.diagnoses?.length) {
+            const add = payload.diagnoses;
+            setDiagnoses((current) => [...current, ...add.filter((d) => !current.some((c) => c.code && c.code === d.code))]);
+            if (payload.diagnosisDisplay) setDiagnosisDisplay(payload.diagnosisDisplay);
+        }
+        message.success(`Vorlage „${template.name}“ übernommen (${items.length} Positionen)`);
+    };
+
+    const handleSaveTemplate = async () => {
+        const name = templateName.trim();
+        if (!name) {
+            message.warning("Bitte einen Namen für die Vorlage eingeben");
+            return;
+        }
+        setTemplateSaving(true);
+        try {
+            const template = await createInvoiceTemplate(name, {
+                ...(templateWithPatient && selectedClient?.id ? { clientId: selectedClient.id } : {}),
+                notes: notes || undefined,
+                paymentTerms: paymentTerms || undefined,
+                ...(templateWithDiagnoses && diagnoses.length ? { diagnoses, diagnosisDisplay } : {}),
+                items: lineItems.map((item) => ({
+                    description: item.description,
+                    quantity: item.quantity,
+                    unitOfMeasure: item.unit_of_measure,
+                    price: item.price,
+                    taxRatePercent: item.tax_rate_percent,
+                    discount: item.discount_percent,
+                    ...(item.goae
+                        ? {
+                              goae: {
+                                  number: item.goae.number,
+                                  factor: item.goae.factor,
+                                  feeType: item.goae.feeType,
+                                  ...(item.goae.baseFee !== undefined ? { baseFee: item.goae.baseFee } : {}),
+                                  ...(item.goae.justification ? { justification: item.goae.justification } : {}),
+                                  ...(item.goae.feeAgreement ? { feeAgreement: true } : {}),
+                              },
+                          }
+                        : {}),
+                })),
+            });
+            setTemplates((current) => [template, ...current]);
+            setTemplateSaveOpen(false);
+            setTemplateName("");
+            message.success(`Vorlage „${template.name}“ gespeichert`);
+        } catch (error) {
+            message.error(error instanceof Error ? error.message : "Vorlage konnte nicht gespeichert werden");
+        } finally {
+            setTemplateSaving(false);
+        }
+    };
+
+    const handleDeleteTemplate = async (id: string) => {
+        try {
+            await deleteInvoiceTemplate(id);
+            setTemplates((current) => current.filter((tpl) => tpl.id !== id));
+            if (selectedTemplateId === id) setSelectedTemplateId(undefined);
+        } catch (error) {
+            message.error(error instanceof Error ? error.message : "Vorlage konnte nicht gelöscht werden");
+        }
+    };
 
     const addGoaeLine = (number = "") => {
         const goae = goaeStateForNumber(number, dayjs().format("YYYY-MM-DD"));
@@ -885,6 +1028,24 @@ export default function InvoiceCreatePage() {
                             >
                                 {t("invoiceCreate.freePosition")}
                             </Button>
+                            <Button
+                                icon={<CopyOutlined />}
+                                disabled={templates.length === 0}
+                                onClick={() => {
+                                    setSelectedTemplateId(templates[0]?.id);
+                                    setTemplateServiceDate(dayjs());
+                                    setTemplateApplyOpen(true);
+                                }}
+                            >
+                                Vorlage übernehmen{templates.length ? ` (${templates.length})` : ""}
+                            </Button>
+                            <Button
+                                icon={<SaveOutlined />}
+                                disabled={lineItems.length === 0}
+                                onClick={() => setTemplateSaveOpen(true)}
+                            >
+                                Als Vorlage speichern
+                            </Button>
                         </Space>
 
                         {lineItems.some((i) => i.goae) && (
@@ -1154,6 +1315,96 @@ export default function InvoiceCreatePage() {
                     {editId ? `Entwurf ${invoiceNumber} bearbeiten` : t("invoiceCreate.newInvoiceTitle")}
                 </Title>
             </Space>
+
+            <Modal
+                title="Vorlage übernehmen"
+                open={templateApplyOpen}
+                okText="Übernehmen"
+                cancelText="Abbrechen"
+                okButtonProps={{ disabled: !selectedTemplateId }}
+                onCancel={() => setTemplateApplyOpen(false)}
+                onOk={() => {
+                    const template = templates.find((tpl) => tpl.id === selectedTemplateId);
+                    if (template) applyTemplate(template, templateServiceDate.format("YYYY-MM-DD"));
+                    setTemplateApplyOpen(false);
+                }}
+            >
+                <Radio.Group
+                    value={selectedTemplateId}
+                    onChange={(e) => setSelectedTemplateId(e.target.value)}
+                    style={{ width: "100%" }}
+                >
+                    <Space direction="vertical" style={{ width: "100%" }}>
+                        {templates.map((tpl) => (
+                            <div key={tpl.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                                <Radio value={tpl.id}>
+                                    {tpl.name}{" "}
+                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                        ({tpl.payload.items.map((i) => i.goae?.number ?? i.description).slice(0, 8).join(", ")}
+                                        {tpl.payload.items.length > 8 ? " …" : ""})
+                                    </Text>
+                                </Radio>
+                                <Popconfirm title="Vorlage löschen?" okText="Löschen" cancelText="Abbrechen" onConfirm={() => void handleDeleteTemplate(tpl.id)}>
+                                    <Button type="text" danger size="small" icon={<DeleteOutlined />} aria-label={`Vorlage ${tpl.name} löschen`} />
+                                </Popconfirm>
+                            </div>
+                        ))}
+                    </Space>
+                </Radio.Group>
+                <Divider style={{ margin: "16px 0" }} />
+                <Space wrap>
+                    <Text>Leistungsdatum der GOÄ-Positionen:</Text>
+                    <DatePicker
+                        value={templateServiceDate}
+                        format="DD.MM.YYYY"
+                        allowClear={false}
+                        onChange={(d) => d && setTemplateServiceDate(d)}
+                    />
+                </Space>
+                <div style={{ marginTop: 8 }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        Die Positionen werden an die vorhandenen angehängt; Beträge werden aus dem aktuellen GOÄ-Katalog berechnet.
+                    </Text>
+                </div>
+            </Modal>
+
+            <Modal
+                title="Als Vorlage speichern"
+                open={templateSaveOpen}
+                okText="Speichern"
+                cancelText="Abbrechen"
+                confirmLoading={templateSaving}
+                onCancel={() => setTemplateSaveOpen(false)}
+                onOk={() => void handleSaveTemplate()}
+            >
+                <Space direction="vertical" style={{ width: "100%" }}>
+                    <Input
+                        autoFocus
+                        placeholder="Name, z. B. Leichenschau nachts (101, 102, G, W4N)"
+                        value={templateName}
+                        maxLength={120}
+                        onChange={(e) => setTemplateName(e.target.value)}
+                        onPressEnter={() => void handleSaveTemplate()}
+                    />
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        Gespeichert werden {lineItems.length} Positionen inkl. GOÄ-Ziffer, Faktor und Begründung – ohne Leistungsdatum.
+                    </Text>
+                    <Checkbox
+                        checked={templateWithPatient}
+                        disabled={!selectedClient}
+                        onChange={(e) => setTemplateWithPatient(e.target.checked)}
+                    >
+                        Patient mitspeichern{selectedClient ? ` (${selectedClient.name})` : ""}
+                    </Checkbox>
+                    <Checkbox
+                        checked={templateWithDiagnoses}
+                        disabled={diagnoses.length === 0}
+                        onChange={(e) => setTemplateWithDiagnoses(e.target.checked)}
+                    >
+                        Diagnosen mitspeichern{diagnoses.length ? ` (${diagnoses.length})` : ""}
+                    </Checkbox>
+                </Space>
+            </Modal>
 
             <Steps
                 current={currentStep}
