@@ -345,6 +345,13 @@ export default function InvoiceCreatePage() {
             if (payload.diagnosisDisplay) setDiagnosisDisplay(payload.diagnosisDisplay);
         }
         message.success(`Vorlage „${template.name}“ übernommen (${items.length} Positionen)`);
+        if (currentStep === 0 && (selectedClient || payload.clientId)) setCurrentStep(1);
+    };
+
+    const openTemplateApply = () => {
+        setSelectedTemplateId(templates[0]?.id);
+        setTemplateServiceDate(dayjs());
+        setTemplateApplyOpen(true);
     };
 
     const handleSaveTemplate = async () => {
@@ -1028,24 +1035,6 @@ export default function InvoiceCreatePage() {
                             >
                                 {t("invoiceCreate.freePosition")}
                             </Button>
-                            <Button
-                                icon={<CopyOutlined />}
-                                disabled={templates.length === 0}
-                                onClick={() => {
-                                    setSelectedTemplateId(templates[0]?.id);
-                                    setTemplateServiceDate(dayjs());
-                                    setTemplateApplyOpen(true);
-                                }}
-                            >
-                                Vorlage übernehmen{templates.length ? ` (${templates.length})` : ""}
-                            </Button>
-                            <Button
-                                icon={<SaveOutlined />}
-                                disabled={lineItems.length === 0}
-                                onClick={() => setTemplateSaveOpen(true)}
-                            >
-                                Als Vorlage speichern
-                            </Button>
                         </Space>
 
                         {lineItems.some((i) => i.goae) && (
@@ -1304,7 +1293,8 @@ export default function InvoiceCreatePage() {
 
     return (
         <div>
-            <Space style={{ marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+            <Space>
                 <Button
                     icon={<ArrowLeftOutlined />}
                     onClick={() => router.push(editId ? `/dashboard/invoices/${editId}` : "/dashboard/invoices")}
@@ -1315,6 +1305,21 @@ export default function InvoiceCreatePage() {
                     {editId ? `Entwurf ${invoiceNumber} bearbeiten` : t("invoiceCreate.newInvoiceTitle")}
                 </Title>
             </Space>
+
+            {/* Vorlagen gelten für die ganze Rechnung – daher auf jeder Seite des Assistenten */}
+                <Space wrap>
+                    <Tooltip title={templates.length ? "Positionen und Notizen einer gespeicherten Vorlage übernehmen" : "Noch keine Vorlage gespeichert"}>
+                        <Button icon={<CopyOutlined />} disabled={templates.length === 0} onClick={openTemplateApply}>
+                            Vorlage übernehmen{templates.length ? ` (${templates.length})` : ""}
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title={lineItems.length ? "Positionen, Notizen und Zahlungsbedingungen dieser Rechnung als Vorlage speichern" : "Erst Positionen erfassen"}>
+                        <Button icon={<SaveOutlined />} disabled={lineItems.length === 0} onClick={() => setTemplateSaveOpen(true)}>
+                            Als Vorlage speichern
+                        </Button>
+                    </Tooltip>
+                </Space>
+            </div>
 
             <Modal
                 title="Vorlage übernehmen"
@@ -1508,6 +1513,11 @@ export default function InvoiceCreatePage() {
                                 disabled={!canProceed()}
                             >
                                 {t("invoiceCreate.nextBtn")} <ArrowRightOutlined />
+                            </Button>
+                        )}
+                        {currentStep === 2 && lineItems.length > 0 && (
+                            <Button icon={<SaveOutlined />} onClick={() => setTemplateSaveOpen(true)}>
+                                Als Vorlage speichern
                             </Button>
                         )}
                         {currentStep === 2 && (
