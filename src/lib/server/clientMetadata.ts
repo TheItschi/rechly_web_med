@@ -3,7 +3,11 @@ import type { Databases } from "node-appwrite";
 const database = "rechly-db";
 const collection = "clients";
 const attribute = "eInvoiceData";
-const size = 16000;
+/** Payloads are validated to 16,000 characters, but the attribute is created
+ * much larger so Appwrite stores it off-row (TEXT) instead of as an inline
+ * VARCHAR that can exceed MariaDB's row-size limit on wide collections. */
+const minSize = 16000;
+const createSize = 1000000;
 type SchemaDatabase = Pick<Databases, "getAttribute" | "createStringAttribute">;
 
 export class ClientMetadataUnavailableError extends Error {
@@ -31,7 +35,7 @@ async function repairMetadata(db: SchemaDatabase, pause: () => Promise<void>) {
     try { metadata = await db.getAttribute(database, collection, attribute); }
     catch (error) {
         if ((error as { code?: number })?.code !== 404) throw error;
-        try { await db.createStringAttribute(database, collection, attribute, size, false); }
+        try { await db.createStringAttribute(database, collection, attribute, createSize, false); }
         catch (createError) {
             // Another server may already be provisioning this same attribute.
             if ((createError as { code?: number })?.code !== 409) throw createError;
@@ -40,7 +44,7 @@ async function repairMetadata(db: SchemaDatabase, pause: () => Promise<void>) {
     for (let attempt = 0; attempt < 20; attempt++) {
         metadata ??= await db.getAttribute(database, collection, attribute);
         const field = metadata as { type?: string; size?: number; required?: boolean; array?: boolean; status?: string; format?: string };
-        if (field.type !== "string" || (field.size ?? 0) < size || field.required || field.array || field.format || ["failed", "stuck", "deleting"].includes(field.status ?? "")) {
+        if (field.type !== "string" || (field.size ?? 0) < minSize || field.required || field.array || field.format || ["failed", "stuck", "deleting"].includes(field.status ?? "")) {
             throw new ClientMetadataUnavailableError();
         }
         if (field.status === "available") return;

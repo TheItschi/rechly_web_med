@@ -20,7 +20,9 @@ function fixture(options: { ready?: boolean; concurrent?: boolean; deny?: boolea
             return { ...field, size: options.incompatible ? 255 : 16000, status: options.stuck || polls < 2 ? "processing" : "available" };
         },
         async createStringAttribute(...args: unknown[]) {
-            assert.deepEqual(args, ["rechly-db", "clients", "eInvoiceData", 16000, false]);
+            // Created oversized on purpose: Appwrite then stores the column
+            // off-row instead of as an inline VARCHAR (row-size limit).
+            assert.deepEqual(args, ["rechly-db", "clients", "eInvoiceData", 1000000, false]);
             creates++;
             if (options.deny) throw Object.assign(new Error("private backend detail"), { code: 403 });
             exists = true;

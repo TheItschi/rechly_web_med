@@ -297,7 +297,7 @@
                     "type": "string",
                     "required": false,
                     "array": false,
-                    "size": 16000,
+                    "size": 1000000,
                     "default": null,
                     "encrypt": false
                 },
@@ -499,7 +499,7 @@
                     "type": "string",
                     "required": false,
                     "array": false,
-                    "size": 16000,
+                    "size": 1000000,
                     "default": null,
                     "encrypt": false
                 }
@@ -787,7 +787,7 @@
                     "type": "string",
                     "required": false,
                     "array": false,
-                    "size": 16000,
+                    "size": 1000000,
                     "default": null,
                     "encrypt": false
                 },

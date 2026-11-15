@@ -50,9 +50,9 @@ waits for readiness and checks existing definitions on subsequent runs:
 
 | Collection | Attribute | Maximum length |
 | --- | --- | --- |
-| `clients` | `eInvoiceData` | 16000 |
-| `user_company` | `eInvoiceData` | 16000 |
-| `invoices` | `eInvoiceData` | 16000 |
+| `clients` | `eInvoiceData` | 1000000 (storage; payloads validated to 16000 chars) |
+| `user_company` | `eInvoiceData` | 1000000 (storage; payloads validated to 16000 chars) |
+| `invoices` | `eInvoiceData` | 1000000 (storage; payloads validated to 16000 chars) |
 | `invoice_items` | `gtin` | 14 |
 
 `appwrite.config.json` includes the matching definitions. Existing rows need no
@@ -161,7 +161,7 @@ invoice. Validate actual output against the recipient's applicable rules.
 
 The customer create/update API retries a write only when Appwrite explicitly
 rejects the fixed `clients.eInvoiceData` attribute as unknown. For nonempty
-metadata it creates the optional string attribute (16000 characters), waits
+metadata it creates the optional string attribute (created oversized at 1000000 characters so Appwrite stores it off-row instead of as an inline VARCHAR that can exceed MariaDB's row-size limit; payloads themselves are validated to 16000 characters), waits
 briefly for `available`, and retries the same customer write once. Authentication
 and, for updates, ownership are checked first. It never alters an existing
 attribute or discards a delivery address to make a save succeed. Normal writes
