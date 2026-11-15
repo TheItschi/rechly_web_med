@@ -5,6 +5,7 @@ import { InvoiceIdentifierEditor } from "@/components/dashboard/EInvoiceFields";
 import { type EInvoiceData } from "@/lib/eRechnung/identifiers";
 import {
     buildInvoiceFormData,
+    resolveSubmittedInvoiceNumber,
     summarizeServicePeriod,
     validateInvoiceDraft,
     type InvoiceLineItem as LineItem,
@@ -609,7 +610,11 @@ export default function InvoiceCreatePage() {
             const invoiceData = buildInvoiceFormData({
                 clientId: selectedClient!.id!,
                 eInvoice,
-                invoiceNumber,
+                invoiceNumber: resolveSubmittedInvoiceNumber({
+                    invoiceNumber,
+                    numberTouched,
+                    isEdit: Boolean(editId),
+                }),
                 issueDate: invoiceDate.format("YYYY-MM-DD"),
                 dueDate: dueDate.format("YYYY-MM-DD"),
                 notes,
@@ -1432,7 +1437,9 @@ export default function InvoiceCreatePage() {
             case 1:
                 return lineItems.length > 0;
             case 2:
-                return !!invoiceNumber;
+                // The invoice number is optional: left empty (or left at the
+                // auto-filled preview), the server assigns the next free one.
+                return true;
             default:
                 return true;
         }

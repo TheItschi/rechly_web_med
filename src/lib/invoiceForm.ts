@@ -38,6 +38,23 @@ export function validateInvoiceDraft(
     return null;
 }
 
+/**
+ * Which invoice number to submit. An auto-filled preview number the user
+ * never edited is sent empty so the server allocates the next free number;
+ * sending the preview as an explicit number can collide with an existing
+ * invoice ("number already taken") when the stored counter lags behind.
+ * Explicit user input and the existing number of a draft being edited are
+ * always submitted as-is.
+ */
+export function resolveSubmittedInvoiceNumber(args: {
+    invoiceNumber: string;
+    numberTouched: boolean;
+    isEdit: boolean;
+}): string {
+    if (args.isEdit || args.numberTouched) return args.invoiceNumber.trim();
+    return "";
+}
+
 export interface BuildInvoiceFormDataArgs {
     clientId: string;
     eInvoice: EInvoiceData | undefined;

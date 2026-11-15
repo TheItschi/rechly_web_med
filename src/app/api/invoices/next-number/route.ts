@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 import {
     createSessionClient,
@@ -34,7 +34,7 @@ function resolveNumbering(companyDoc: Record<string, unknown> | null) {
  * With ?suggest=1, derives the counter from existing invoice numbers
  * (useful when first configuring numbering for existing history).
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         let account;
         try {
@@ -55,15 +55,17 @@ export async function GET(request: NextRequest) {
         const company = (companies.documents[0] ?? null) as unknown as Record<string, unknown> | null;
         const numbering = resolveNumbering(company);
 
+        // The preview must never name a number that already exists: the
+        // stored counter can lag behind imported or manually numbered
+        // invoices, so always reconcile it with the existing numbers.
+        // (?suggest=1 is still accepted for compatibility.)
         let seq = numbering.next;
-        if (new URL(request.url).searchParams.get("suggest") === "1") {
-            const invoices = await databases.listDocuments(DATABASE_ID, COLLECTIONS.INVOICES, [
-                Query.equal("userId", user.$id),
-                Query.limit(1000),
-            ]);
-            const numbers = invoices.documents.map((d) => String((d as unknown as { invoiceNumber?: unknown }).invoiceNumber ?? ""));
-            seq = Math.max(seq, suggestNextSequence(numbers));
-        }
+        const invoices = await databases.listDocuments(DATABASE_ID, COLLECTIONS.INVOICES, [
+            Query.equal("userId", user.$id),
+            Query.limit(1000),
+        ]);
+        const numbers = invoices.documents.map((d) => String((d as unknown as { invoiceNumber?: unknown }).invoiceNumber ?? ""));
+        seq = Math.max(seq, suggestNextSequence(numbers));
 
         return NextResponse.json({
             number: formatInvoiceNumber({ pattern: numbering.pattern, prefix: numbering.prefix, seq }),

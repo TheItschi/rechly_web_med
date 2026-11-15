@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
     buildInvoiceFormData,
     formatServicePeriod,
+    resolveSubmittedInvoiceNumber,
     summarizeServicePeriod,
     validateInvoiceDraft,
     type InvoiceLineItem,
@@ -31,6 +32,30 @@ describe("validateInvoiceDraft", () => {
 
     it("passes with client and items", () => {
         assert.equal(validateInvoiceDraft("c1", 2), null);
+    });
+});
+
+describe("resolveSubmittedInvoiceNumber", () => {
+    it("sends an untouched auto-filled preview empty so the server allocates a free number", () => {
+        assert.equal(
+            resolveSubmittedInvoiceNumber({ invoiceNumber: "RE-2026-001", numberTouched: false, isEdit: false }),
+            "",
+        );
+        assert.equal(
+            resolveSubmittedInvoiceNumber({ invoiceNumber: "", numberTouched: false, isEdit: false }),
+            "",
+        );
+    });
+
+    it("keeps explicit user input and a draft's existing number", () => {
+        assert.equal(
+            resolveSubmittedInvoiceNumber({ invoiceNumber: " RE-2026-099 ", numberTouched: true, isEdit: false }),
+            "RE-2026-099",
+        );
+        assert.equal(
+            resolveSubmittedInvoiceNumber({ invoiceNumber: "RE-2026-001", numberTouched: true, isEdit: true }),
+            "RE-2026-001",
+        );
     });
 });
 
