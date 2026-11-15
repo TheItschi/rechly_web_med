@@ -27,7 +27,9 @@ function backend(missing: string[] = [], initial?: Doc) {
         for (const [key, value] of Object.entries(data)) {
             const column = columns.find((col) => col.key === key && !missing.includes(key));
             if (!column) throw Object.assign(new Error(`Invalid document structure: Unknown attribute: "${key}"`), { code: 400 });
-            if (value !== null && typeof value !== column.type) throw Error(`Wrong type for ${key}`);
+            const expectedType = column.type === "integer" || column.type === "double" ? "number" : column.type;
+            if (value !== null && typeof value !== expectedType) throw Error(`Wrong type for ${key}`);
+            if (column.type === "integer" && value !== null && !Number.isInteger(value)) throw Error(`Wrong type for ${key}`);
             if (typeof value === "string" && value.length > (column.size ?? Infinity)) throw Error(`Too long: ${key}`);
         }
         for (const col of columns.filter((col) => col.required)) assert.ok(data[col.key] ?? existing?.[col.key], col.key);
@@ -120,6 +122,34 @@ test("invoice numbering survives company edits and remains editable after integr
     assert.equal(blank.invoiceNumberPattern, undefined);
     assert.equal(blank.nextInvoiceNumber, undefined);
     assert.throws(() => companyWrite({ next_invoice_number: -1 }, "owner", existing), CompanySettingsError);
+});
+
+test("invoice numbering settings persist through the declared Appwrite schema", async () => {
+    const fixture = backend();
+    const saved = await saveCompanySettings(fixture.db, "owner", {
+        ...input,
+        invoice_number_prefix: "RE",
+        invoice_number_pattern: "{YYYY}-{NUM}",
+        next_invoice_number: 43,
+    });
+    assert.equal(saved.invoice_number_prefix, "RE");
+    assert.equal(saved.invoice_number_pattern, "{YYYY}-{NUM}");
+    assert.equal(saved.next_invoice_number, 43);
+    const row = fixture.rows.find((r) => r.userId === "owner")!;
+    assert.equal(row.invoiceNumberPrefix, "RE");
+    assert.equal(row.nextInvoiceNumber, 43);
+});
+
+test("entered invoice numbering is never silently discarded if its schema migration is missing", async () => {
+    const fixture = backend(["invoiceNumberPrefix", "invoiceNumberPattern", "nextInvoiceNumber"]);
+    await assert.rejects(
+        saveCompanySettings(fixture.db, "owner", { ...input, invoice_number_prefix: "RE" }),
+        (error) => {
+            assert.equal(companyFailure(error).status, 503);
+            return true;
+        },
+    );
+    assert.equal(fixture.writes.length, 0);
 });
 
 test("upstream errors are useful without leaking raw values or secrets", () => {

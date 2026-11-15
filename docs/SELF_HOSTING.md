@@ -23,7 +23,7 @@ Avoid `latest` tags in production; Appwrite `2.x` requires major SDK upgrades (`
    - Generate a strong `_APP_OPENSSL_KEY_V1` (`openssl rand -hex 32`) and store a copy offline in a password manager — losing it prevents decrypting OAuth/SMTP secrets and password hashes.
    - Pin `_APP_DB_HOST=appwrite-mariadb` and `_APP_REDIS_HOST=appwrite-redis` so container hostnames never collide on shared proxy networks, and leave `_APP_REDIS_PASS` empty on the internal network (`utopia-php/queue` in `1.8.1` connects without Redis auth).
    - Configure `_APP_SMTP_*` (e.g. port `587` with STARTTLS/`tls`) so password recovery and verification emails work.
-2. Start the stack (`docker compose up -d`), create your admin account and project in `https://<your-appwrite-domain>/console`, and apply the schema in `appwrite.config.json` (plus `scripts/migrate-einvoice.mjs` and optional `scripts/migrate-workspace.mjs`).
+2. Start the stack (`docker compose up -d`), create your admin account and project in `https://<your-appwrite-domain>/console`, and apply the schema in `appwrite.config.json` (plus `scripts/migrate-einvoice.mjs`, `scripts/migrate-company-numbering.mjs` for the invoice-numbering attributes on `user_company`, and optional `scripts/migrate-workspace.mjs`). Existing instances only need the migration scripts whose attributes they do not have yet; each script is additive and safe to re-run.
 3. Register your web frontend domain under **Overview → Platforms → Web** (required for CORS and OAuth redirect validation).
 4. If enabling Google Sign-In, add `https://<your-appwrite-domain>/v1/account/sessions/oauth2/callback/google/<project-id>` to your Google Cloud OAuth 2.0 Client's Authorized Redirect URIs.
 

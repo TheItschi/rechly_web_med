@@ -115,6 +115,19 @@ export async function saveCompanySettings(db: CompanyDatabase, userId: string, b
     return companyRead(doc);
 }
 
+const numberingAttributes: Record<string, string> = {
+    invoiceNumberPrefix: "invoice_number_prefix",
+    invoiceNumberPattern: "invoice_number_pattern",
+    nextInvoiceNumber: "next_invoice_number",
+};
+
+function numberingField(message: string): string | undefined {
+    for (const [db, api] of Object.entries(numberingAttributes)) {
+        if (message.includes(`"${db}"`) || message.includes(`'${db}'`)) return api;
+    }
+    return undefined;
+}
+
 /** Translate only known backend failures; never expose raw upstream messages or values. */
 export function companyFailure(error: unknown) {
     if (error instanceof CompanySettingsError) return error;
@@ -122,7 +135,7 @@ export function companyFailure(error: unknown) {
     const message = typeof backend?.message === "string" ? backend.message : "";
     const definition = fields.find(([, db]) => message.includes(`"${db}"`) || message.includes(`'${db}'`));
     if (backend?.code === 400 && /Unknown attribute/i.test(message)) {
-        return new CompanySettingsError("Die Firmeneinstellungen sind auf dem Server noch nicht vollständig eingerichtet. Bitte den Support kontaktieren; Ihre Eingaben wurden nicht gespeichert.", 503, definition?.[0] ?? (message.includes('"eInvoiceData"') ? "e_invoice" : undefined));
+        return new CompanySettingsError("Die Firmeneinstellungen sind auf dem Server noch nicht vollständig eingerichtet. Bitte den Support kontaktieren; Ihre Eingaben wurden nicht gespeichert.", 503, definition?.[0] ?? numberingField(message) ?? (message.includes('"eInvoiceData"') ? "e_invoice" : undefined));
     }
     if (backend?.code === 400 && definition && /Invalid document structure|Invalid.*attribute|Attribute.*invalid/i.test(message)) {
         return new CompanySettingsError(`${definition[3]}: Der Server akzeptiert diesen Wert nicht. Bitte Format und Länge prüfen.`, 400, definition[0]);
