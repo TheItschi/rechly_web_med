@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     invoiceTitle: {
         fontSize: 24,
         fontWeight: "bold",
-        color: "#1976d2",
+        color: "#2855d9",
         marginBottom: 4,
     },
     invoiceNumber: {
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         paddingTop: 8,
         borderTopWidth: 2,
-        borderTopColor: "#1976d2",
+        borderTopColor: "#2855d9",
     },
     totalFinalLabel: {
         flex: 1,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
         textAlign: "right",
         fontWeight: "bold",
         fontSize: 12,
-        color: "#1976d2",
+        color: "#2855d9",
     },
     footer: {
         position: "absolute",

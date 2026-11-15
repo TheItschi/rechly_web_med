@@ -89,7 +89,7 @@ export default function CookiesPage() {
                     margin: "0 auto",
                 }}
             >
-                <Card style={{ borderRadius: 12, border: "1px solid #f0f0f0" }}>
+                <Card className="legal-prose" style={{ borderRadius: 10 }}>
                     <Title level={1} style={{ marginBottom: 24 }}>
                         {t.title}
                     </Title>

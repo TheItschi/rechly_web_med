@@ -130,7 +130,7 @@ export default function LeitwegIdValidator() {
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
                         Prüfziffer (Mod 97-10)
                     </Text>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#2563eb", marginTop: 4 }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: "#2855d9", marginTop: 4 }}>
                         {result.checksum || "–"}
                     </div>
                     <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
@@ -162,7 +162,7 @@ export default function LeitwegIdValidator() {
                 </div>
 
                 <Link href="/e-rechnung-software">
-                    <Button type="primary" style={{ background: "#2563eb" }}>
+                    <Button type="primary" style={{ background: "#2855d9" }}>
                         XRechnung in Rechly erstellen
                     </Button>
                 </Link>

@@ -151,7 +151,7 @@ export default function BautagebuchBuilder() {
             <Card
                 title="Druckfertiger Bautagesbericht nach VOB/B"
                 extra={
-                    <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2563eb" }}>
+                    <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2855d9" }}>
                         Bautagesbericht drucken / PDF
                     </Button>
                 }

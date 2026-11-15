@@ -162,7 +162,7 @@ export function StundenzettelGenerator() {
                 <div className="lg:col-span-8 p-6 rounded-2xl border border-slate-200 bg-white space-y-5">
                     <div className="flex items-center justify-between">
                         <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-indigo-600" />
+                            <Clock className="w-4 h-4 text-[#2855d9]" />
                             Stundenzettel & § 4 ArbZG Pausen-Prüfung
                         </h3>
                         <span
@@ -278,7 +278,7 @@ export function StundenzettelGenerator() {
                                         />
                                         <span className="text-[10px] text-slate-500">Min</span>
                                     </div>
-                                    <div className="sm:col-span-2 text-right font-mono text-xs font-bold text-indigo-700">
+                                    <div className="sm:col-span-2 text-right font-mono text-xs font-bold text-[#1e43b3]">
                                         {row.decimalHours.toFixed(2).replace(".", ",")} Std.
                                     </div>
                                     <button
@@ -310,7 +310,7 @@ export function StundenzettelGenerator() {
                         <button
                             type="button"
                             onClick={addRow}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#eef3fd] text-[#1e43b3] hover:bg-[#eef3fd] text-xs font-bold cursor-pointer"
                         >
                             <Plus className="w-3.5 h-3.5" />
                             Arbeitstag hinzufügen
@@ -321,7 +321,7 @@ export function StundenzettelGenerator() {
                 {/* Right Summary */}
                 <div className="lg:col-span-4 p-6 rounded-2xl bg-slate-900 text-white flex flex-col justify-between space-y-5">
                     <div className="space-y-4">
-                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                             Gesamtauswertung ({monthLabel})
                         </span>
                         <div className="p-4 rounded-xl bg-white/10 border border-white/15 space-y-2">
@@ -345,7 +345,7 @@ export function StundenzettelGenerator() {
                                 type="checkbox"
                                 checked={showBillingAmount}
                                 onChange={(e) => setShowBillingAmount(e.target.checked)}
-                                className="rounded border-slate-500 text-indigo-500"
+                                className="rounded border-slate-500 text-[#2855d9]"
                             />
                             Stundensatz & Gesamthonorar auf PDF ausweisen
                         </label>
@@ -355,7 +355,7 @@ export function StundenzettelGenerator() {
                         <button
                             type="button"
                             onClick={() => window.print()}
-                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm cursor-pointer"
+                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm cursor-pointer"
                         >
                             <Printer className="w-4 h-4" />
                             Stundenzettel als PDF drucken

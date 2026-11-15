@@ -79,7 +79,7 @@ export function FahrtkostenRechner() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 print:hidden">
                 <div className="lg:col-span-7 p-6 rounded-2xl border border-slate-200 bg-white space-y-5">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                        <Car className="w-4 h-4 text-indigo-600" />
+                        <Car className="w-4 h-4 text-[#2855d9]" />
                         Berechnungs-Modus wählen (Stand 2026)
                     </h3>
 
@@ -89,7 +89,7 @@ export function FahrtkostenRechner() {
                             onClick={() => setMode("dienstreise")}
                             className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 mode === "dienstreise"
-                                    ? "bg-white text-indigo-700 shadow-sm"
+                                    ? "bg-white text-[#1e43b3] shadow-sm"
                                     : "text-slate-600 hover:text-slate-900"
                             }`}
                         >
@@ -100,7 +100,7 @@ export function FahrtkostenRechner() {
                             onClick={() => setMode("pendlerpauschale")}
                             className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 mode === "pendlerpauschale"
-                                    ? "bg-white text-indigo-700 shadow-sm"
+                                    ? "bg-white text-[#1e43b3] shadow-sm"
                                     : "text-slate-600 hover:text-slate-900"
                             }`}
                         >
@@ -111,7 +111,7 @@ export function FahrtkostenRechner() {
                             onClick={() => setMode("kundenabrechnung")}
                             className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 mode === "kundenabrechnung"
-                                    ? "bg-white text-indigo-700 shadow-sm"
+                                    ? "bg-white text-[#1e43b3] shadow-sm"
                                     : "text-slate-600 hover:text-slate-900"
                             }`}
                         >
@@ -153,7 +153,7 @@ export function FahrtkostenRechner() {
                                         type="checkbox"
                                         checked={roundTrip}
                                         onChange={(e) => setRoundTrip(e.target.checked)}
-                                        className="rounded border-slate-300 text-indigo-600"
+                                        className="rounded border-slate-300 text-[#2855d9]"
                                     />
                                     Hin- und Rückfahrt berechnen (× 2 = {calc.totalKm} km)
                                 </label>
@@ -178,20 +178,20 @@ export function FahrtkostenRechner() {
                     )}
 
                     {mode === "kundenabrechnung" && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-indigo-50/70 border border-indigo-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-[#eef3fd]/70 border border-[#c9d8f5]">
                             <div>
-                                <label className="block text-xs font-semibold text-indigo-950 mb-1">
+                                <label className="block text-xs font-semibold text-[#152438] mb-1">
                                     Vereinbarter Netto-Kilometersatz (€/km)
                                 </label>
                                 <input
                                     type="text"
                                     value={clientRatePerKm}
                                     onChange={(e) => setClientRatePerKm(e.target.value)}
-                                    className="w-full px-3 py-2 rounded-lg border border-indigo-300 bg-white text-sm font-bold"
+                                    className="w-full px-3 py-2 rounded-lg border border-[#9db8f5] bg-white text-sm font-bold"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-indigo-950 mb-1">
+                                <label className="block text-xs font-semibold text-[#152438] mb-1">
                                     MwSt.-Satz der Hauptleistung
                                 </label>
                                 <select
@@ -199,15 +199,15 @@ export function FahrtkostenRechner() {
                                     onChange={(e) =>
                                         setClientVatRate(Number(e.target.value) as 0 | 7 | 19)
                                     }
-                                    className="w-full px-3 py-2 rounded-lg border border-indigo-300 bg-white text-sm font-semibold"
+                                    className="w-full px-3 py-2 rounded-lg border border-[#9db8f5] bg-white text-sm font-semibold"
                                 >
                                     <option value={19}>19 % Regelsteuersatz</option>
                                     <option value={7}>7 % Ermäßigter Steuersatz</option>
                                     <option value={0}>0 % (§ 19 Kleinunternehmer / § 13b)</option>
                                 </select>
                             </div>
-                            <p className="sm:col-span-2 text-[11px] text-indigo-900 flex items-start gap-1.5">
-                                <Info className="w-4 h-4 shrink-0 mt-0.5 text-indigo-600" />
+                            <p className="sm:col-span-2 text-[11px] text-[#152438] flex items-start gap-1.5">
+                                <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#2855d9]" />
                                 Steuer-Tipp: Wenn Sie Fahrtkosten an Ihren Auftraggeber weiterberechnen, sind Sie nicht an die 0,30 € gebunden, müssen aber als umsatzsteuerliche Nebenleistung denselben MwSt.-Satz wie Ihre Hauptleistung aufschlagen!
                             </p>
                         </div>
@@ -229,7 +229,7 @@ export function FahrtkostenRechner() {
                 {/* Right Result Box */}
                 <div className="lg:col-span-5 p-6 rounded-2xl bg-slate-900 text-white flex flex-col justify-between space-y-5">
                     <div className="space-y-4">
-                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                             Berechnete Fahrtkosten
                         </span>
                         <div className="p-4 rounded-xl bg-white/10 border border-white/15">
@@ -262,7 +262,7 @@ export function FahrtkostenRechner() {
                     <button
                         type="button"
                         onClick={() => window.print()}
-                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm cursor-pointer"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm cursor-pointer"
                     >
                         <Printer className="w-4 h-4" />
                         Fahrtkosten-Eigenbeleg als PDF drucken

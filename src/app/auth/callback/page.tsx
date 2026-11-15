@@ -118,7 +118,7 @@ function CallbackContent() {
                 justifyContent: "center",
                 alignItems: "center",
                 height: "100vh",
-                background: "linear-gradient(135deg, #1976d2 0%, #64b5f6 100%)",
+                background: "#152438",
                 gap: 16,
             }}
         >
@@ -145,7 +145,7 @@ export default function AuthCallbackPage() {
                         alignItems: "center",
                         height: "100vh",
                         background:
-                            "linear-gradient(135deg, #1976d2 0%, #64b5f6 100%)",
+                            "#152438",
                     }}
                 >
                     <Spin size="large" />

@@ -66,10 +66,10 @@ export function MehrwertsteuerRechner() {
                 <div className="lg:col-span-7 p-6 rounded-2xl border border-slate-200 bg-white space-y-6">
                     <div className="flex items-center justify-between">
                         <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                            <Calculator className="w-4 h-4 text-indigo-600" />
+                            <Calculator className="w-4 h-4 text-[#2855d9]" />
                             Betrag & Rechenrichtung wählen
                         </h3>
-                        <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">
+                        <span className="text-xs font-semibold text-[#1e43b3] bg-[#eef3fd] px-2.5 py-1 rounded-full">
                             § 12 UStG Steuersätze
                         </span>
                     </div>
@@ -81,7 +81,7 @@ export function MehrwertsteuerRechner() {
                             onClick={() => setMode("net_to_gross")}
                             className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 mode === "net_to_gross"
-                                    ? "bg-white text-indigo-700 shadow-sm"
+                                    ? "bg-white text-[#1e43b3] shadow-sm"
                                     : "text-slate-600 hover:text-slate-900"
                             }`}
                         >
@@ -92,7 +92,7 @@ export function MehrwertsteuerRechner() {
                             onClick={() => setMode("gross_to_net")}
                             className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 mode === "gross_to_net"
-                                    ? "bg-white text-indigo-700 shadow-sm"
+                                    ? "bg-white text-[#1e43b3] shadow-sm"
                                     : "text-slate-600 hover:text-slate-900"
                             }`}
                         >
@@ -103,7 +103,7 @@ export function MehrwertsteuerRechner() {
                             onClick={() => setMode("from_vat")}
                             className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                 mode === "from_vat"
-                                    ? "bg-white text-indigo-700 shadow-sm"
+                                    ? "bg-white text-[#1e43b3] shadow-sm"
                                     : "text-slate-600 hover:text-slate-900"
                             }`}
                         >
@@ -126,7 +126,7 @@ export function MehrwertsteuerRechner() {
                                 inputMode="decimal"
                                 value={amountStr}
                                 onChange={(e) => setAmountStr(e.target.value)}
-                                className="w-full px-4 py-3.5 rounded-xl border border-slate-300 text-xl font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                className="w-full px-4 py-3.5 rounded-xl border border-slate-300 text-xl font-extrabold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2855d9]"
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
                                 EUR
@@ -138,7 +138,7 @@ export function MehrwertsteuerRechner() {
                                     key={amt}
                                     type="button"
                                     onClick={() => setAmountStr(String(amt))}
-                                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-xs font-semibold text-slate-600 transition-colors cursor-pointer"
+                                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#eef3fd] hover:text-[#1e43b3] text-xs font-semibold text-slate-600 transition-colors cursor-pointer"
                                 >
                                     {amt} €
                                 </button>
@@ -166,7 +166,7 @@ export function MehrwertsteuerRechner() {
                                     }}
                                     className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                                         customRate === "" && vatRate === opt.rate
-                                            ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                                            ? "border-[#2855d9] bg-[#eef3fd] text-[#1e43b3]"
                                             : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                                     }`}
                                 >
@@ -188,7 +188,7 @@ export function MehrwertsteuerRechner() {
                 <div className="lg:col-span-5 p-6 rounded-2xl bg-slate-900 text-white flex flex-col justify-between space-y-6">
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                                 Ergebnis ({effectiveRate} % MwSt.)
                             </span>
                             <button
@@ -200,7 +200,7 @@ export function MehrwertsteuerRechner() {
                                             : "net_to_gross",
                                     )
                                 }
-                                className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-300 hover:text-white cursor-pointer"
+                                className="inline-flex items-center gap-1 text-xs font-semibold text-[#9db8f5] hover:text-white cursor-pointer"
                             >
                                 <ArrowLeftRight className="w-3.5 h-3.5" />
                                 Richtung tauschen
@@ -232,7 +232,7 @@ export function MehrwertsteuerRechner() {
                                     key={row.key}
                                     className={`p-3.5 rounded-xl border flex items-center justify-between ${
                                         row.highlight
-                                            ? "bg-indigo-600/30 border-indigo-400/50"
+                                            ? "bg-[#2855d9]/30 border-[#7ea2f8]/50"
                                             : "bg-white/5 border-white/10"
                                     }`}
                                 >
@@ -301,7 +301,7 @@ export function MehrwertsteuerRechner() {
                                     <td className="py-2.5 px-3 text-right text-slate-600">
                                         {formatEUR(val * 0.19)}
                                     </td>
-                                    <td className="py-2.5 px-3 text-right font-semibold text-indigo-700">
+                                    <td className="py-2.5 px-3 text-right font-semibold text-[#1e43b3]">
                                         {formatEUR(val * 1.19)}
                                     </td>
                                     <td className="py-2.5 px-3 text-right text-slate-600">

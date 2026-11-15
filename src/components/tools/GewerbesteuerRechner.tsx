@@ -142,16 +142,16 @@ export default function GewerbesteuerRechner() {
                     size="small"
                     style={{
                         borderRadius: 10,
-                        border: "2px solid #2563eb",
+                        border: "2px solid #2855d9",
                         background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Effektive Steuerbelastung
                     </Text>
-                    <div style={{ fontSize: 26, fontWeight: 900, color: "#1d4ed8", marginTop: 4 }}>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: "#2855d9", marginTop: 4 }}>
                         {result.effectiveBurden.toFixed(2)} €
                     </div>
-                    <div style={{ fontSize: 11, color: "#2563eb", marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: "#2855d9", marginTop: 2 }}>
                         Nach § 35 EStG Anrechnung
                     </div>
                 </Card>

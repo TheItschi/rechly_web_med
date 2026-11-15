@@ -107,7 +107,7 @@ export default function OpenGraphImage() {
                         display: "flex",
                         gap: "16px",
                         fontSize: "22px",
-                        color: "#1d4ed8",
+                        color: "#2855d9",
                     }}
                 >
                     <div>Rechnungen</div>

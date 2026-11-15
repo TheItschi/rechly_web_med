@@ -83,7 +83,7 @@ export default function VerzugszinsenRechner() {
             dataIndex: "applicableRate",
             key: "applicableRate",
             render: (val: number) => (
-                <span style={{ fontWeight: 700, color: "#2563eb" }}>{val.toFixed(2)} %</span>
+                <span style={{ fontWeight: 700, color: "#2855d9" }}>{val.toFixed(2)} %</span>
             ) },
         {
             title: "Tage",
@@ -210,13 +210,13 @@ export default function VerzugszinsenRechner() {
                     size="small"
                     style={{
                         borderRadius: 10,
-                        border: "2px solid #2563eb",
+                        border: "2px solid #2855d9",
                         background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Gesamtforderung
                     </Text>
-                    <div style={{ fontSize: 26, fontWeight: 900, color: "#1d4ed8", marginTop: 4 }}>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: "#2855d9", marginTop: 4 }}>
                         {result.totalAmountDue.toFixed(2)} €
                     </div>
                 </Card>
@@ -301,7 +301,7 @@ export default function VerzugszinsenRechner() {
                                         type="primary"
                                         icon={copiedText ? <CheckOutlined /> : <CopyOutlined />}
                                         onClick={copyDunning}
-                                        style={{ background: "#2563eb" }}
+                                        style={{ background: "#2855d9" }}
                                     >
                                         {copiedText ? "Mahntext kopiert!" : "Mahntext in Zwischenablage kopieren"}
                                     </Button>

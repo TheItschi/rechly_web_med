@@ -115,7 +115,7 @@ export function LieferscheinGenerator() {
                 <div className="lg:col-span-7 space-y-5">
                     <div className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4">
                         <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                            <Truck className="w-4 h-4 text-indigo-600" />
+                            <Truck className="w-4 h-4 text-[#2855d9]" />
                             Lieferschein-Kopfdaten (DIN 5008)
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -235,7 +235,7 @@ export function LieferscheinGenerator() {
                             <button
                                 type="button"
                                 onClick={addItem}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#eef3fd] text-[#1e43b3] text-xs font-bold"
                             >
                                 <Plus className="w-3.5 h-3.5" />
                                 Artikel
@@ -324,7 +324,7 @@ export function LieferscheinGenerator() {
 
                 <div className="lg:col-span-5 space-y-5">
                     <div className="p-6 rounded-2xl bg-slate-900 text-white space-y-4">
-                        <p className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                             Lieferschein drucken & weiterverarbeiten
                         </p>
                         <p className="text-xs text-slate-300 leading-relaxed">
@@ -333,7 +333,7 @@ export function LieferscheinGenerator() {
                         <button
                             type="button"
                             onClick={() => window.print()}
-                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm cursor-pointer"
+                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm cursor-pointer"
                         >
                             <Printer className="w-4 h-4" />
                             Lieferschein als PDF drucken

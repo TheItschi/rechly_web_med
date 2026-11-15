@@ -86,7 +86,7 @@ export default function VorlagenHubPage() {
             {/* Hero */}
             <section className="pt-28 pb-14 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200/80">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-5">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#eef3fd] border border-[#c9d8f5]/60 text-[#1e43b3] text-xs font-bold uppercase tracking-wider">
                         <FileText className="w-3.5 h-3.5" />
                         14 Branchen-Vorlagen · DIN 5008 & § 14 UStG
                     </div>
@@ -102,7 +102,7 @@ export default function VorlagenHubPage() {
                     <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                         <Link
                             href="/tools/rechnungsgenerator"
-                            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors"
+                            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#2855d9] hover:bg-[#1e43b3] text-white font-bold text-sm shadow-sm transition-colors"
                         >
                             <Sparkles className="w-4 h-4" />
                             Direkt zum Online-Rechnungsgenerator
@@ -111,7 +111,7 @@ export default function VorlagenHubPage() {
                             href="/lexikon"
                             className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold text-sm transition-colors"
                         >
-                            <BookOpen className="w-4 h-4 text-indigo-600" />
+                            <BookOpen className="w-4 h-4 text-[#2855d9]" />
                             Rechnungs- & Steuer-Lexikon
                         </Link>
                     </div>
@@ -124,11 +124,11 @@ export default function VorlagenHubPage() {
                     {VORLAGEN_CATALOG.map((vorlage) => (
                         <div
                             key={vorlage.slug}
-                            className="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-indigo-300 transition-all p-6 flex flex-col justify-between"
+                            className="bg-white rounded-[10px] border border-slate-200/90 shadow-xs hover:shadow-md hover:border-[#9db8f5] transition-all p-6 flex flex-col justify-between"
                         >
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700">
+                                    <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[#eef3fd] text-[#1e43b3]">
                                         {vorlage.category}
                                     </span>
                                     <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
@@ -140,7 +140,7 @@ export default function VorlagenHubPage() {
                                     href={`/vorlagen/${vorlage.slug}`}
                                     className="block group"
                                 >
-                                    <h2 className="text-lg font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                                    <h2 className="text-lg font-extrabold text-slate-900 group-hover:text-[#2855d9] transition-colors leading-snug">
                                         {vorlage.shortTitle}
                                     </h2>
                                 </Link>
@@ -162,7 +162,7 @@ export default function VorlagenHubPage() {
                             <div className="pt-5 mt-5 border-t border-slate-100 flex items-center justify-between gap-2">
                                 <Link
                                     href={`/vorlagen/${vorlage.slug}`}
-                                    className="text-xs font-bold text-slate-700 hover:text-indigo-600 inline-flex items-center gap-1"
+                                    className="text-xs font-bold text-slate-700 hover:text-[#2855d9] inline-flex items-center gap-1"
                                 >
                                     Muster & Leitfaden
                                     <ArrowRight className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export default function VorlagenHubPage() {
                                 <Link
                                     href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
                                     rel="nofollow"
-                                    className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition-colors"
+                                    className="px-3 py-1.5 rounded-lg bg-[#eef3fd] hover:bg-[#eef3fd] text-[#1e43b3] font-bold text-xs transition-colors"
                                 >
                                     Online ausfüllen →
                                 </Link>
@@ -180,9 +180,9 @@ export default function VorlagenHubPage() {
                 </div>
 
                 {/* Why Online Generator vs Word/Excel */}
-                <section className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 space-y-6">
+                <section className="bg-slate-900 text-white rounded-[10px] p-8 sm:p-12 space-y-6">
                     <div className="max-w-3xl space-y-3">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-300">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                             <ShieldCheck className="w-4 h-4" />
                             GoBD & E-Rechnungspflicht 2025–2028
                         </span>
@@ -196,7 +196,7 @@ export default function VorlagenHubPage() {
                     <div className="flex flex-wrap gap-3">
                         <Link
                             href="/tools/rechnungsgenerator"
-                            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm"
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm"
                         >
                             Kostenlos Rechnung im Browser erstellen
                             <ArrowRight className="w-4 h-4" />

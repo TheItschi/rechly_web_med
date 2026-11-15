@@ -1,0 +1,132 @@
+.root {
+    --ink: #152438;
+    --muted: #526174;
+    --blue: #2855d9;
+    --line: #e3e9f1;
+    background: #fff;
+    color: var(--ink);
+    min-height: 100vh;
+}
+.root * { box-sizing: border-box; }
+.root h1, .root h2, .root h3, .root p { margin: 0; }
+.root a { text-decoration: none; color: inherit; }
+.hero {
+    width: min(880px, calc(100% - 48px));
+    margin-inline: auto;
+    padding: 138px 0 56px;
+    text-align: left;
+}
+.kicker {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 16px;
+}
+.hero h1 {
+    font-size: clamp(36px, 4.6vw, 54px);
+    line-height: 1.08;
+    letter-spacing: -0.045em;
+    font-weight: 720;
+    max-width: 680px;
+}
+.heroText {
+    margin-top: 20px;
+    font-size: 17.5px;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 620px;
+}
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+}
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 50px;
+    padding: 12px 22px;
+    border-radius: 9px;
+    background: var(--blue);
+    color: #fff !important;
+    font-weight: 650;
+    font-size: 15px;
+}
+.button:hover { background: #1e43b3; }
+.buttonSecondary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 50px;
+    padding: 12px 20px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    font-weight: 600;
+    font-size: 15px;
+}
+.buttonSecondary:hover { background: #f6f8fc; }
+.note { margin-top: 14px; font-size: 12.5px; color: var(--muted); }
+.section, .compareSection {
+    width: min(1180px, calc(100% - 48px));
+    margin-inline: auto;
+    padding: 44px 0;
+    border-top: 1px solid var(--line);
+}
+.sectionHead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+    margin-bottom: 28px;
+}
+.sectionHead h2 {
+    font-size: clamp(25px, 3vw, 34px);
+    line-height: 1.22;
+    letter-spacing: -0.03em;
+    font-weight: 680;
+    max-width: 560px;
+}
+.sectionHead p { max-width: 320px; font-size: 15px; line-height: 1.65; color: var(--muted); }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+.card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px;
+    background: #fff;
+}
+.icon {
+    display: inline-flex;
+    color: var(--blue);
+    margin-bottom: 14px;
+}
+.card h3 { font-size: 16.5px; font-weight: 650; letter-spacing: -0.2px; line-height: 1.4; }
+.card p { margin-top: 8px; font-size: 14px; line-height: 1.65; color: var(--muted); }
+.tableWrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14px; }
+.table th, .table td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.table tbody tr:last-child th, .table tbody tr:last-child td { border-bottom: none; }
+.table thead th { font-size: 13px; letter-spacing: 0.02em; background: #f8fafc; }
+.table tbody th { font-weight: 550; color: var(--ink); }
+.rechlyCol { background: #f2f6fd; font-weight: 600; }
+thead .rechlyCol { background: #e7eefc; color: var(--blue); }
+.yes { display: inline-flex; align-items: center; gap: 6px; color: #1c6b4a; font-weight: 600; }
+.no { display: inline-flex; align-items: center; gap: 6px; color: #8494ab; }
+.compareNote { margin-top: 18px; font-size: 14px; line-height: 1.7; color: var(--muted); max-width: 760px; }
+.textLink { display: inline-flex; align-items: center; gap: 7px; color: var(--blue) !important; font-weight: 650; font-size: 14px; }
+.textLink:hover { text-decoration: underline; text-underline-offset: 4px; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+    .sectionHead { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .sectionHead p { max-width: none; }
+}
+.root :focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }

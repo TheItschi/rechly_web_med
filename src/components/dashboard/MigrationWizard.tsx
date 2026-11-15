@@ -383,7 +383,7 @@ export default function MigrationWizard({
     return (
         <div className="space-y-6">
             {/* Top Banner: Full Account Backup & Web <-> Desktop Portability */}
-            <Card className="border-indigo-200 dark:border-indigo-900/60 bg-gradient-to-r from-indigo-50/70 via-white to-sky-50/60 dark:from-indigo-950/30 dark:via-slate-900 dark:to-slate-900">
+            <Card className="border-[#c9d8f5] dark:border-[#152438]/60 bg-gradient-to-r from-[#eef3fd]/70 via-white to-sky-50/60 dark:from-[#152438]/30 dark:via-slate-900 dark:to-slate-900">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -421,7 +421,7 @@ export default function MigrationWizard({
             <Card
                 title={
                     <div className="flex items-center gap-2">
-                        <SwapOutlined className="text-indigo-600" />
+                        <SwapOutlined className="text-[#2855d9]" />
                         <span>
                             {isDe
                                 ? "1. Quelle wählen: Von welchem Programm möchtest du wechseln?"
@@ -446,8 +446,8 @@ export default function MigrationWizard({
                                 onClick={() => setSelectedSource(source.id)}
                                 className={`text-left rounded-xl p-4 border transition-all cursor-pointer ${
                                     active
-                                        ? "border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 shadow-sm ring-1 ring-indigo-600"
-                                        : "border-slate-200 dark:border-slate-800 hover:border-indigo-400 bg-white dark:bg-slate-900/60"
+                                        ? "border-[#2855d9] bg-[#eef3fd]/60 dark:bg-[#152438]/40 shadow-sm ring-1 ring-[#2855d9]"
+                                        : "border-slate-200 dark:border-slate-800 hover:border-[#7ea2f8] bg-white dark:bg-slate-900/60"
                                 }`}
                             >
                                 <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -519,7 +519,7 @@ export default function MigrationWizard({
                             <li key={idx}>{step}</li>
                         ))}
                     </ol>
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-3 mb-0 font-medium">
+                    <p className="text-xs text-[#2855d9] dark:text-[#7ea2f8] mt-3 mb-0 font-medium">
                         💡{" "}
                         {isDe
                             ? activeSourceGuide.tipsDe
@@ -533,7 +533,7 @@ export default function MigrationWizard({
                 title={
                     <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-                            <CloudUploadOutlined className="text-indigo-600" />
+                            <CloudUploadOutlined className="text-[#2855d9]" />
                             <span>
                                 {isDe
                                     ? "2. Dateien hochladen & Vorschau prüfen"
@@ -583,11 +583,11 @@ export default function MigrationWizard({
                     onClick={() => fileInputRef.current?.click()}
                     className={`rounded-2xl border-2 border-dashed p-8 text-center transition-all cursor-pointer ${
                         dragOver
-                            ? "border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/40"
-                            : "border-slate-300 dark:border-slate-700 hover:border-indigo-500 bg-slate-50/50 dark:bg-slate-900/40"
+                            ? "border-[#2855d9] bg-[#eef3fd]/70 dark:bg-[#152438]/40"
+                            : "border-slate-300 dark:border-slate-700 hover:border-[#2855d9] bg-slate-50/50 dark:bg-slate-900/40"
                     }`}
                 >
-                    <InboxOutlined className="text-4xl text-indigo-600 mb-2" />
+                    <InboxOutlined className="text-4xl text-[#2855d9] mb-2" />
                     <p className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
                         {parsingFiles
                             ? isDe
@@ -707,7 +707,7 @@ export default function MigrationWizard({
                                             {
                                                 key: "mapping",
                                                 label: (
-                                                    <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1.5">
+                                                    <span className="text-xs text-[#2855d9] dark:text-[#7ea2f8] font-medium flex items-center gap-1.5">
                                                         <SettingOutlined />
                                                         {isDe
                                                             ? `Spalten-Zuordnung prüfen / anpassen (${Object.keys(entry.mapping).length} Spalten automatisch erkannt)`
@@ -778,10 +778,10 @@ export default function MigrationWizard({
 
                 {/* Loaded E-Invoice XML / PDF mode switcher */}
                 {eInvoices.length > 0 && (
-                    <div className="mt-6 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/40 dark:bg-indigo-950/30 p-4">
+                    <div className="mt-6 rounded-xl border border-[#c9d8f5] dark:border-[#152438] bg-[#eef3fd]/40 dark:bg-[#152438]/30 p-4">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div className="flex items-center gap-2">
-                                <FilePdfOutlined className="text-indigo-600 text-lg" />
+                                <FilePdfOutlined className="text-[#2855d9] text-lg" />
                                 <div>
                                     <Text strong>
                                         {eInvoices.length}{" "}

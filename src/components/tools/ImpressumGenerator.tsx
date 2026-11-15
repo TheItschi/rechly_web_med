@@ -353,7 +353,7 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>`;
                                         type="primary"
                                         icon={copiedText ? <CheckOutlined /> : <CopyOutlined />}
                                         onClick={copyText}
-                                        style={{ background: "#2563eb" }}
+                                        style={{ background: "#2855d9" }}
                                     >
                                         {copiedText ? " kopiert!" : "Klartext kopieren"}
                                     </Button>
@@ -385,7 +385,7 @@ Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>`;
                                         type="primary"
                                         icon={copiedHtml ? <CheckOutlined /> : <CopyOutlined />}
                                         onClick={copyHtml}
-                                        style={{ background: "#2563eb" }}
+                                        style={{ background: "#2855d9" }}
                                     >
                                         {copiedHtml ? "HTML kopiert!" : "HTML kopieren"}
                                     </Button>

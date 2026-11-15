@@ -1385,7 +1385,7 @@ export default function InvoiceCreatePage() {
                 return (
                     <Result
                         status="success"
-                        icon={<FileTextOutlined style={{ color: "#1976d2" }} />}
+                        icon={<FileTextOutlined style={{ color: "#2855d9" }} />}
                         title={t("invoiceCreate.successTitle")}
                         subTitle={`${t("invoiceCreate.successSubtitle")} ${invoiceNumber}`}
                         extra={[
@@ -1493,7 +1493,7 @@ export default function InvoiceCreatePage() {
                                 <RobotOutlined
                                     style={{
                                         fontSize: 18,
-                                        color: "#1677ff",
+                                        color: "#2855d9",
                                     }}
                                 />
                                 <Text strong style={{ fontSize: 14 }}>

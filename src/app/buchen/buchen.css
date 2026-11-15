@@ -73,10 +73,10 @@
         box-shadow 0.15s;
 }
 .buchen-service:hover {
-    border-color: #365fd6;
+    border-color: #2855d9;
 }
 .buchen-service--active {
-    border-color: #365fd6;
+    border-color: #2855d9;
     box-shadow: 0 0 0 2px rgba(54, 95, 214, 0.18);
 }
 .buchen-service-name {
@@ -91,7 +91,7 @@
 .buchen-service-meta {
     font-size: 13px;
     font-weight: 600;
-    color: #365fd6;
+    color: #2855d9;
 }
 .buchen-days {
     display: grid;
@@ -107,7 +107,7 @@
     font-size: 13px;
 }
 .buchen-day--active {
-    border-color: #365fd6;
+    border-color: #2855d9;
     background: #eef3ff;
     font-weight: 700;
 }
@@ -127,11 +127,11 @@
     color: #162033;
 }
 .buchen-time:hover {
-    border-color: #365fd6;
+    border-color: #2855d9;
 }
 .buchen-time--active {
-    border-color: #365fd6;
-    background: #365fd6;
+    border-color: #2855d9;
+    background: #2855d9;
     color: #fff;
 }
 .buchen-footer {

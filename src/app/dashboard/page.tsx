@@ -249,6 +249,47 @@ export default function DashboardPage() {
                 </Button>
             </section>
 
+            {!loading && invoices.length === 0 && (
+                <section className="dashboard-getting-started" aria-label={l("Erste Schritte", "Getting started")}>
+                    <div className="dashboard-getting-started-head">
+                        <h2>{l("In drei Schritten zur ersten Rechnung", "Your first invoice in three steps")}</h2>
+                        <p>{l("Dauert etwa zwei Minuten. Du kannst jeden Schritt auch überspringen und später erledigen.", "Takes about two minutes. You can skip any step and finish it later.")}</p>
+                    </div>
+                    <ol className="dashboard-getting-started-list">
+                        <li className={company?.name ? "is-done" : ""}>
+                            <span className="dashboard-step-state">{company?.name ? <CheckCircleOutlined /> : "1"}</span>
+                            <div>
+                                <strong>{l("Firmendaten hinterlegen", "Add your company details")}</strong>
+                                <span>{l("Erscheinen automatisch auf jeder Rechnung.", "They appear automatically on every invoice.")}</span>
+                            </div>
+                            {!company?.name && (
+                                <Button onClick={() => router.push("/dashboard/settings")}>{l("Ausfüllen", "Add now")}</Button>
+                            )}
+                        </li>
+                        <li className={clients.length > 0 ? "is-done" : ""}>
+                            <span className="dashboard-step-state">{clients.length > 0 ? <CheckCircleOutlined /> : "2"}</span>
+                            <div>
+                                <strong>{l("Ersten Kunden anlegen", "Add your first client")}</strong>
+                                <span>{l("Oder Bestandskunden per CSV importieren.", "Or import existing clients via CSV.")}</span>
+                            </div>
+                            {clients.length === 0 && (
+                                <Button onClick={() => router.push("/dashboard/clients")}>{l("Kunde anlegen", "Add client")}</Button>
+                            )}
+                        </li>
+                        <li>
+                            <span className="dashboard-step-state">3</span>
+                            <div>
+                                <strong>{l("Erste Rechnung erstellen", "Create your first invoice")}</strong>
+                                <span>{l("Als PDF, XRechnung oder ZUGFeRD exportieren.", "Export as PDF, XRechnung or ZUGFeRD.")}</span>
+                            </div>
+                            <Button type="primary" onClick={() => router.push("/dashboard/invoices/create")}>
+                                {t("dashboard.createFirst")}
+                            </Button>
+                        </li>
+                    </ol>
+                </section>
+            )}
+
             <section className="dashboard-kpi-grid">
                 {kpis.map((kpi) => (
                     <button

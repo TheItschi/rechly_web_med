@@ -72,7 +72,7 @@ export default function AfaRechner() {
             dataIndex: "depreciationAmount",
             key: "depreciationAmount",
             render: (val: number) => (
-                <span style={{ fontWeight: 700, color: "#2563eb" }}>
+                <span style={{ fontWeight: 700, color: "#2855d9" }}>
                     {val.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €
                 </span>
             ) },
@@ -113,7 +113,7 @@ export default function AfaRechner() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
                 <Card style={{ borderRadius: 12, border: "1px solid #e2e8f0" }}>
                     <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>AfA im 1. Jahr ({purchaseYear})</div>
-                    <div style={{ fontSize: 24, fontWeight: 700, color: "#2563eb", marginTop: 4 }}>
+                    <div style={{ fontSize: 24, fontWeight: 700, color: "#2855d9", marginTop: 4 }}>
                         {calculation.firstYearAfa.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €
                     </div>
                     <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
@@ -225,7 +225,7 @@ export default function AfaRechner() {
 
                 {/* Tax Note Alert */}
                 <div style={{ marginTop: 16, padding: 12, background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, color: "#334155" }}>
-                    <InfoCircleOutlined style={{ color: "#2563eb", marginRight: 8 }} />
+                    <InfoCircleOutlined style={{ color: "#2855d9", marginRight: 8 }} />
                     {calculation.recommendation}
                 </div>
             </Card>

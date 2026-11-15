@@ -208,7 +208,7 @@ export default function BewirtungsbelegRechner() {
                     <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
                         100 % Vorsteuerabzug
                     </Text>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: "#2563eb", marginTop: 4 }}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: "#2855d9", marginTop: 4 }}>
                         {calc.fullVatDeduction.toFixed(2)} €
                     </div>
                     <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
@@ -221,7 +221,7 @@ export default function BewirtungsbelegRechner() {
             <Card
                 title="Druckfertiger Bewirtungsbeleg nach BMF-Vorgaben"
                 extra={
-                    <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2563eb" }}>
+                    <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2855d9" }}>
                         Drucken / Als PDF speichern
                     </Button>
                 }

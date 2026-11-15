@@ -224,7 +224,7 @@ export default function DesktopSeoPage() {
                             <Monitor className="w-3.5 h-3.5" />
                             100 % Offline Vollversion · Kein Abo
                         </span>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-200 text-xs font-semibold">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2855d9]/15 border border-[#7ea2f8]/30 text-[#c9d8f5] text-xs font-semibold">
                             Windows 10/11 & macOS (M1–M4 / Intel)
                         </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs font-semibold">
@@ -301,7 +301,7 @@ export default function DesktopSeoPage() {
                 {/* 8 Core Features Grid */}
                 <section className="space-y-6">
                     <div className="space-y-2">
-                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#2855d9]">
                             Funktionsumfang der Desktop-Vollversion
                         </span>
                         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
@@ -313,7 +313,7 @@ export default function DesktopSeoPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-2.5 shadow-xs">
+                        <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-2.5 shadow-xs">
                             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                                 <HardDrive className="w-5 h-5" />
                             </div>
@@ -325,8 +325,8 @@ export default function DesktopSeoPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-2.5 shadow-xs">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-2.5 shadow-xs">
+                            <div className="w-10 h-10 rounded-xl bg-[#eef3fd] text-[#2855d9] flex items-center justify-center">
                                 <FileCode2 className="w-5 h-5" />
                             </div>
                             <h3 className="text-lg font-extrabold text-slate-900">
@@ -337,7 +337,7 @@ export default function DesktopSeoPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-2.5 shadow-xs">
+                        <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-2.5 shadow-xs">
                             <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
                                 <Layers className="w-5 h-5" />
                             </div>
@@ -349,7 +349,7 @@ export default function DesktopSeoPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-2.5 shadow-xs">
+                        <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-2.5 shadow-xs">
                             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                                 <QrCode className="w-5 h-5" />
                             </div>
@@ -361,8 +361,8 @@ export default function DesktopSeoPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-2.5 shadow-xs">
-                            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                        <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-2.5 shadow-xs">
+                            <div className="w-10 h-10 rounded-xl bg-[#eef3fd] text-[#2855d9] flex items-center justify-center">
                                 <FileSpreadsheet className="w-5 h-5" />
                             </div>
                             <h3 className="text-lg font-extrabold text-slate-900">
@@ -373,7 +373,7 @@ export default function DesktopSeoPage() {
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-2.5 shadow-xs">
+                        <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-2.5 shadow-xs">
                             <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
                                 <Cpu className="w-5 h-5" />
                             </div>
@@ -401,7 +401,7 @@ export default function DesktopSeoPage() {
                         </p>
                     </div>
 
-                    <div className="overflow-x-auto bg-white rounded-2xl border border-slate-200 shadow-xs">
+                    <div className="overflow-x-auto bg-white rounded-[10px] border border-slate-200 shadow-xs">
                         <table className="w-full text-left border-collapse text-xs sm:text-sm">
                             <thead>
                                 <tr className="bg-slate-900 text-white">
@@ -523,9 +523,9 @@ export default function DesktopSeoPage() {
                 </section>
 
                 {/* Step-by-Step Installation & Setup Guide */}
-                <section className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 space-y-6">
+                <section className="bg-white rounded-[10px] border border-slate-200 p-6 sm:p-10 space-y-6">
                     <div className="space-y-2">
-                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#2855d9]">
                             Schnellstart-Anleitung
                         </span>
                         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
@@ -534,8 +534,8 @@ export default function DesktopSeoPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-extrabold text-sm">
+                        <div className="p-5 rounded-[10px] bg-slate-50 border border-slate-200/80 space-y-2">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#2855d9] text-white font-extrabold text-sm">
                                 1
                             </span>
                             <h3 className="text-base font-extrabold text-slate-900">
@@ -554,8 +554,8 @@ export default function DesktopSeoPage() {
                             </p>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-extrabold text-sm">
+                        <div className="p-5 rounded-[10px] bg-slate-50 border border-slate-200/80 space-y-2">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#2855d9] text-white font-extrabold text-sm">
                                 2
                             </span>
                             <h3 className="text-base font-extrabold text-slate-900">
@@ -566,8 +566,8 @@ export default function DesktopSeoPage() {
                             </p>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
-                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-extrabold text-sm">
+                        <div className="p-5 rounded-[10px] bg-slate-50 border border-slate-200/80 space-y-2">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#2855d9] text-white font-extrabold text-sm">
                                 3
                             </span>
                             <h3 className="text-base font-extrabold text-slate-900">
@@ -582,7 +582,7 @@ export default function DesktopSeoPage() {
 
                 {/* Technical Specs & System Requirements */}
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+                    <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-4">
                         <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
                             <ShieldCheck className="w-5 h-5 text-emerald-600" />
                             Technische Daten & Systemvoraussetzungen
@@ -621,9 +621,9 @@ export default function DesktopSeoPage() {
                         </dl>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+                    <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-4">
                         <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                            <Lock className="w-5 h-5 text-indigo-600" />
+                            <Lock className="w-5 h-5 text-[#2855d9]" />
                             Für wen eignet sich das Offline-Fakturierungsprogramm?
                         </h2>
                         <ul className="space-y-2.5 text-xs sm:text-sm text-slate-700">
@@ -658,14 +658,14 @@ export default function DesktopSeoPage() {
                 {/* FAQs */}
                 <section className="space-y-4">
                     <h2 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
-                        <HelpCircle className="w-6 h-6 text-indigo-600" />
+                        <HelpCircle className="w-6 h-6 text-[#2855d9]" />
                         Häufige Fragen zum kostenlosen Rechnungsprogramm (Desktop-Vollversion)
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {DESKTOP_FAQS.map((faq) => (
                             <article
                                 key={faq.question}
-                                className="bg-white rounded-2xl border border-slate-200 p-5 space-y-2"
+                                className="bg-white rounded-[10px] border border-slate-200 p-5 space-y-2"
                             >
                                 <h3 className="text-base font-bold text-slate-900">
                                     {faq.question}
@@ -686,11 +686,11 @@ export default function DesktopSeoPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <Link
                             href="/tools/rechnungsgenerator"
-                            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors space-y-1"
+                            className="p-4 rounded-[10px] bg-white border border-slate-200 hover:border-[#9db8f5] transition-colors space-y-1"
                         >
                             <p className="text-sm font-bold text-slate-900 flex items-center justify-between">
                                 Online-Rechnungsgenerator
-                                <ArrowRight className="w-4 h-4 text-indigo-600" />
+                                <ArrowRight className="w-4 h-4 text-[#2855d9]" />
                             </p>
                             <p className="text-xs text-slate-500">
                                 Direkt im Browser PDF-Rechnungen & XRechnungen ohne Download erstellen.
@@ -698,11 +698,11 @@ export default function DesktopSeoPage() {
                         </Link>
                         <Link
                             href="/tools/angebotsgenerator"
-                            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors space-y-1"
+                            className="p-4 rounded-[10px] bg-white border border-slate-200 hover:border-[#9db8f5] transition-colors space-y-1"
                         >
                             <p className="text-sm font-bold text-slate-900 flex items-center justify-between">
                                 Kostenloser Angebotsgenerator
-                                <ArrowRight className="w-4 h-4 text-indigo-600" />
+                                <ArrowRight className="w-4 h-4 text-[#2855d9]" />
                             </p>
                             <p className="text-xs text-slate-500">
                                 Angebote & Kostenvoranschläge nach DIN 5008 online schreiben & als PDF speichern.
@@ -710,11 +710,11 @@ export default function DesktopSeoPage() {
                         </Link>
                         <Link
                             href="/tools/e-rechnung-viewer"
-                            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors space-y-1"
+                            className="p-4 rounded-[10px] bg-white border border-slate-200 hover:border-[#9db8f5] transition-colors space-y-1"
                         >
                             <p className="text-sm font-bold text-slate-900 flex items-center justify-between">
                                 XRechnung & ZUGFeRD Viewer
-                                <ArrowRight className="w-4 h-4 text-indigo-600" />
+                                <ArrowRight className="w-4 h-4 text-[#2855d9]" />
                             </p>
                             <p className="text-xs text-slate-500">
                                 XML- und ZUGFeRD-Rechnungen kostenlos im Browser öffnen, prüfen & lesbar anzeigen.
@@ -722,11 +722,11 @@ export default function DesktopSeoPage() {
                         </Link>
                         <Link
                             href="/vorlagen"
-                            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors space-y-1"
+                            className="p-4 rounded-[10px] bg-white border border-slate-200 hover:border-[#9db8f5] transition-colors space-y-1"
                         >
                             <p className="text-sm font-bold text-slate-900 flex items-center justify-between">
                                 14 Branchen-Rechnungsvorlagen
-                                <ArrowRight className="w-4 h-4 text-indigo-600" />
+                                <ArrowRight className="w-4 h-4 text-[#2855d9]" />
                             </p>
                             <p className="text-xs text-slate-500">
                                 Muster für Handwerker, Gebäudereinigung, Kleinunternehmer, Bau (§ 13b) & Privat.
@@ -734,11 +734,11 @@ export default function DesktopSeoPage() {
                         </Link>
                         <Link
                             href="/rechnungsprogramm-kostenlos"
-                            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors space-y-1"
+                            className="p-4 rounded-[10px] bg-white border border-slate-200 hover:border-[#9db8f5] transition-colors space-y-1"
                         >
                             <p className="text-sm font-bold text-slate-900 flex items-center justify-between">
                                 Ratgeber: Rechnungsprogramm kostenlos
-                                <ArrowRight className="w-4 h-4 text-indigo-600" />
+                                <ArrowRight className="w-4 h-4 text-[#2855d9]" />
                             </p>
                             <p className="text-xs text-slate-500">
                                 Worauf Sie bei kostenloser Fakturierungssoftware in Deutschland achten müssen.
@@ -746,11 +746,11 @@ export default function DesktopSeoPage() {
                         </Link>
                         <Link
                             href="/open-source"
-                            className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors space-y-1"
+                            className="p-4 rounded-[10px] bg-white border border-slate-200 hover:border-[#9db8f5] transition-colors space-y-1"
                         >
                             <p className="text-sm font-bold text-slate-900 flex items-center justify-between">
                                 Open-Source-Architektur & Self-Hosting
-                                <ArrowRight className="w-4 h-4 text-indigo-600" />
+                                <ArrowRight className="w-4 h-4 text-[#2855d9]" />
                             </p>
                             <p className="text-xs text-slate-500">
                                 Quellcode, Docker-Setup und technische Hintergründe zu Rechly.

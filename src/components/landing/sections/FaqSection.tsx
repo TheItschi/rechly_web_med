@@ -49,7 +49,7 @@ export default function FaqSection() {
                     expandIcon={({ isActive }) => (
                         <QuestionCircleOutlined
                             rotate={isActive ? 90 : 0}
-                            style={{ fontSize: 18, color: "#1890ff" }}
+                            style={{ fontSize: 18, color: "#2855d9" }}
                         />
                     )}
                     items={faqData[language].map((faq, i) => ({

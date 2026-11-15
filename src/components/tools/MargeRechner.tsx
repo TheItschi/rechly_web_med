@@ -82,7 +82,7 @@ export function MargeRechner() {
                 {/* Quick Margin vs Markup */}
                 <div className="lg:col-span-6 p-6 rounded-2xl border border-slate-200 bg-white space-y-5">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-indigo-600" />
+                        <TrendingUp className="w-4 h-4 text-[#2855d9]" />
                         1. Schnellrechner: Marge (Handelsspanne) vs. Aufschlag
                     </h3>
 
@@ -115,7 +115,7 @@ export function MargeRechner() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                         <div className="p-4 rounded-xl bg-slate-900 text-white">
-                            <span className="text-[11px] font-bold uppercase text-indigo-300">
+                            <span className="text-[11px] font-bold uppercase text-[#9db8f5]">
                                 Rohertrag (Gewinn)
                             </span>
                             <p className="text-xl font-extrabold font-mono text-emerald-400 mt-1">
@@ -123,14 +123,14 @@ export function MargeRechner() {
                             </p>
                             <span className="text-[10px] text-slate-400">pro Stück (Netto)</span>
                         </div>
-                        <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200">
-                            <span className="text-[11px] font-bold uppercase text-indigo-700">
+                        <div className="p-4 rounded-xl bg-[#eef3fd] border border-[#c9d8f5]">
+                            <span className="text-[11px] font-bold uppercase text-[#1e43b3]">
                                 Marge (Handelsspanne)
                             </span>
-                            <p className="text-xl font-extrabold font-mono text-indigo-950 mt-1">
+                            <p className="text-xl font-extrabold font-mono text-[#152438] mt-1">
                                 {formatPct(quick.marginPct)}
                             </p>
-                            <span className="text-[10px] text-indigo-700">
+                            <span className="text-[10px] text-[#1e43b3]">
                                 Anteil am Verkaufspreis
                             </span>
                         </div>
@@ -236,7 +236,7 @@ export function MargeRechner() {
                             <span>= Selbstkostenpreis (inkl. {overheadPct}% HKZ):</span>
                             <span>{formatEUR(ihk.selbstkosten)}</span>
                         </div>
-                        <div className="flex justify-between font-bold text-indigo-700 pt-1 border-t border-slate-200 text-sm">
+                        <div className="flex justify-between font-bold text-[#1e43b3] pt-1 border-t border-slate-200 text-sm">
                             <span>= Listenverkaufspreis (Netto):</span>
                             <span>{formatEUR(ihk.listenVerkaufNetto)}</span>
                         </div>

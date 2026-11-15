@@ -291,7 +291,7 @@ ${creditorName}`;
                             type="primary"
                             icon={copied ? <CheckOutlined /> : <CopyOutlined />}
                             onClick={copyText}
-                            style={{ flex: 1, background: "#2563eb", borderColor: "#2563eb" }}
+                            style={{ flex: 1, background: "#2855d9", borderColor: "#2855d9" }}
                         >
                             {copied ? "Kopiert!" : " kopieren"}
                         </Button>
@@ -371,7 +371,7 @@ ${creditorName}`;
                                     )}
                                     <tr>
                                         <td style={{ padding: "8px 0 0", fontWeight: 700, fontSize: 14 }}>Zu zahlender Gesamtbetrag:</td>
-                                        <td style={{ textAlign: "right", fontWeight: 700, fontSize: 14, color: "#2563eb", padding: "8px 0 0" }}>
+                                        <td style={{ textAlign: "right", fontWeight: 700, fontSize: 14, color: "#2855d9", padding: "8px 0 0" }}>
                                             {calculation.totalDue.toFixed(2)} €
                                         </td>
                                     </tr>
@@ -381,7 +381,7 @@ ${creditorName}`;
 
                         <p>{calculation.legalNote}</p>
 
-                        <div style={{ background: "#eff6ff", padding: 12, borderRadius: 6, margin: "16px 0", borderLeft: "4px solid #2563eb" }}>
+                        <div style={{ background: "#eff6ff", padding: 12, borderRadius: 6, margin: "16px 0", borderLeft: "4px solid #2855d9" }}>
                             <strong>Bankverbindung:</strong>
                             <div>Empfänger: {creditorName}</div>
                             <div>IBAN: {creditorIban}</div>
@@ -398,7 +398,7 @@ ${creditorName}`;
 
                     {/* Rechly Upsell Widget */}
                     <div style={{ marginTop: 20, textAlign: "center" }}>
-                        <Link href="/register" style={{ fontSize: 13, color: "#2563eb", fontWeight: 600 }}>
+                        <Link href="/register" style={{ fontSize: 13, color: "#2855d9", fontWeight: 600 }}>
                             Mahnläufe automatisieren & Zahlungen tracken mit Rechly →
                         </Link>
                     </div>

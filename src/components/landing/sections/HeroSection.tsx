@@ -58,7 +58,7 @@ export default function HeroSection() {
             >
                 {t("hero.title")}
                 <br />
-                <span style={{ color: "#1890ff" }}>
+                <span style={{ color: "#2855d9" }}>
                     {t("hero.titleHighlight")}
                 </span>
             </h1>

@@ -25,7 +25,7 @@ export default function FeaturesSection() {
             desc: t("features.invoices.desc"),
         },
         {
-            icon: <TeamOutlined style={{ fontSize: 24, color: "#2563eb" }} />,
+            icon: <TeamOutlined style={{ fontSize: 24, color: "#2855d9" }} />,
             title: t("features.clients.title"),
             desc: t("features.clients.desc"),
         },

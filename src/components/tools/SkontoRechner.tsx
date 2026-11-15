@@ -155,16 +155,16 @@ export default function SkontoRechner() {
                     size="small"
                     style={{
                         borderRadius: 10,
-                        border: "2px solid #2563eb",
+                        border: "2px solid #2855d9",
                         background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Effektiver Jahreszins (p. a.)
                     </Text>
-                    <div style={{ fontSize: 26, fontWeight: 900, color: "#1d4ed8", marginTop: 4 }}>
+                    <div style={{ fontSize: 26, fontWeight: 900, color: "#2855d9", marginTop: 4 }}>
                         {calc.effectiveAnnualRate.toFixed(1)} %
                     </div>
-                    <div style={{ fontSize: 12, color: "#2563eb", marginTop: 2 }}>
+                    <div style={{ fontSize: 12, color: "#2855d9", marginTop: 2 }}>
                         Vergleichszins für {calc.daysDifference} Tage Kreditfrist
                     </div>
                 </Card>

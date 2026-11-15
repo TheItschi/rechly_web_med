@@ -256,7 +256,7 @@ export default function GiroCodeGenerator() {
                                     <strong>Empfänger:</strong> {recipient}
                                 </div>
                                 <div style={{ fontSize: 12, color: "#64748b" }}>{iban}</div>
-                                <div style={{ fontSize: 18, fontWeight: 800, color: "#2563eb", marginTop: 4 }}>
+                                <div style={{ fontSize: 18, fontWeight: 800, color: "#2855d9", marginTop: 4 }}>
                                     {amount.toFixed(2)} €
                                 </div>
                             </div>
@@ -266,7 +266,7 @@ export default function GiroCodeGenerator() {
                                     type="primary"
                                     icon={<DownloadOutlined />}
                                     onClick={downloadQr}
-                                    style={{ background: "#2563eb" }}
+                                    style={{ background: "#2855d9" }}
                                 >
                                     PNG herunterladen
                                 </Button>

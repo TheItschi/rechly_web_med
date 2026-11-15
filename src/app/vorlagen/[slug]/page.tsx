@@ -176,7 +176,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                 {/* Hero Header */}
                 <header className="space-y-4">
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+                        <span className="px-3 py-1 rounded-full bg-[#eef3fd] border border-[#c9d8f5] text-[#1e43b3] text-xs font-bold uppercase tracking-wider">
                             {vorlage.eyebrow}
                         </span>
                         <span className="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
@@ -196,7 +196,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                         <Link
                             href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
                             rel="nofollow"
-                            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors"
+                            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#2855d9] hover:bg-[#1e43b3] text-white font-bold text-sm shadow-sm transition-colors"
                         >
                             <Sparkles className="w-4 h-4" />
                             Diese Vorlage jetzt online ausfüllen & als PDF speichern
@@ -214,19 +214,19 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                 <section className="space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-indigo-600" />
+                            <FileText className="w-5 h-5 text-[#2855d9]" />
                             Muster-Vorschau: {vorlage.shortTitle} (DIN 5008)
                         </h2>
                         <Link
                             href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
                             rel="nofollow"
-                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
+                            className="text-xs font-bold text-[#2855d9] hover:text-[#152438]"
                         >
                             Positionen & Texte im Generator anpassen →
                         </Link>
                     </div>
 
-                    <div className="bg-white border border-slate-300 shadow-md rounded-2xl p-6 sm:p-10 space-y-6">
+                    <div className="bg-white border border-slate-300 shadow-md rounded-[10px] p-6 sm:p-10 space-y-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-slate-200 pb-5">
                             <div>
                                 <p className="text-lg font-extrabold text-slate-900">
@@ -257,7 +257,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-slate-500">Steuerregel:</span>
-                                    <span className="font-semibold text-indigo-700">
+                                    <span className="font-semibold text-[#1e43b3]">
                                         {vorlage.badge}
                                     </span>
                                 </div>
@@ -288,7 +288,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                                             <td className="py-2.5 px-2 font-medium text-slate-900">
                                                 {item.description}
                                                 {p.show35aHighlight && item.isLabor35a && (
-                                                    <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
+                                                    <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded bg-[#eef3fd] text-[#1e43b3]">
                                                         § 35a EStG Lohnanteil
                                                     </span>
                                                 )}
@@ -312,7 +312,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                             <div className="text-xs text-slate-600 space-y-1.5 max-w-md">
                                 <p className="font-medium text-slate-800">{p.legalNote}</p>
                                 {p.show35aHighlight && sampleTotals.laborGross > 0 && (
-                                    <p className="text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg">
+                                    <p className="text-[#152438] bg-[#eef3fd] px-3 py-1.5 rounded-lg">
                                         <strong>§ 35a EStG Ausweis:</strong> Enthaltene Arbeits- und Fahrtkosten:{" "}
                                         {formatEUR(sampleTotals.laborNet)} Netto ({formatEUR(sampleTotals.laborGross)} Brutto).
                                     </p>
@@ -340,7 +340,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
 
                 {/* Legal Checklist & Mandatory Notice */}
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+                    <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-4">
                         <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                             <ShieldCheck className="w-5 h-5 text-emerald-600" />
                             Checkliste: Pflichtangaben ({vorlage.category})
@@ -355,7 +355,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                         </ul>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+                    <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-4">
                         <h2 className="text-base font-extrabold text-slate-900">
                             Wichtiger Pflichthinweis auf der Rechnung
                         </h2>
@@ -365,7 +365,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                         <Link
                             href={`/tools/rechnungsgenerator?template=${vorlage.slug}`}
                             rel="nofollow"
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 pt-1"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2855d9] hover:text-[#152438] pt-1"
                         >
                             Im Rechnungsgenerator automatisch einfügen lassen
                             <ArrowRight className="w-3.5 h-3.5" />
@@ -374,7 +374,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                 </section>
 
                 {/* Guide Sections */}
-                <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-6">
+                <section className="bg-white rounded-[10px] border border-slate-200 p-6 sm:p-8 space-y-6">
                     {vorlage.guideSections.map((sec) => (
                         <div key={sec.title} className="space-y-3">
                             <h2 className="text-xl font-extrabold text-slate-900">
@@ -402,14 +402,14 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                 {/* FAQs */}
                 <section className="space-y-4">
                     <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-                        <HelpCircle className="w-5 h-5 text-indigo-600" />
+                        <HelpCircle className="w-5 h-5 text-[#2855d9]" />
                         Häufige Fragen zur {vorlage.shortTitle}
                     </h2>
                     <div className="grid grid-cols-1 gap-4">
                         {vorlage.faqs.map((f) => (
                             <div
                                 key={f.question}
-                                className="bg-white rounded-2xl border border-slate-200 p-5 space-y-2"
+                                className="bg-white rounded-[10px] border border-slate-200 p-5 space-y-2"
                             >
                                 <h3 className="text-base font-bold text-slate-900">
                                     {f.question}
@@ -433,7 +433,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                                 <Link
                                     key={tool.slug}
                                     href={tool.path}
-                                    className="block p-3.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors"
+                                    className="block p-3.5 rounded-xl bg-white border border-slate-200 hover:border-[#9db8f5] transition-colors"
                                 >
                                     <p className="text-sm font-bold text-slate-900">
                                         {tool.shortTitle} →
@@ -455,7 +455,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
                                 <Link
                                     key={other.slug}
                                     href={`/vorlagen/${other.slug}`}
-                                    className="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-xs font-bold text-slate-800 hover:text-indigo-600 transition-colors"
+                                    className="p-3 rounded-xl bg-white border border-slate-200 hover:border-[#9db8f5] text-xs font-bold text-slate-800 hover:text-[#2855d9] transition-colors"
                                 >
                                     {other.shortTitle} →
                                 </Link>

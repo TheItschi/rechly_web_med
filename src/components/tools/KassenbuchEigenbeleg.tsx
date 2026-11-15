@@ -124,7 +124,7 @@ export default function KassenbuchEigenbeleg() {
             <Card
                 title="Druckfertiger Eigenbeleg nach § 160 Abgabenordnung (AO)"
                 extra={
-                    <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2563eb" }}>
+                    <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2855d9" }}>
                         Eigenbeleg drucken / PDF
                     </Button>
                 }

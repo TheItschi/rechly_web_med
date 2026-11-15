@@ -168,7 +168,7 @@ export default function KleinunternehmerRechner() {
                 <div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
                         <span>Anteil Privatkunden (B2C):</span>
-                        <span style={{ color: "#2563eb" }}>{b2cSharePercent} %</span>
+                        <span style={{ color: "#2855d9" }}>{b2cSharePercent} %</span>
                     </div>
                     <Slider
                         min={0}
@@ -296,7 +296,7 @@ export default function KleinunternehmerRechner() {
                         icon={copiedClause ? <CheckOutlined /> : <CopyOutlined />}
                         onClick={copyClause}
                         type="primary"
-                        style={{ background: "#2563eb" }}
+                        style={{ background: "#2855d9" }}
                     >
                         {copiedClause ? " kopiert!" : "Hinweistext kopieren"}
                     </Button>

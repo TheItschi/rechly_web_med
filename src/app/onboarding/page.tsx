@@ -228,7 +228,7 @@ export default function OnboardingPage() {
         <div
             style={{
                 minHeight: "100vh",
-                background: "linear-gradient(135deg, #1976d2 0%, #64b5f6 100%)",
+                background: "#152438",
                 padding: "40px 20px",
                 display: "flex",
                 alignItems: "center",
@@ -245,7 +245,7 @@ export default function OnboardingPage() {
                 <div style={{ textAlign: "center", marginBottom: 32 }}>
                     <Title
                         level={2}
-                        style={{ marginBottom: 8, color: "#1976d2" }}
+                        style={{ marginBottom: 8, color: "#152438" }}
                     >
                         {t.title}
                     </Title>

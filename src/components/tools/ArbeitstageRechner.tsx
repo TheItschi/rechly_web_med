@@ -78,7 +78,7 @@ export default function ArbeitstageRechner() {
             dataIndex: "workdays",
             key: "workdays",
             render: (val: number) => (
-                <span style={{ fontSize: 16, fontWeight: 800, color: "#2563eb" }}>{val}</span>
+                <span style={{ fontSize: 16, fontWeight: 800, color: "#2855d9" }}>{val}</span>
             ) },
         {
             title: "Umsatzpotenzial",
@@ -180,17 +180,17 @@ export default function ArbeitstageRechner() {
                     size="small"
                     style={{
                         borderRadius: 10,
-                        border: "2px solid #2563eb",
+                        border: "2px solid #2855d9",
                         background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Arbeitstage in {stats.stateName}
                     </Text>
-                    <div style={{ fontSize: 32, fontWeight: 900, color: "#1d4ed8", marginTop: 4 }}>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: "#2855d9", marginTop: 4 }}>
                         {stats.workdays}
                         <span style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}> Tage</span>
                     </div>
-                    <div style={{ fontSize: 12, color: "#2563eb", marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: "#2855d9", marginTop: 4 }}>
                         {year} ({stats.totalDays} Kalendertage)
                     </div>
                 </Card>

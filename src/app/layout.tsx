@@ -10,6 +10,7 @@ import {
 } from "@/lib/env";
 import GlobalJsonLd from "@/components/seo/GlobalJsonLd";
 import ConsentAnalytics from "@/components/analytics/ConsentAnalytics";
+import PublicTheme from "@/components/PublicTheme";
 import "./globals.css";
 
 const siteUrl = getSiteUrl();
@@ -116,7 +117,9 @@ export default function RootLayout({
                 <ConsentAnalytics googleAnalyticsId={analyticsId} />
                 <AntdRegistry>
                     <LanguageProvider>
-                        <AuthProvider>{children}</AuthProvider>
+                        <AuthProvider>
+                            <PublicTheme>{children}</PublicTheme>
+                        </AuthProvider>
                     </LanguageProvider>
                 </AntdRegistry>
             </body>

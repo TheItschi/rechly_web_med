@@ -169,7 +169,7 @@ export default async function LexikonDetailPage({
                         <span className="px-3 py-1 rounded-full bg-slate-200/80 text-slate-800 text-xs font-bold uppercase tracking-wider">
                             {entry.category}
                         </span>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-mono font-bold">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eef3fd] border border-[#c9d8f5] text-[#1e43b3] text-xs font-mono font-bold">
                             <Scale className="w-3.5 h-3.5" />
                             Rechtsgrundlage: {entry.legalReference}
                         </span>
@@ -181,8 +181,8 @@ export default async function LexikonDetailPage({
                 </header>
 
                 {/* Definition Box (Featured Snippet Target) */}
-                <section className="bg-indigo-950 text-white rounded-2xl p-6 sm:p-8 space-y-4 shadow-md">
-                    <div className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                <section className="bg-[#152438] text-white rounded-[10px] p-6 sm:p-8 space-y-4 shadow-md">
+                    <div className="text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                         Kurzdefinition: {entry.term}
                     </div>
                     <p className="text-base sm:text-lg text-slate-100 leading-relaxed font-medium">
@@ -204,7 +204,7 @@ export default async function LexikonDetailPage({
                 </section>
 
                 {/* Main Article Sections */}
-                <article className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-8">
+                <article className="bg-white rounded-[10px] border border-slate-200 p-6 sm:p-8 space-y-8">
                     {entry.sections.map((sec) => (
                         <div key={sec.heading} className="space-y-3">
                             <h2 className="text-xl font-extrabold text-slate-900">
@@ -233,9 +233,9 @@ export default async function LexikonDetailPage({
 
                 {/* Interactive Tools & Templates Bridge */}
                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+                    <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-4">
                         <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                            <Calculator className="w-5 h-5 text-indigo-600" />
+                            <Calculator className="w-5 h-5 text-[#2855d9]" />
                             Passende kostenlose Online-Rechner & Tools
                         </h2>
                         <div className="space-y-2.5">
@@ -243,11 +243,11 @@ export default async function LexikonDetailPage({
                                 <Link
                                     key={tool.slug}
                                     href={tool.path}
-                                    className="block p-3.5 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 transition-colors"
+                                    className="block p-3.5 rounded-xl bg-slate-50 hover:bg-[#eef3fd] border border-slate-200 hover:border-[#9db8f5] transition-colors"
                                 >
                                     <p className="text-sm font-bold text-slate-900 flex items-center justify-between">
                                         <span>{tool.shortTitle}</span>
-                                        <ArrowRight className="w-4 h-4 text-indigo-600" />
+                                        <ArrowRight className="w-4 h-4 text-[#2855d9]" />
                                     </p>
                                     <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
                                         {tool.description}
@@ -257,7 +257,7 @@ export default async function LexikonDetailPage({
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+                    <div className="bg-white rounded-[10px] border border-slate-200 p-6 space-y-4">
                         <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                             <FileText className="w-5 h-5 text-emerald-600" />
                             Passende Rechnungsvorlagen (DIN 5008)
@@ -285,14 +285,14 @@ export default async function LexikonDetailPage({
                 {/* FAQs */}
                 <section className="space-y-4">
                     <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-                        <HelpCircle className="w-5 h-5 text-indigo-600" />
+                        <HelpCircle className="w-5 h-5 text-[#2855d9]" />
                         Häufige Fragen zu {entry.term}
                     </h2>
                     <div className="space-y-3">
                         {entry.faqs.map((f) => (
                             <div
                                 key={f.question}
-                                className="bg-white rounded-2xl border border-slate-200 p-5 space-y-1.5"
+                                className="bg-white rounded-[10px] border border-slate-200 p-5 space-y-1.5"
                             >
                                 <h3 className="text-base font-bold text-slate-900">
                                     {f.question}
@@ -315,7 +315,7 @@ export default async function LexikonDetailPage({
                             <Link
                                 key={other.slug}
                                 href={`/lexikon/${other.slug}`}
-                                className="p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 text-xs font-bold text-slate-800 hover:text-indigo-600 transition-colors"
+                                className="p-3 rounded-xl bg-white border border-slate-200 hover:border-[#9db8f5] text-xs font-bold text-slate-800 hover:text-[#2855d9] transition-colors"
                             >
                                 {other.term} →
                             </Link>

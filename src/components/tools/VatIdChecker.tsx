@@ -92,7 +92,7 @@ export default function VatIdChecker() {
                         size="large"
                         onClick={handleCheck}
                         loading={loading}
-                        style={{ background: "#2563eb", padding: "0 24px" }}
+                        style={{ background: "#2855d9", padding: "0 24px" }}
                     >
                         Prüfen
                     </Button>
@@ -208,7 +208,7 @@ export default function VatIdChecker() {
                                         alignItems: "center",
                                         gap: 10 }}
                                 >
-                                    <FileProtectOutlined style={{ fontSize: 20, color: "#2563eb" }} />
+                                    <FileProtectOutlined style={{ fontSize: 20, color: "#2855d9" }} />
                                     <span>
                                         <strong>Aufbewahrungsnachweis für das Finanzamt:</strong> Drucke diesen Beleg aus oder
                                         speichere ihn als PDF. Gemäß § 14b UStG musst du den Nachweis für steuerfreie
@@ -242,7 +242,7 @@ export default function VatIdChecker() {
                                 </p>
                             </div>
                             <Link href="/register">
-                                <Button type="primary" icon={<UserAddOutlined />} style={{ background: "#2563eb" }}>
+                                <Button type="primary" icon={<UserAddOutlined />} style={{ background: "#2855d9" }}>
                                     Kunde in Rechly anlegen
                                 </Button>
                             </Link>

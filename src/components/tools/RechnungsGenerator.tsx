@@ -492,11 +492,11 @@ function RechnungsGeneratorInner() {
             {/* Preset Selector Bar */}
             <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 print:hidden">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#2855d9] text-white flex items-center justify-center shrink-0">
                         <Sparkles className="w-5 h-5" />
                     </div>
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#2855d9]">
                             Branchen-Vorlage laden (14 Muster)
                         </p>
                         <p className="text-sm text-slate-600">
@@ -508,7 +508,7 @@ function RechnungsGeneratorInner() {
                     <select
                         value={selectedTemplate}
                         onChange={(e) => applyPreset(e.target.value)}
-                        className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2855d9]"
                     >
                         {VORLAGEN_CATALOG.map((v) => (
                             <option key={v.slug} value={v.slug}>
@@ -518,7 +518,7 @@ function RechnungsGeneratorInner() {
                     </select>
                     <Link
                         href="/vorlagen"
-                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 px-3 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 transition-colors"
+                        className="text-xs font-bold text-[#2855d9] hover:text-[#152438] px-3 py-2 rounded-lg bg-[#eef3fd] hover:bg-[#eef3fd] transition-colors"
                     >
                         Alle Vorlagen ansehen →
                     </Link>
@@ -533,7 +533,7 @@ function RechnungsGeneratorInner() {
                     <div className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-indigo-600" />
+                                <FileText className="w-4 h-4 text-[#2855d9]" />
                                 1. Besteuerungsart & Dokumenttyp
                             </h3>
                             <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
@@ -549,7 +549,7 @@ function RechnungsGeneratorInner() {
                                 <select
                                     value={taxMode}
                                     onChange={(e) => setTaxMode(e.target.value as TaxMode)}
-                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-medium bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-medium bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#2855d9]"
                                 >
                                     <option value="standard">Regelbesteuerung (19% / 7% MwSt.)</option>
                                     <option value="kleinunternehmer">Kleinunternehmer (§ 19 UStG – 0% USt.)</option>
@@ -576,7 +576,7 @@ function RechnungsGeneratorInner() {
                                     type="checkbox"
                                     checked={showGiroCode}
                                     onChange={(e) => setShowGiroCode(e.target.checked)}
-                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    className="rounded border-slate-300 text-[#2855d9] focus:ring-[#2855d9]"
                                 />
                                 SEPA GiroCode QR-Code auf Rechnung einbetten
                             </label>
@@ -585,7 +585,7 @@ function RechnungsGeneratorInner() {
                                     type="checkbox"
                                     checked={showLabor35a}
                                     onChange={(e) => setShowLabor35a(e.target.checked)}
-                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    className="rounded border-slate-300 text-[#2855d9] focus:ring-[#2855d9]"
                                 />
                                 § 35a EStG Handwerker-Lohnanteil separat ausweisen
                             </label>
@@ -596,7 +596,7 @@ function RechnungsGeneratorInner() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="p-5 rounded-2xl border border-slate-200 bg-white space-y-3">
                             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                                <Building2 className="w-4 h-4 text-indigo-600" />
+                                <Building2 className="w-4 h-4 text-[#2855d9]" />
                                 2. Absender (Ihr Unternehmen)
                             </h3>
                             <input
@@ -670,7 +670,7 @@ function RechnungsGeneratorInner() {
 
                         <div className="p-5 rounded-2xl border border-slate-200 bg-white space-y-3">
                             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                                <User className="w-4 h-4 text-indigo-600" />
+                                <User className="w-4 h-4 text-[#2855d9]" />
                                 3. Rechnungsempfänger (Kunde)
                             </h3>
                             <input
@@ -782,7 +782,7 @@ function RechnungsGeneratorInner() {
                             <button
                                 type="button"
                                 onClick={addItem}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition-colors"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#eef3fd] text-[#1e43b3] hover:bg-[#eef3fd] text-xs font-bold transition-colors"
                             >
                                 <Plus className="w-3.5 h-3.5" />
                                 Position hinzufügen
@@ -800,7 +800,7 @@ function RechnungsGeneratorInner() {
                                             Pos. {idx + 1}
                                         </span>
                                         {showLabor35a && (
-                                            <label className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-700 cursor-pointer">
+                                            <label className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1e43b3] cursor-pointer">
                                                 <input
                                                     type="checkbox"
                                                     checked={Boolean(item.isLabor35a)}
@@ -809,7 +809,7 @@ function RechnungsGeneratorInner() {
                                                             isLabor35a: e.target.checked,
                                                         })
                                                     }
-                                                    className="rounded border-slate-300 text-indigo-600"
+                                                    className="rounded border-slate-300 text-[#2855d9]"
                                                 />
                                                 Arbeits-/Fahrtkosten (§ 35a EStG)
                                             </label>
@@ -934,7 +934,7 @@ function RechnungsGeneratorInner() {
                 <div className="lg:col-span-5 space-y-5">
                     <div className="p-5 rounded-2xl border border-slate-200 bg-slate-900 text-white space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                            <span className="text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                                 Live-Summen & Export
                             </span>
                             <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-slate-200">
@@ -970,7 +970,7 @@ function RechnungsGeneratorInner() {
                             <button
                                 type="button"
                                 onClick={() => window.print()}
-                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm transition-colors cursor-pointer"
+                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm transition-colors cursor-pointer"
                             >
                                 <Printer className="w-4 h-4" />
                                 Als PDF drucken / speichern
@@ -980,7 +980,7 @@ function RechnungsGeneratorInner() {
                                 onClick={handleDownloadXRechnung}
                                 className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm transition-colors cursor-pointer"
                             >
-                                <FileCode2 className="w-4 h-4 text-indigo-300" />
+                                <FileCode2 className="w-4 h-4 text-[#9db8f5]" />
                                 XRechnung 3.0 XML
                             </button>
                         </div>
@@ -1133,7 +1133,7 @@ function RechnungsGeneratorInner() {
                                                 {item.description}
                                             </p>
                                             {showLabor35a && item.isLabor35a && (
-                                                <span className="inline-block text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded mt-1">
+                                                <span className="inline-block text-[10px] font-semibold text-[#1e43b3] bg-[#eef3fd] px-2 py-0.5 rounded mt-1">
                                                     Begünstigte Arbeits-/Fahrtkosten gem. § 35a EStG
                                                 </span>
                                             )}
@@ -1168,7 +1168,7 @@ function RechnungsGeneratorInner() {
                             </p>
                         )}
                         {showLabor35a && totals.laborGross > 0 && (
-                            <p className="text-indigo-950 bg-indigo-50/80 border border-indigo-200 px-3 py-2 rounded-lg">
+                            <p className="text-[#152438] bg-[#eef3fd]/80 border border-[#c9d8f5] px-3 py-2 rounded-lg">
                                 <strong>Bescheinigung gemäß § 35a EStG:</strong> Im Rechnungsbetrag sind{" "}
                                 <strong>{formatEUR(totals.laborNet)} Netto</strong> ({formatEUR(totals.laborGross)} Brutto) an begünstigten Arbeits- und Fahrtkosten enthalten.
                             </p>
@@ -1228,7 +1228,7 @@ function RechnungsGeneratorInner() {
                             />
                             <div className="text-[11px] text-slate-600 max-w-[140px]">
                                 <p className="font-bold text-slate-900 flex items-center gap-1">
-                                    <QrCode className="w-3.5 h-3.5 text-indigo-600" />
+                                    <QrCode className="w-3.5 h-3.5 text-[#2855d9]" />
                                     GiroCode
                                 </p>
                                 <p className="leading-snug mt-0.5">

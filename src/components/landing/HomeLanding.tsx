@@ -102,14 +102,14 @@ export default function HomeLanding() {
                             {l("Dein Büro. Open Source.", "Your workspace. Open source.")}
                         </p>
                         <h1 id="home-title">
-                            {l("Rechnungen schreiben.", "Invoicing sorted.")}
+                            {l("Kostenlose Rechnungssoftware.", "Free invoicing software.")}
                             <br />
-                            <span>{l("Mehr Zeit fürs Geschäft.", "More time for your work.")}</span>
+                            <span>{l("Ohne Abo. Ohne Limits.", "No subscription. No limits.")}</span>
                         </h1>
                         <p className={s.heroText}>
                             {l(
-                                "Die kostenlose Rechnungssoftware für Selbstständige und kleine Unternehmen. Rechnungen, Kunden, Projekte und Termine – an einem Ort.",
-                                "Free invoicing software for freelancers and small businesses. Invoices, clients, projects and appointments, all in one place.",
+                                "Rechnungen, Angebote und E-Rechnungen erstellen, Kunden verwalten und Termine online buchen lassen — dauerhaft kostenlos statt 8–33 € im Monat. Für Selbstständige und kleine Unternehmen.",
+                                "Create invoices, quotes and e-invoices, manage clients and take bookings online — free forever instead of €8–33 a month. For freelancers and small businesses.",
                             )}
                         </p>
                         <div className={s.actions}>
@@ -514,6 +514,59 @@ export default function HomeLanding() {
                             ))}
                         </div>
                     </div>
+                </section>
+
+                <section className={[s.container, s.section].join(" ")} aria-labelledby="switch-title">
+                    <div className={s.sectionHeader}>
+                        <div>
+                            <p className={s.eyebrow}>{l("Warum wechseln?", "Why switch?")}</p>
+                            <h2 id="switch-title">
+                                {l("Das Gleiche erledigen. 0 € bezahlen.", "Get the same job done. Pay €0.")}
+                            </h2>
+                        </div>
+                        <p>
+                            {l(
+                                "Lexware Office und sevDesk kosten 8–33 € im Monat. Rechly erledigt Rechnungen, E-Rechnungen, Angebote, DATEV-Export und Terminbuchung kostenlos — ohne Rechnungs-Limit.",
+                                "Lexware Office and sevDesk cost €8–33 a month. Rechly handles invoices, e-invoices, quotes, DATEV export and booking for free — with no invoice limit.",
+                            )}
+                        </p>
+                    </div>
+                    <div className={s.switchGrid}>
+                        <div className={s.switchCard}>
+                            <strong>{l("In 2 Minuten zur ersten Rechnung", "First invoice in 2 minutes")}</strong>
+                            <ol className={s.stepList}>
+                                <li>{l("Kostenlos registrieren — keine Kreditkarte", "Register free — no credit card")}</li>
+                                <li>{l("Firmendaten eintragen (wird vorgeschlagen, kein Zwang)", "Add company details (suggested, never forced)")}</li>
+                                <li>{l("Kunde + Leistung wählen, PDF oder XRechnung exportieren", "Pick client + service, export PDF or XRechnung")}</li>
+                            </ol>
+                            <Link prefetch={false} href="/register" className={s.textLink}>
+                                {l("Jetzt erste Rechnung erstellen", "Create your first invoice now")}
+                                <ArrowRight size={15} aria-hidden="true" />
+                            </Link>
+                        </div>
+                        <ul className={s.switchPoints}>
+                            <li>
+                                <Check size={18} aria-hidden="true" />
+                                <span><strong>{l("Kein Limit:", "No limit:")}</strong> {l("unbegrenzt Rechnungen — sevDesk erlaubt gratis nur 3 im Monat", "unlimited invoices — sevDesk's free tier allows 3 a month")}</span>
+                            </li>
+                            <li>
+                                <Check size={18} aria-hidden="true" />
+                                <span><strong>{l("E-Rechnung inklusive:", "E-invoicing included:")}</strong> {l("XRechnung & ZUGFeRD ohne Top-Tarif", "XRechnung & ZUGFeRD without a top tier")}</span>
+                            </li>
+                            <li>
+                                <Check size={18} aria-hidden="true" />
+                                <span><strong>{l("Kein Lock-in:", "No lock-in:")}</strong> {l("Open Source, selbst hostbar, Daten jederzeit exportierbar", "open source, self-hostable, export your data anytime")}</span>
+                            </li>
+                            <li>
+                                <Check size={18} aria-hidden="true" />
+                                <span><strong>{l("Offline, wenn du willst:", "Offline if you want:")}</strong> {l("Desktop-App für Windows & Mac ohne Cloud-Zwang", "desktop app for Windows & Mac with no forced cloud")}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <Link prefetch={false} href="/features" className={s.textLink} style={{ marginTop: 22 }}>
+                        {l("Ehrlichen Vergleich ansehen", "See the honest comparison")}
+                        <ArrowRight size={16} aria-hidden="true" />
+                    </Link>
                 </section>
 
                 <section className={[s.container, s.faqSection].join(" ")} aria-labelledby="faq-title">

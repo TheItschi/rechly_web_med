@@ -191,7 +191,7 @@ export function AngebotsGenerator() {
                 <div className="lg:col-span-7 space-y-5">
                     <div className="p-5 rounded-2xl border border-slate-200 bg-white space-y-4">
                         <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                            <FileCheck2 className="w-4 h-4 text-indigo-600" />
+                            <FileCheck2 className="w-4 h-4 text-[#2855d9]" />
                             1. Angebots-Typ & Bindefrist (§ 145 BGB)
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -260,7 +260,7 @@ export function AngebotsGenerator() {
                                     type="checkbox"
                                     checked={includeSignatureBlock}
                                     onChange={(e) => setIncludeSignatureBlock(e.target.checked)}
-                                    className="rounded border-slate-300 text-indigo-600"
+                                    className="rounded border-slate-300 text-[#2855d9]"
                                 />
                                 Auftragsbestätigungs-Unterschriftsfeld einblenden
                             </label>
@@ -270,7 +270,7 @@ export function AngebotsGenerator() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="p-5 rounded-2xl border border-slate-200 bg-white space-y-2.5">
                             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                                <Building2 className="w-4 h-4 text-indigo-600" />
+                                <Building2 className="w-4 h-4 text-[#2855d9]" />
                                 Anbieter (Ihr Betrieb)
                             </h3>
                             <input
@@ -305,7 +305,7 @@ export function AngebotsGenerator() {
 
                         <div className="p-5 rounded-2xl border border-slate-200 bg-white space-y-2.5">
                             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                                <User className="w-4 h-4 text-indigo-600" />
+                                <User className="w-4 h-4 text-[#2855d9]" />
                                 Angebotsempfänger (Kunde)
                             </h3>
                             <input
@@ -352,7 +352,7 @@ export function AngebotsGenerator() {
                             <button
                                 type="button"
                                 onClick={addItem}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#eef3fd] text-[#1e43b3] hover:bg-[#eef3fd] text-xs font-bold"
                             >
                                 <Plus className="w-3.5 h-3.5" />
                                 Position
@@ -438,7 +438,7 @@ export function AngebotsGenerator() {
                 {/* Right Action Box */}
                 <div className="lg:col-span-5 space-y-5">
                     <div className="p-6 rounded-2xl bg-slate-900 text-white space-y-4">
-                        <p className="text-xs font-bold uppercase tracking-wider text-indigo-300">
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                             Angebotssumme & Direkt-Umwandlung
                         </p>
                         <div className="space-y-1.5 text-sm border-b border-white/10 pb-3">
@@ -470,7 +470,7 @@ export function AngebotsGenerator() {
                             <button
                                 type="button"
                                 onClick={() => window.print()}
-                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm transition-colors cursor-pointer"
+                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm transition-colors cursor-pointer"
                             >
                                 <Printer className="w-4 h-4" />
                                 Angebot als PDF drucken / speichern
@@ -546,7 +546,7 @@ export function AngebotsGenerator() {
                         </div>
                         <div className="flex justify-between">
                             <span className="text-slate-500">Gültig bis:</span>
-                            <span className="font-semibold text-indigo-700">
+                            <span className="font-semibold text-[#1e43b3]">
                                 {formatDateDE(validUntil)}
                             </span>
                         </div>

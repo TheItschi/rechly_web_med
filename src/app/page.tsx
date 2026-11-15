@@ -5,9 +5,9 @@ import { homeFaqsDe } from "@/lib/home-faq";
 import { createPageMetadata } from "@/lib/seo";
 
 const siteUrl = getSiteUrl();
-const title = "Rechly – Kostenlose Rechnungssoftware & Terminbuchung";
+const title = "Kostenlose Rechnungssoftware ohne Abo [0 €] | Rechly";
 const description =
-    "Kostenlose Open-Source-Rechnungssoftware für Selbstständige: E-Rechnungen, Kunden, Projekte und Online-Terminbuchung. Im Browser oder lokal am Desktop.";
+    "Rechnungen, Angebote & E-Rechnung (XRechnung/ZUGFeRD) kostenlos erstellen — ohne Abo statt 8–33 €/Monat, ohne Limits. In 2 Min. starten, auch offline!";
 
 export const metadata = createPageMetadata({ title, description, path: "/" });
 

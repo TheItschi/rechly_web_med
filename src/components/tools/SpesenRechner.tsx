@@ -206,7 +206,7 @@ export default function SpesenRechner() {
 
             {/* Print Action */}
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2563eb" }}>
+                <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint} style={{ background: "#2855d9" }}>
                     Reisekostenabrechnung drucken
                 </Button>
             </div>

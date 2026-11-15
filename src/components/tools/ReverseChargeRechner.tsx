@@ -140,7 +140,7 @@ export default function ReverseChargeRechner() {
 
                     <div style={{ background: "#ffffff", padding: 16, borderRadius: 8, border: "1px solid #e2e8f0", minWidth: 220 }}>
                         <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>ELSTER-Kennziffer</div>
-                        <div style={{ fontSize: 18, fontWeight: 700, color: "#2563eb", marginTop: 2 }}>
+                        <div style={{ fontSize: 18, fontWeight: 700, color: "#2855d9", marginTop: 2 }}>
                             {evaluation.elsterKennziffer}
                         </div>
                         <div style={{ fontSize: 11, color: "#64748b", marginTop: 8 }}>Meldepflicht</div>
@@ -166,7 +166,7 @@ export default function ReverseChargeRechner() {
                                 Im EU-B2B-Verkehr müssen Sie die ausländische Umsatzsteuer-Identifikationsnummer Ihres
                                 Kunden vor der Rechnungsstellung zwingend im VIES-System prüfen und den Nachweis 10 Jahre aufbewahren.
                                 <div style={{ marginTop: 8 }}>
-                                    <Link href="/tools/ust-idnr-pruefen" style={{ fontWeight: 600, color: "#2563eb" }}>
+                                    <Link href="/tools/ust-idnr-pruefen" style={{ fontWeight: 600, color: "#2855d9" }}>
                                         Jetzt USt-IdNr. kostenlos im Rechly VIES-Prüfer verifizieren →
                                     </Link>
                                 </div>
@@ -222,7 +222,7 @@ export default function ReverseChargeRechner() {
                     </span>
                 </div>
                 <Link href="/register">
-                    <Button type="primary" style={{ background: "#2563eb", borderColor: "#2563eb" }}>
+                    <Button type="primary" style={{ background: "#2855d9", borderColor: "#2855d9" }}>
                         Kostenlos starten
                     </Button>
                 </Link>

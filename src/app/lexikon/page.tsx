@@ -83,7 +83,7 @@ export default function LexikonHubPage() {
 
             <section className="pt-28 pb-14 bg-gradient-to-b from-white to-slate-100 border-b border-slate-200/80">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-5">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/60 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#eef3fd] border border-[#c9d8f5]/60 text-[#1e43b3] text-xs font-bold uppercase tracking-wider">
                         <BookOpen className="w-3.5 h-3.5" />
                         Deutsches Steuer- & Rechnungs-Wissen (Stand 2026)
                     </div>
@@ -99,7 +99,7 @@ export default function LexikonHubPage() {
                     <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                         <Link
                             href="/tools/rechnungsgenerator"
-                            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-colors"
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#2855d9] hover:bg-[#1e43b3] text-white font-bold text-sm transition-colors"
                         >
                             <FileText className="w-4 h-4" />
                             Kostenloser Rechnungsgenerator
@@ -114,7 +114,7 @@ export default function LexikonHubPage() {
                             href="/tools"
                             className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold text-sm transition-colors"
                         >
-                            <Calculator className="w-4 h-4 text-indigo-600" />
+                            <Calculator className="w-4 h-4 text-[#2855d9]" />
                             Alle 30 Rechner & Tools
                         </Link>
                     </div>
@@ -127,20 +127,20 @@ export default function LexikonHubPage() {
                         <Link
                             key={entry.slug}
                             href={`/lexikon/${entry.slug}`}
-                            className="group bg-white rounded-2xl border border-slate-200/90 hover:border-indigo-300 shadow-xs hover:shadow-md transition-all p-6 flex flex-col justify-between"
+                            className="group bg-white rounded-[10px] border border-slate-200/90 hover:border-[#9db8f5] shadow-xs hover:shadow-md transition-all p-6 flex flex-col justify-between"
                         >
                             <div className="space-y-3">
                                 <div className="flex items-center justify-between gap-2">
                                     <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-100 text-slate-700">
                                         {entry.category}
                                     </span>
-                                    <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                                    <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-[#1e43b3] bg-[#eef3fd] px-2.5 py-0.5 rounded-full">
                                         <Scale className="w-3 h-3" />
                                         {entry.legalReference}
                                     </span>
                                 </div>
 
-                                <h2 className="text-xl font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                                <h2 className="text-xl font-extrabold text-slate-900 group-hover:text-[#2855d9] transition-colors leading-snug">
                                     {entry.term}
                                 </h2>
 
@@ -161,7 +161,7 @@ export default function LexikonHubPage() {
                                 </div>
                             </div>
 
-                            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
+                            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#2855d9]">
                                 <span>Fachartikel & Praxisbeispiele lesen</span>
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                             </div>

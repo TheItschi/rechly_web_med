@@ -155,7 +155,7 @@ export default function KeywordLandingPage({
                     style={{
                         padding: "clamp(96px, 12vw, 136px) clamp(16px, 4vw, 24px) 48px",
                         background:
-                            "linear-gradient(180deg, #eef6ff 0%, #ffffff 70%)",
+                            "#ffffff",
                     }}
                 >
                     <div style={{ maxWidth: 980, margin: "0 auto" }}>
@@ -167,11 +167,11 @@ export default function KeywordLandingPage({
                                 gap: 8,
                                 alignItems: "center",
                                 marginBottom: 24,
-                                color: "#64748b",
+                                color: "#526174",
                                 fontSize: 14,
                             }}
                         >
-                            <Link href="/" style={{ color: "#1d4ed8" }}>
+                            <Link href="/" style={{ color: "#2855d9" }}>
                                 Startseite
                             </Link>
                             <span aria-hidden="true">/</span>
@@ -184,7 +184,7 @@ export default function KeywordLandingPage({
                                 marginBottom: 16,
                                 fontSize: "clamp(1.85rem, 5.5vw, 2.75rem)",
                                 lineHeight: 1.15,
-                                color: "#0f172a",
+                                color: "#152438",
                                 fontWeight: 800,
                                 maxWidth: 760,
                                 overflowWrap: "break-word",
@@ -198,7 +198,7 @@ export default function KeywordLandingPage({
                                 maxWidth: 760,
                                 fontSize: 19,
                                 lineHeight: 1.7,
-                                color: "#475569",
+                                color: "#526174",
                                 marginBottom: 20,
                             }}
                         >
@@ -209,7 +209,7 @@ export default function KeywordLandingPage({
                                 maxWidth: 760,
                                 fontSize: 16,
                                 lineHeight: 1.75,
-                                color: "#64748b",
+                                color: "#526174",
                                 marginBottom: 28,
                             }}
                         >
@@ -221,7 +221,7 @@ export default function KeywordLandingPage({
                                 maxWidth: 760,
                                 fontSize: 14,
                                 lineHeight: 1.65,
-                                color: "#64748b",
+                                color: "#526174",
                                 marginBottom: 24,
                             }}
                         >
@@ -253,7 +253,7 @@ export default function KeywordLandingPage({
                                         borderRadius: 999,
                                         background: "#f8fafc",
                                         border: "1px solid rgba(15, 23, 42, 0.08)",
-                                        color: "#334155",
+                                        color: "#33475e",
                                         fontSize: 14,
                                         fontWeight: 600,
                                     }}
@@ -271,18 +271,18 @@ export default function KeywordLandingPage({
                             <article
                                 style={{
                                     padding: "clamp(20px, 4vw, 28px)",
-                                    borderRadius: 24,
+                                    borderRadius: 10,
                                     border: "1px solid rgba(15, 23, 42, 0.08)",
                                     background: "#ffffff",
                                     boxShadow:
-                                        "0 18px 40px rgba(15, 23, 42, 0.05)",
+                                        "0 1px 2px rgba(21,36,56,0.03), 0 8px 24px rgba(21,36,56,0.04)",
                                 }}
                             >
                                 <h2
                                     style={{
                                         marginBottom: 20,
                                         fontSize: "clamp(1.35rem, 4vw, 1.75rem)",
-                                        color: "#0f172a",
+                                        color: "#152438",
                                         fontWeight: 700,
                                     }}
                                 >
@@ -314,7 +314,7 @@ export default function KeywordLandingPage({
                                                     height: 34,
                                                     borderRadius: 999,
                                                     background: "#eef6ff",
-                                                    color: "#1d4ed8",
+                                                    color: "#2855d9",
                                                     display: "inline-flex",
                                                     alignItems: "center",
                                                     justifyContent: "center",
@@ -328,7 +328,7 @@ export default function KeywordLandingPage({
                                                 <strong
                                                     style={{
                                                         display: "block",
-                                                        color: "#0f172a",
+                                                        color: "#152438",
                                                         fontSize: 17,
                                                         marginBottom: 4,
                                                     }}
@@ -337,7 +337,7 @@ export default function KeywordLandingPage({
                                                 </strong>
                                                 <span
                                                     style={{
-                                                        color: "#475569",
+                                                        color: "#526174",
                                                         fontSize: 15.5,
                                                         lineHeight: 1.7,
                                                     }}
@@ -366,18 +366,18 @@ export default function KeywordLandingPage({
                                     key={section.title}
                                     style={{
                                         padding: "clamp(20px, 4vw, 28px)",
-                                        borderRadius: 24,
+                                        borderRadius: 10,
                                         border: "1px solid rgba(15, 23, 42, 0.08)",
                                         background: "#ffffff",
                                         boxShadow:
-                                            "0 18px 40px rgba(15, 23, 42, 0.05)",
+                                            "0 1px 2px rgba(21,36,56,0.03), 0 8px 24px rgba(21,36,56,0.04)",
                                     }}
                                 >
                                     <h2
                                         style={{
                                             marginBottom: 16,
                                             fontSize: "clamp(1.35rem, 4vw, 1.75rem)",
-                                            color: "#0f172a",
+                                            color: "#152438",
                                             fontWeight: 700,
                                         }}
                                     >
@@ -387,7 +387,7 @@ export default function KeywordLandingPage({
                                         <p
                                             key={paragraph}
                                             style={{
-                                                color: "#475569",
+                                                color: "#526174",
                                                 fontSize: 16,
                                                 lineHeight: 1.75,
                                                 marginBottom: 14,
@@ -401,7 +401,7 @@ export default function KeywordLandingPage({
                                             style={{
                                                 margin: "10px 0 0",
                                                 paddingLeft: 20,
-                                                color: "#334155",
+                                                color: "#33475e",
                                                 lineHeight: 1.8,
                                                 fontSize: 15,
                                             }}
@@ -422,9 +422,9 @@ export default function KeywordLandingPage({
                         <div
                             style={{
                                 padding: "clamp(24px, 5vw, 30px)",
-                                borderRadius: 26,
+                                borderRadius: 10,
                                 background:
-                                    "linear-gradient(160deg, #0f172a 0%, #1e3a8a 100%)",
+                                    "#152438",
                                 color: "#f8fafc",
                             }}
                         >
@@ -468,7 +468,7 @@ export default function KeywordLandingPage({
                                         padding: "0 18px",
                                         borderRadius: 12,
                                         background: "#f8fafc",
-                                        color: "#0f172a",
+                                        color: "#152438",
                                         fontWeight: 700,
                                         textDecoration: "none",
                                     }}
@@ -521,7 +521,7 @@ export default function KeywordLandingPage({
                             style={{
                                 marginBottom: 18,
                                 fontSize: "clamp(1.35rem, 4vw, 1.875rem)",
-                                color: "#0f172a",
+                                color: "#152438",
                                 fontWeight: 700,
                             }}
                         >
@@ -539,7 +539,7 @@ export default function KeywordLandingPage({
                                     key={faq.question}
                                     style={{
                                         padding: 24,
-                                        borderRadius: 20,
+                                        borderRadius: 10,
                                         background: "#f8fafc",
                                         border: "1px solid rgba(15, 23, 42, 0.06)",
                                     }}
@@ -548,7 +548,7 @@ export default function KeywordLandingPage({
                                         style={{
                                             marginBottom: 10,
                                             fontSize: 18,
-                                            color: "#0f172a",
+                                            color: "#152438",
                                             fontWeight: 700,
                                         }}
                                     >
@@ -559,7 +559,7 @@ export default function KeywordLandingPage({
                                             margin: 0,
                                             fontSize: 15,
                                             lineHeight: 1.75,
-                                            color: "#475569",
+                                            color: "#526174",
                                         }}
                                     >
                                         {faq.answer}
@@ -572,7 +572,7 @@ export default function KeywordLandingPage({
                             style={{
                                 marginBottom: 18,
                                 fontSize: 30,
-                                color: "#0f172a",
+                                color: "#152438",
                                 fontWeight: 700,
                             }}
                         >
@@ -596,7 +596,7 @@ export default function KeywordLandingPage({
                                         style={{
                                             height: "100%",
                                             padding: 24,
-                                            borderRadius: 20,
+                                            borderRadius: 10,
                                             border: "1px solid rgba(15, 23, 42, 0.08)",
                                             background: "#ffffff",
                                             boxShadow:
@@ -608,7 +608,7 @@ export default function KeywordLandingPage({
                                                 marginBottom: 10,
                                                 fontSize: 19,
                                                 fontWeight: 700,
-                                                color: "#0f172a",
+                                                color: "#152438",
                                             }}
                                         >
                                             {link.title}
@@ -618,7 +618,7 @@ export default function KeywordLandingPage({
                                                 margin: 0,
                                                 fontSize: 14,
                                                 lineHeight: 1.7,
-                                                color: "#64748b",
+                                                color: "#526174",
                                             }}
                                         >
                                             {link.description}

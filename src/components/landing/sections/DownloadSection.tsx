@@ -100,7 +100,7 @@ export default function DownloadSection() {
                 scrollMarginTop: 80,
                 padding: "88px 24px 96px",
                 background:
-                    "linear-gradient(180deg, #f8fafc 0%, #ffffff 50%, #f0fdf4 100%)",
+                    "#ffffff",
                 borderTop: "1px solid #e2e8f0",
                 borderBottom: "1px solid #e2e8f0",
             }}
@@ -111,8 +111,8 @@ export default function DownloadSection() {
                 <div
                     className="landing-eyebrow"
                     style={{
-                        background: "rgba(16, 185, 129, 0.12)",
-                        color: "#065f46",
+                        background: "none",
+                        color: "#2855d9",
                         marginBottom: 16,
                     }}
                 >
@@ -124,7 +124,7 @@ export default function DownloadSection() {
                     style={{
                         fontSize: 34,
                         fontWeight: 700,
-                        color: "#111827",
+                        color: "#152438",
                         marginBottom: 16,
                         lineHeight: 1.2,
                     }}
@@ -137,7 +137,7 @@ export default function DownloadSection() {
                     style={{
                         maxWidth: 680,
                         margin: "0 auto 32px",
-                        color: "#4b5563",
+                        color: "#526174",
                         fontSize: 17,
                         lineHeight: 1.7,
                     }}
@@ -173,7 +173,7 @@ export default function DownloadSection() {
                                 style={{
                                     backgroundColor:
                                         detectedOS === "windows"
-                                            ? "#1677ff"
+                                            ? "#2855d9"
                                             : "#0f172a",
                                     minHeight: 56,
                                     textDecoration: "none",
@@ -206,7 +206,7 @@ export default function DownloadSection() {
                                     href={DOWNLOAD_URLS.windows}
                                     className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl text-white font-semibold text-base shadow-md hover:shadow-lg transition-all"
                                     style={{
-                                        backgroundColor: "#1677ff",
+                                        backgroundColor: "#2855d9",
                                         textDecoration: "none",
                                     }}
                                     aria-label="Rechly Desktop für Windows (64-Bit) herunterladen"

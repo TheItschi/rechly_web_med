@@ -110,7 +110,7 @@ export default function EuerRechner() {
 
                 <Card style={{ borderRadius: 12, background: "#eff6ff", border: "1px solid #bfdbfe" }}>
                     <div style={{ fontSize: 12, color: "#1e40af", fontWeight: 600 }}>USt-Zahllast (ELSTER Kz 83)</div>
-                    <div style={{ fontSize: 24, fontWeight: 700, color: "#2563eb", marginTop: 4 }}>
+                    <div style={{ fontSize: 24, fontWeight: 700, color: "#2855d9", marginTop: 4 }}>
                         {calculation.elster.kz83Zahllast.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €
                     </div>
                     <div style={{ fontSize: 11, color: "#1e40af", marginTop: 4 }}>
@@ -288,7 +288,7 @@ export default function EuerRechner() {
                             <span style={{ fontSize: 11, color: "#64748b" }}>Zahllast / Guthaben</span>
                         </div>
                         <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>Verbleibende Umsatzsteuer-Zahllast</div>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#2563eb", marginTop: 2 }}>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: "#2855d9", marginTop: 2 }}>
                             {calculation.elster.kz83Zahllast.toFixed(2)} €
                         </div>
                     </div>

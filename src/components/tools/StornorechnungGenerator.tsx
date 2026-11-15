@@ -272,7 +272,7 @@ export function StornorechnungGenerator() {
                     <button
                         type="button"
                         onClick={() => window.print()}
-                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm cursor-pointer"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm cursor-pointer"
                     >
                         <Printer className="w-4 h-4" />
                         Stornorechnung als PDF drucken

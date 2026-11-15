@@ -248,7 +248,7 @@ export default function SteuerkalenderRechner() {
                     type="primary"
                     icon={<DownloadOutlined />}
                     onClick={downloadIcs}
-                    style={{ background: "#2563eb", borderColor: "#2563eb", fontWeight: 600 }}
+                    style={{ background: "#2855d9", borderColor: "#2855d9", fontWeight: 600 }}
                 >
                     Kalenderdatei (.ics) herunterladen
                 </Button>

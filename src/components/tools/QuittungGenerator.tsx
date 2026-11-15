@@ -93,7 +93,7 @@ export function QuittungGenerator() {
                     </span>
                 </div>
                 <div className="bg-white p-2 rounded border border-slate-300">
-                    <span className="block text-[10px] font-bold uppercase text-indigo-700">
+                    <span className="block text-[10px] font-bold uppercase text-[#1e43b3]">
                         Gesamtbetrag (Brutto)
                     </span>
                     <span className="font-mono font-black text-base text-slate-900">
@@ -164,7 +164,7 @@ export function QuittungGenerator() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 print:hidden">
                 <div className="lg:col-span-7 p-6 rounded-2xl border border-slate-200 bg-white space-y-4">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
-                        <Receipt className="w-4 h-4 text-indigo-600" />
+                        <Receipt className="w-4 h-4 text-[#2855d9]" />
                         Quittungsdaten eingeben (§ 368 BGB)
                     </h3>
 
@@ -308,7 +308,7 @@ export function QuittungGenerator() {
                 {/* Right Info & Print Panel */}
                 <div className="lg:col-span-5 p-6 rounded-2xl bg-slate-900 text-white flex flex-col justify-between space-y-5">
                     <div className="space-y-3">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-300">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#9db8f5]">
                             <Sparkles className="w-4 h-4" />
                             Automatisch in Worten
                         </span>
@@ -323,7 +323,7 @@ export function QuittungGenerator() {
                                 type="checkbox"
                                 checked={printDuplicate}
                                 onChange={(e) => setPrintDuplicate(e.target.checked)}
-                                className="rounded border-slate-500 text-indigo-500"
+                                className="rounded border-slate-500 text-[#2855d9]"
                             />
                             Original + Durchschlag (Kopie für Buchhaltung) auf 1 A4-Seite drucken
                         </label>
@@ -332,7 +332,7 @@ export function QuittungGenerator() {
                     <button
                         type="button"
                         onClick={() => window.print()}
-                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm transition-colors cursor-pointer"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#2855d9] hover:bg-[#7ea2f8] text-white font-bold text-sm transition-colors cursor-pointer"
                     >
                         <Printer className="w-4 h-4" />
                         Quittung als PDF drucken / speichern

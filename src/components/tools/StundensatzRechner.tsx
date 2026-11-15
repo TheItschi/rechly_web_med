@@ -135,7 +135,7 @@ export default function StundensatzRechner() {
                         <div>
                             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 4 }}>
                                 <span>Geschätzter Steuersatz (ESt + GewSt):</span>
-                                <span style={{ color: "#2563eb" }}>{taxRatePercent} %</span>
+                                <span style={{ color: "#2855d9" }}>{taxRatePercent} %</span>
                             </div>
                             <Slider
                                 min={15}
@@ -204,7 +204,7 @@ export default function StundensatzRechner() {
                         <div>
                             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 4 }}>
                                 <span>Abrechenbare Quote (Billable Hours):</span>
-                                <span style={{ color: "#2563eb" }}>{billableRatioPercent} %</span>
+                                <span style={{ color: "#2855d9" }}>{billableRatioPercent} %</span>
                             </div>
                             <Slider
                                 min={40}
@@ -232,17 +232,17 @@ export default function StundensatzRechner() {
                     size="small"
                     style={{
                         borderRadius: 12,
-                        border: "2px solid #2563eb",
+                        border: "2px solid #2855d9",
                         background: "#eff6ff" }}
                 >
                     <Text style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 800, color: "#1e40af" }}>
                         Empfohlener Stundensatz
                     </Text>
-                    <div style={{ fontSize: 32, fontWeight: 900, color: "#1d4ed8", marginTop: 4 }}>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: "#2855d9", marginTop: 4 }}>
                         {calc.recommendedHourlyRate} €
                         <span style={{ fontSize: 14, fontWeight: 600, color: "#64748b" }}> / Std. netto</span>
                     </div>
-                    <div style={{ fontSize: 12, color: "#2563eb", marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: "#2855d9", marginTop: 4 }}>
                         Inkl. 15% Sicherheits- & Investitionspuffer
                     </div>
                 </Card>
@@ -314,7 +314,7 @@ export default function StundensatzRechner() {
                     <Button
                         type="primary"
                         icon={<ArrowRightOutlined />}
-                        style={{ background: "#2563eb", height: 42, padding: "0 20px" }}
+                        style={{ background: "#2855d9", height: 42, padding: "0 20px" }}
                     >
                         Angebot mit {calc.recommendedHourlyRate} €/Std. in Rechly schreiben
                     </Button>

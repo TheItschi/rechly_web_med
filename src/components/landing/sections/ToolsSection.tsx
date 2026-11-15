@@ -140,7 +140,7 @@ export default function ToolsSection() {
                                             alignItems: "center",
                                             marginBottom: 12 }}
                                     >
-                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", background: "#eff6ff", padding: "2px 8px", borderRadius: 8 }}>
+                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#2855d9", background: "#eff6ff", padding: "2px 8px", borderRadius: 8 }}>
                                             {tool.category}
                                         </span>
                                         {tool.badge && (
@@ -167,7 +167,7 @@ export default function ToolsSection() {
                                         display: "flex",
                                         justifyContent: "flex-end",
                                         alignItems: "center",
-                                        color: "#2563eb",
+                                        color: "#2855d9",
                                         fontWeight: 700,
                                         fontSize: 13,
                                         gap: 4 }}
@@ -187,7 +187,7 @@ export default function ToolsSection() {
                             size="large"
                             icon={<AppstoreOutlined />}
                             style={{
-                                background: "#2563eb",
+                                background: "#2855d9",
                                 height: 48,
                                 padding: "0 28px",
                                 fontSize: 15,

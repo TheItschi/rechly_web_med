@@ -107,7 +107,7 @@ export default function ERechnungViewer() {
                     marginBottom: 24 }}
             >
                 <p className="ant-upload-drag-icon" style={{ marginBottom: 12 }}>
-                    <InboxOutlined style={{ fontSize: 44, color: "#2563eb" }} />
+                    <InboxOutlined style={{ fontSize: 44, color: "#2855d9" }} />
                 </p>
                 <p style={{ fontSize: 16, fontWeight: 700, color: "#1e293b", margin: "0 0 6px 0" }}>
                     XRechnung (.xml) oder ZUGFeRD (.pdf) hier ablegen oder auswählen
@@ -209,7 +209,7 @@ export default function ERechnungViewer() {
                             <Text type="secondary" style={{ fontSize: 12, textTransform: "uppercase", fontWeight: 700 }}>
                                 Gesamtbetrag (Brutto)
                             </Text>
-                            <div style={{ fontSize: 20, fontWeight: 900, color: "#2563eb", marginTop: 4 }}>
+                            <div style={{ fontSize: 20, fontWeight: 900, color: "#2855d9", marginTop: 4 }}>
                                 {parsedData.amount_gross !== undefined
                                     ? `${parsedData.amount_gross.toFixed(2)} €`
                                     : "–"}
@@ -291,7 +291,7 @@ export default function ERechnungViewer() {
                                         parsedData.vendor_name || ""
                                     )}&reference=${encodeURIComponent(parsedData.invoice_number || "")}`}
                                 >
-                                    <Button type="primary" icon={<QrcodeOutlined />} style={{ background: "#2563eb", maxWidth: "100%", height: "auto", whiteSpace: "normal" }}>
+                                    <Button type="primary" icon={<QrcodeOutlined />} style={{ background: "#2855d9", maxWidth: "100%", height: "auto", whiteSpace: "normal" }}>
                                         GiroCode generieren
                                     </Button>
                                 </Link>
