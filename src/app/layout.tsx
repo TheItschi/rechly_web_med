@@ -11,6 +11,7 @@ import {
 import GlobalJsonLd from "@/components/seo/GlobalJsonLd";
 import ConsentAnalytics from "@/components/analytics/ConsentAnalytics";
 import PublicTheme from "@/components/PublicTheme";
+import AppwritePing from "@/components/AppwritePing";
 import "./globals.css";
 
 const siteUrl = getSiteUrl();
@@ -114,6 +115,7 @@ export default function RootLayout({
                 <GlobalJsonLd />
             </head>
             <body>
+                <AppwritePing />
                 <ConsentAnalytics googleAnalyticsId={analyticsId} />
                 <AntdRegistry>
                     <LanguageProvider>

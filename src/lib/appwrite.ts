@@ -32,6 +32,15 @@ export const account = new Account(client);
 export const databases = new Databases(client);
 
 /**
+ * Verify the Appwrite backend is reachable (GET /ping via the SDK).
+ * Rejects when the backend cannot be reached; callers should treat a
+ * failure as "offline / misconfigured", never block the UI on it.
+ */
+export function pingAppwrite(): Promise<string> {
+    return client.ping();
+}
+
+/**
  * Get current user ID - returns null if not authenticated
  */
 export const getCurrentUserId = async (): Promise<string | null> => {

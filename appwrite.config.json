@@ -1,8 +1,8 @@
 {
     "organizationId": "692d47cfb0fbe4297e5d",
-    "projectId": "692d4bf1002b21c4b2b7",
+    "projectId": "6af0653e002f08b3efd3",
     "projectName": "rechly",
-    "endpoint": "https://fra.cloud.appwrite.io/v1",
+    "endpoint": "https://api.rechly.de/v1",
     "settings": {
         "services": {
             "account": true,
