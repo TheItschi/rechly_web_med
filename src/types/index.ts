@@ -87,6 +87,8 @@ export interface Invoice {
     payment_terms?: string;
     correction_type?: "credit_note" | "correction" | null;
     corrects_invoice_id?: string | null;
+    /** Unguessable token for the public invoice link (/i/[token]), when shared. */
+    share_token?: string;
     created_at: number;
     updated_at: number;
 }

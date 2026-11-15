@@ -150,6 +150,7 @@ export async function GET(
             payment_terms: doc.paymentTerms ?? undefined,
             correction_type: doc.correctionType ?? null,
             corrects_invoice_id: doc.correctsInvoiceId ?? null,
+            share_token: doc.shareToken ?? undefined,
             created_at: new Date(doc.$createdAt).getTime(),
             updated_at: new Date(doc.$updatedAt).getTime(),
             client,

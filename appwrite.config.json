@@ -763,6 +763,15 @@
                     "size": 16000,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "shareToken",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": [

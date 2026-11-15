@@ -81,6 +81,7 @@ export default function InvoiceDetailPage() {
     const [draftingReminder, setDraftingReminder] = useState(false);
     const [reminderDraft, setReminderDraft] = useState("");
     const [reminderModalOpen, setReminderModalOpen] = useState(false);
+    const [shareLoading, setShareLoading] = useState(false);
     const [templateModalOpen, setTemplateModalOpen] = useState(false);
     const [templateName, setTemplateName] = useState("");
     const [templateSaving, setTemplateSaving] = useState(false);
@@ -221,6 +222,41 @@ export default function InvoiceDetailPage() {
             );
         } finally {
             setDraftingReminder(false);
+        }
+    };
+
+    const handleShareInvoice = async () => {
+        if (!invoice?.id) return;
+        setShareLoading(true);
+        try {
+            const res = await fetch(`/api/invoices/${invoice.id}/share`, { method: "POST" });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || "Share failed");
+            await navigator.clipboard.writeText(data.url);
+            setInvoice({ ...invoice, share_token: data.token });
+            message.success(
+                language === "de"
+                    ? "Link kopiert: Kunde kann Rechnung ansehen und per GiroCode zahlen."
+                    : "Link copied: your client can view the invoice and pay via GiroCode.",
+            );
+        } catch (error) {
+            message.error(error instanceof Error ? error.message : "Share failed");
+        } finally {
+            setShareLoading(false);
+        }
+    };
+
+    const handleRevokeShare = async () => {
+        if (!invoice?.id) return;
+        setShareLoading(true);
+        try {
+            await fetch(`/api/invoices/${invoice.id}/share`, { method: "DELETE" });
+            setInvoice({ ...invoice, share_token: undefined });
+            message.success(language === "de" ? "Öffentlicher Link deaktiviert." : "Public link disabled.");
+        } catch {
+            message.error("Revoke failed");
+        } finally {
+            setShareLoading(false);
         }
     };
 
@@ -488,6 +524,17 @@ export default function InvoiceDetailPage() {
                     >
                         {t("invoiceDetail.duplicateInvoice")}
                     </Button>
+                    {invoice.status !== "draft" && invoice.status !== "cancelled" && (
+                        invoice.share_token ? (
+                            <Button loading={shareLoading} onClick={handleRevokeShare}>
+                                {language === "de" ? "Link deaktivieren" : "Disable link"}
+                            </Button>
+                        ) : (
+                            <Button loading={shareLoading} onClick={handleShareInvoice}>
+                                {language === "de" ? "Link teilen" : "Share link"}
+                            </Button>
+                        )
+                    )}
                     <Button
                         icon={<SaveOutlined />}
                         onClick={() => {
@@ -686,7 +733,7 @@ export default function InvoiceDetailPage() {
                                     <Text
                                         strong
                                         style={{
-                                            color: "#1976d2",
+                                            color: "#2855d9",
                                             fontSize: 16,
                                         }}
                                     >

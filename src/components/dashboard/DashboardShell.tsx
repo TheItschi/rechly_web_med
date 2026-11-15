@@ -45,6 +45,7 @@ import { AppearanceSelect } from "./DashboardAppearance";
 import { isDesktopRuntime } from "@/lib/runtime";
 import { isTermineEnabled, isWorkspaceEnabled } from "@/lib/features";
 import WorkspaceActivity from "@/components/workspace/WorkspaceActivity";
+import CommandPalette from "@/components/dashboard/CommandPalette";
 
 const { Header, Sider, Content } = Layout;
 
@@ -72,6 +73,7 @@ export default function DashboardShell({
     const pathname = usePathname();
     const { user, loading, logout, isAnonymous } = useAuth();
     const { language, setLanguage, t } = useLanguage();
+    const [paletteOpen, setPaletteOpen] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -321,6 +323,17 @@ export default function DashboardShell({
         if (!loading && !user) router.push("/login");
     }, [user, loading, router]);
 
+    useEffect(() => {
+        const onKey = (event: KeyboardEvent) => {
+            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+                event.preventDefault();
+                setPaletteOpen((value) => !value);
+            }
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, []);
+
     const handleLogout = async () => {
         await logout();
         router.push("/login");
@@ -540,6 +553,17 @@ export default function DashboardShell({
                     </div>
 
                     <div className="dashboard-header-actions">
+                        <button
+                            type="button"
+                            className="dashboard-palette-trigger"
+                            onClick={() => setPaletteOpen(true)}
+                            aria-label={language === "de" ? "Suche öffnen (Strg+K)" : "Open search (Ctrl+K)"}
+                        >
+                            <span className="dashboard-palette-trigger-label">
+                                {language === "de" ? "Suchen …" : "Search …"}
+                            </span>
+                            <kbd>⌘K</kbd>
+                        </button>
                         <AppearanceSelect />
                         {!isMobile && (
                             <Select
@@ -597,6 +621,7 @@ export default function DashboardShell({
                         <WorkspaceActivity />
                         {children}
                     </div>
+                    <CommandPalette key={String(paletteOpen)} open={paletteOpen} onClose={() => setPaletteOpen(false)} />
                 </Content>
             </Layout>
         </Layout>
