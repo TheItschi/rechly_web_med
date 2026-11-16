@@ -48,6 +48,7 @@ import { getAllProducts } from "@/lib/productService";
 import { createInvoice, getInvoiceById, getNextInvoiceNumber, updateDraftInvoice } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
 import { runInvoiceAssistant, parseInvoiceDraftWithAI } from "@/lib/aiService";
+import { useAiEnabled } from "@/lib/useAiEnabled";
 import {
     formatCurrency,
     calculateInvoiceTotals,
@@ -90,6 +91,7 @@ interface LineItem {
 export default function InvoiceCreatePage() {
     const router = useRouter();
     const { t } = useLanguage();
+    const aiEnabled = useAiEnabled();
     // Also mounted at /dashboard/invoices/[id]/edit to edit a draft.
     const params = useParams();
     const editId = typeof params?.id === "string" ? params.id : undefined;
@@ -136,6 +138,8 @@ export default function InvoiceCreatePage() {
 
     // Privatliquidation: diagnoses (ICD-10-GM) and GOÄ history of the patient
     const [diagnoses, setDiagnoses] = useState<InvoiceDiagnosis[]>([]);
+    /** Einleitungstext between diagnoses and positions (default from Praxis settings) */
+    const [introText, setIntroText] = useState("");
     const [diagnosisDisplay, setDiagnosisDisplay] = useState<DiagnosisDisplay>("both");
     const [goaeHistory, setGoaeHistory] = useState<GoaeHistoryEntry[]>([]);
     const [loadingHistory, setLoadingHistory] = useState(false);
@@ -185,6 +189,7 @@ export default function InvoiceCreatePage() {
             setCompany(companyData);
             setTemplates(templatesData);
             setPaymentTerms(companyData?.payment_terms_default || "");
+            setIntroText(companyData?.invoice_intro_text || "");
             if (editId) {
                 await loadDraft(clientsData);
             } else {
@@ -217,6 +222,7 @@ export default function InvoiceCreatePage() {
         setPaymentTerms(invoice.payment_terms || "");
         if (invoice.e_invoice) setEInvoice(invoice.e_invoice);
         setDiagnoses(invoice.medical?.diagnoses ?? []);
+        setIntroText(invoice.medical?.intro_text ?? "");
         setDiagnosisDisplay(invoice.medical?.diagnosis_display ?? "both");
         setLineItems(lineItemsFromInvoice(invoice));
     };
@@ -259,6 +265,7 @@ export default function InvoiceCreatePage() {
         setNotes(source.notes || "");
         if (source.payment_terms) setPaymentTerms(source.payment_terms);
         setDiagnoses(source.medical?.diagnoses ?? []);
+        setIntroText(source.medical?.intro_text ?? "");
         setDiagnosisDisplay(source.medical?.diagnosis_display ?? "both");
         setLineItems(lineItemsFromInvoice(source, dayjs().format("YYYY-MM-DD")));
         message.info(`Rechnung ${source.invoice_number} dupliziert – Leistungsdatum auf heute gesetzt, bitte prüfen.`);
@@ -340,6 +347,7 @@ export default function InvoiceCreatePage() {
             if (client) setSelectedClient(client);
         }
         if (payload.notes && !notes) setNotes(payload.notes);
+        if (payload.introText) setIntroText(payload.introText);
         if (payload.paymentTerms) setPaymentTerms(payload.paymentTerms);
         if (payload.diagnoses?.length) {
             const add = payload.diagnoses;
@@ -368,6 +376,7 @@ export default function InvoiceCreatePage() {
                 ...(templateWithPatient && selectedClient?.id ? { clientId: selectedClient.id } : {}),
                 notes: notes || undefined,
                 paymentTerms: paymentTerms || undefined,
+                introText: introText.trim() || undefined,
                 ...(templateWithDiagnoses && diagnoses.length ? { diagnoses, diagnosisDisplay } : {}),
                 items: lineItems.map((item) => ({
                     description: item.description,
@@ -565,7 +574,9 @@ export default function InvoiceCreatePage() {
                 due_date: dueDate.format("YYYY-MM-DD"),
                 notes: notes || undefined,
                 payment_terms: paymentTerms || undefined,
-                medical: diagnoses.length ? { diagnoses, diagnosis_display: diagnosisDisplay } : undefined,
+                medical: diagnoses.length || introText.trim()
+                    ? { diagnoses, diagnosis_display: diagnosisDisplay, ...(introText.trim() ? { intro_text: introText.trim() } : {}) }
+                    : undefined,
                 items,
             };
 
@@ -816,7 +827,7 @@ export default function InvoiceCreatePage() {
                             }
                             placeholder={t("invoiceCreate.serviceSummaryPlaceholder")}
                         />
-                        <Button
+                        {aiEnabled && <Button
                             icon={<RobotOutlined />}
                             loading={generatingLineItemKey === record.key}
                             onClick={() =>
@@ -824,7 +835,7 @@ export default function InvoiceCreatePage() {
                             }
                         >
                             {t("invoiceCreate.ai")}
-                        </Button>
+                        </Button>}
                     </Space.Compact>
                 </Space>
             ),
@@ -1007,6 +1018,16 @@ export default function InvoiceCreatePage() {
                                 onDisplayChange={setDiagnosisDisplay}
                             />
                         </Card>
+                        <Card size="small" title="Einleitungstext" style={{ marginBottom: 16 }}>
+                            <Input.TextArea
+                                aria-label="Einleitungstext"
+                                value={introText}
+                                onChange={(e) => setIntroText(e.target.value)}
+                                rows={2}
+                                maxLength={1000}
+                                placeholder="z. B. Privatärztliche Liquidation gemäß GOÄ – steht im PDF zwischen Diagnose und Positionen (leer = kein Text)"
+                            />
+                        </Card>
                         <Space style={{ marginBottom: 16 }} wrap>
                             <Select
                                 showSearch
@@ -1145,6 +1166,7 @@ export default function InvoiceCreatePage() {
                             </Space>
 
                             <Form.Item label={t("invoiceCreate.notesLabel")}>
+                                {aiEnabled && (
                                 <Space style={{ marginBottom: 8 }}>
                                     <Button
                                         icon={<RobotOutlined />}
@@ -1154,6 +1176,7 @@ export default function InvoiceCreatePage() {
                                         {t("invoiceCreate.generateWithAi")}
                                     </Button>
                                 </Space>
+                                )}
                                 <Input.TextArea
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
@@ -1164,6 +1187,7 @@ export default function InvoiceCreatePage() {
 
                             <Form.Item label={t("invoiceCreate.paymentTermsLabel")}>
                                 <Space style={{ marginBottom: 8 }}>
+                                    {aiEnabled && (
                                     <Button
                                         icon={<RobotOutlined />}
                                         loading={generatingPaymentTerms}
@@ -1171,6 +1195,7 @@ export default function InvoiceCreatePage() {
                                     >
                                         {t("invoiceCreate.generateWithAi")}
                                     </Button>
+                                    )}
                                     {company?.payment_terms_default ? (
                                         <Button
                                             onClick={() =>
@@ -1427,7 +1452,7 @@ export default function InvoiceCreatePage() {
                 ]}
             />
 
-            {currentStep < 2 && (
+            {aiEnabled && currentStep < 2 && (
                 <Card
                     size="small"
                     style={{

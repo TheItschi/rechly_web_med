@@ -35,6 +35,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
 import { runInvoiceAssistant } from "@/lib/aiService";
+import { useAiEnabled } from "@/lib/useAiEnabled";
 import { getCompanyInfo } from "@/lib/companyService";
 import type { InvoiceWithClient, Invoice } from "@/types";
 
@@ -48,6 +49,7 @@ const statusColors: Record<string, string> = {
 export default function InvoicesPage() {
     const router = useRouter();
     const { t } = useLanguage();
+    const aiEnabled = useAiEnabled();
     const [searchText, setSearchText] = useState("");
     const [companyName, setCompanyName] = useState<string | undefined>();
     const [draftingInvoiceId, setDraftingInvoiceId] = useState<string | null>(
@@ -221,15 +223,19 @@ export default function InvoicesPage() {
             label: t("invoices.downloadPdf"),
             onClick: () => router.push(`/dashboard/invoices/${record.id}/pdf`),
         },
-        {
-            key: "ai-reminder",
-            icon: <RobotOutlined />,
-            label: t("invoices.aiReminder"),
-            disabled: !record.client?.email,
-            onClick: () => {
-                void handleDraftReminder(record);
-            },
-        },
+        ...(aiEnabled
+            ? [
+                  {
+                      key: "ai-reminder",
+                      icon: <RobotOutlined />,
+                      label: t("invoices.aiReminder"),
+                      disabled: !record.client?.email,
+                      onClick: () => {
+                          void handleDraftReminder(record);
+                      },
+                  },
+              ]
+            : []),
         { type: "divider" },
         ...(record.status === "draft"
             ? [

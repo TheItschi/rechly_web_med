@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     colQtySmall: { width: 26, textAlign: "right" },
     justification: { fontSize: 8, color: "#555", fontStyle: "italic", marginTop: 2 },
     diagnoses: { marginBottom: 12 },
+    introText: { fontSize: 10, color: "#333", lineHeight: 1.4, marginBottom: 12 },
     headerText: {
         fontWeight: "bold",
         fontSize: 9,
@@ -354,6 +355,11 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     </View>
                 )}
 
+                {/* Einleitungstext, z. B. "Privatärztliche Liquidation gemäß GOÄ" */}
+                {invoice.medical?.intro_text ? (
+                    <Text style={styles.introText}>{invoice.medical.intro_text}</Text>
+                ) : null}
+
                 {/* Leistungsaufstellung nach § 12 GOÄ */}
                 {isMedical && (
                     <View style={styles.table}>
@@ -544,35 +550,38 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                 <View style={styles.footer} fixed>
                     <View style={styles.footerDivider}>
                         <View style={styles.footerContent}>
-                            <View style={styles.footerColumn}>
-                                <Text style={styles.footerLabel}>{t("invoicePdf.contact")}</Text>
-                                <Text style={styles.footerText}>
-                                    {company?.email}
-                                    {company?.phone && `\n${company.phone}`}
-                                    {company?.website && `\n${company.website}`}
-                                </Text>
-                            </View>
-                            <View style={styles.footerColumn}>
-                                <Text style={styles.footerLabel}>
-                                    {t("invoicePdf.bankDetails")}
-                                </Text>
-                                <Text style={styles.footerText}>
-                                    {company?.bank_name}
-                                    {company?.bank_iban &&
-                                        `\nIBAN: ${company.bank_iban}`}
-                                    {company?.bank_bic &&
-                                        `\nBIC: ${company.bank_bic}`}
-                                </Text>
-                            </View>
-                            <View style={styles.footerColumn}>
-                                <Text style={styles.footerLabel}>{t("invoicePdf.tax")}</Text>
-                                <Text style={styles.footerText}>
-                                    {company?.vat_id &&
-                                        `USt-IdNr.: ${company.vat_id}`}
-                                    {company?.tax_number &&
-                                        `\nSt.-Nr.: ${company.tax_number}`}
-                                </Text>
-                            </View>
+                            {/* Columns without data are left out (no lone headings) */}
+                            {company?.email || company?.phone || company?.website ? (
+                                <View style={styles.footerColumn}>
+                                    <Text style={styles.footerLabel}>{t("invoicePdf.contact")}</Text>
+                                    <Text style={styles.footerText}>
+                                        {[company.email, company.phone, company.website].filter(Boolean).join("\n")}
+                                    </Text>
+                                </View>
+                            ) : null}
+                            {company?.bank_name || company?.bank_iban || company?.bank_bic ? (
+                                <View style={styles.footerColumn}>
+                                    <Text style={styles.footerLabel}>{t("invoicePdf.bankDetails")}</Text>
+                                    <Text style={styles.footerText}>
+                                        {[
+                                            company.bank_name,
+                                            company.bank_iban && `IBAN: ${company.bank_iban}`,
+                                            company.bank_bic && `BIC: ${company.bank_bic}`,
+                                        ].filter(Boolean).join("\n")}
+                                    </Text>
+                                </View>
+                            ) : null}
+                            {company?.vat_id || company?.tax_number ? (
+                                <View style={styles.footerColumn}>
+                                    <Text style={styles.footerLabel}>{t("invoicePdf.tax")}</Text>
+                                    <Text style={styles.footerText}>
+                                        {[
+                                            company.vat_id && `USt-IdNr.: ${company.vat_id}`,
+                                            company.tax_number && `St.-Nr.: ${company.tax_number}`,
+                                        ].filter(Boolean).join("\n")}
+                                    </Text>
+                                </View>
+                            ) : null}
                         </View>
                     </View>
                 </View>

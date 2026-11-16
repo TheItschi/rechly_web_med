@@ -33,6 +33,7 @@ import type { ColumnsType } from "antd/es/table";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useExpenseStore } from "@/store/expenseStore";
 import { ocrExpenseReceipt, uploadExpenseReceipt } from "@/lib/expenseService";
+import { useAiEnabled } from "@/lib/useAiEnabled";
 import { formatCurrency } from "@/lib/currencyUtils";
 import type { Expense, ExpenseCategory, ExpenseFormData } from "@/types";
 
@@ -65,6 +66,7 @@ const DEFAULT_FORM: ExpenseFormData = {
 
 export default function ExpensesPage() {
     const { t } = useLanguage();
+    const aiEnabled = useAiEnabled();
     const {
         expenses,
         loading,
@@ -472,7 +474,8 @@ export default function ExpensesPage() {
                         showUploadList={false}
                         beforeUpload={(file) => {
                             setPendingFile(file);
-                            handleOCR(file);
+                            // Receipt recognition uses the AI provider
+                            if (aiEnabled) handleOCR(file);
                             return false;
                         }}
                         style={{ padding: "8px 0" }}

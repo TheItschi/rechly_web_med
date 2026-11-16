@@ -6,6 +6,7 @@ import {
     AI_PREFS_KEY,
     buildStoredAISettings,
     getPublicAIUsage,
+    isAIDisabled,
     isValidAIProvider,
     sanitizeStoredAISettings,
     toPublicAISettings,
@@ -27,6 +28,19 @@ export async function GET() {
         const { prefs } = await getCurrentUserAndPrefs();
         const settings = sanitizeStoredAISettings(prefs[AI_PREFS_KEY]);
         const usage = getPublicAIUsage(prefs);
+
+        if (isAIDisabled(prefs)) {
+            return NextResponse.json({
+                ...(toPublicAISettings(settings, usage) ?? {
+                    provider: "openai",
+                    model: AI_MODEL_PRESETS.openai[0],
+                    api_key_configured: false,
+                    daily_usage: usage,
+                    model_presets: AI_MODEL_PRESETS,
+                }),
+                disabled: true,
+            });
+        }
 
         if (!settings) {
             return NextResponse.json({
@@ -53,6 +67,24 @@ export async function POST(request: NextRequest) {
         const { account, prefs } = await getCurrentUserAndPrefs();
         const existingSettings = sanitizeStoredAISettings(prefs[AI_PREFS_KEY]);
         const body = (await request.json()) as Partial<AISettingsUpdate>;
+
+        // "Keine KI nutzen": keep the stored provider settings, only flag them off.
+        if (body.provider === "none") {
+            const stored = prefs[AI_PREFS_KEY];
+            await account.updatePrefs({
+                ...prefs,
+                [AI_PREFS_KEY]: { ...(stored && typeof stored === "object" ? stored : {}), disabled: true },
+            });
+            return NextResponse.json({
+                ...(toPublicAISettings(existingSettings, getPublicAIUsage(prefs)) ?? {
+                    provider: "openai",
+                    model: AI_MODEL_PRESETS.openai[0],
+                    api_key_configured: false,
+                    model_presets: AI_MODEL_PRESETS,
+                }),
+                disabled: true,
+            });
+        }
 
         if (!isValidAIProvider(body.provider)) {
             return NextResponse.json(

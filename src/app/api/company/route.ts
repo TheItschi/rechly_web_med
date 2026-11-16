@@ -1,4 +1,5 @@
 import { eInvoiceWrite, readEInvoiceData, IdentifierValidationError } from "@/lib/eRechnung/identifiers";
+import { cleanIntroText } from "@/lib/icd10";
 import { NextRequest, NextResponse } from "next/server";
 import { Query, Permission, Role } from "node-appwrite";
 import {
@@ -70,6 +71,7 @@ export async function GET() {
             logo_base64: doc.logoBase64 ?? undefined,
             professional_title: doc.professionalTitle ?? undefined,
             signature_base64: doc.signatureBase64 ?? undefined,
+            invoice_intro_text: doc.invoiceIntroText ?? undefined,
             invoice_number_prefix: doc.invoiceNumberPrefix ?? undefined,
             invoice_number_pattern: doc.invoiceNumberPattern ?? undefined,
             next_invoice_number: doc.nextInvoiceNumber ?? undefined,
@@ -152,6 +154,7 @@ export async function POST(request: NextRequest) {
             // knows these fields, so unmigrated Appwrite schemas keep working.
             ...("professional_title" in body ? { professionalTitle: body.professional_title || null } : {}),
             ...("signature_base64" in body ? { signatureBase64: body.signature_base64 || null } : {}),
+            ...("invoice_intro_text" in body ? { invoiceIntroText: cleanIntroText(body.invoice_intro_text) ?? null } : {}),
             // Sequential numbering – only when the client sends these fields.
             ...("invoice_number_pattern" in body
                 ? {
@@ -222,6 +225,7 @@ export async function POST(request: NextRequest) {
             logo_base64: doc.logoBase64 ?? undefined,
             professional_title: doc.professionalTitle ?? undefined,
             signature_base64: doc.signatureBase64 ?? undefined,
+            invoice_intro_text: doc.invoiceIntroText ?? undefined,
             invoice_number_prefix: doc.invoiceNumberPrefix ?? undefined,
             invoice_number_pattern: doc.invoiceNumberPattern ?? undefined,
             next_invoice_number: doc.nextInvoiceNumber ?? undefined,

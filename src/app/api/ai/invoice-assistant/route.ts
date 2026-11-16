@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSessionClient } from "@/lib/appwrite-server";
 import type { AIInvoiceDraftParseResult } from "@/types";
 import {
+    AI_DISABLED_MESSAGE,
     AI_PREFS_KEY,
+    isAIDisabled,
     assertAndRecordAIUsage,
     generateAIText,
     resolveAISettings,
@@ -357,6 +359,9 @@ export async function POST(request: NextRequest) {
         const sessionClient = await createSessionClient();
         const user = await sessionClient.account.get();
         const prefs = (user.prefs || {}) as Record<string, unknown>;
+        if (isAIDisabled(prefs)) {
+            return NextResponse.json({ error: AI_DISABLED_MESSAGE }, { status: 403 });
+        }
         const account = sessionClient.account;
         const settings = resolveAISettings(
             sanitizeStoredAISettings(prefs[AI_PREFS_KEY]),

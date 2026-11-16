@@ -47,3 +47,12 @@ test("detects the Alphabet file", async () => {
     assert.ok(looksLikeIcd10Alphabet("5|109254|1|||U61.2!||Text\n0|86498|1|||||Abnorm"));
     assert.ok(!looksLikeIcd10Alphabet("4;T;X;01;A00;A00.0;A00.0;A000;Titel"));
 });
+
+test("Einleitungstext: alone or with diagnoses, trimmed and capped", async () => {
+    const { normalizeMedicalData, MAX_INTRO_TEXT } = await import("../src/lib/icd10");
+    assert.deepEqual(normalizeMedicalData({ intro_text: "  Privatärztliche Liquidation gemäß GOÄ \r\n" }), {
+        diagnoses: [], diagnosis_display: "both", intro_text: "Privatärztliche Liquidation gemäß GOÄ",
+    });
+    assert.equal(normalizeMedicalData({ intro_text: "   " }), undefined);
+    assert.equal(normalizeMedicalData({ diagnoses: [{ text: "Husten" }], intro_text: "x".repeat(2000) })?.intro_text?.length, MAX_INTRO_TEXT);
+});

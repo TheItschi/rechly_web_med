@@ -24,7 +24,18 @@ export type DiagnosisDisplay = "text" | "code" | "both";
 export interface InvoiceMedicalData {
     diagnoses: InvoiceDiagnosis[];
     diagnosis_display: DiagnosisDisplay;
+    /** Einleitungstext between diagnoses and positions, e.g. "Privatärztliche Liquidation gemäß GOÄ" */
+    intro_text?: string;
 }
+
+export const MAX_INTRO_TEXT = 1000;
+
+/** Trimmed intro text (line breaks kept), undefined when empty. */
+export const cleanIntroText = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const text = value.replace(/\r\n?/g, "\n").trim().slice(0, MAX_INTRO_TEXT);
+    return text || undefined;
+};
 
 export class MedicalDataError extends Error {}
 
@@ -85,8 +96,9 @@ export function normalizeMedicalData(raw: unknown): InvoiceMedicalData | undefin
             };
         })
         .filter((d): d is InvoiceDiagnosis => d !== null);
-    if (!diagnoses.length) return undefined;
-    return { diagnoses, diagnosis_display: display };
+    const intro = cleanIntroText(r.intro_text);
+    if (!diagnoses.length && !intro) return undefined;
+    return { diagnoses, diagnosis_display: display, ...(intro ? { intro_text: intro } : {}) };
 }
 
 export function parseMedicalData(value: unknown): InvoiceMedicalData | undefined {

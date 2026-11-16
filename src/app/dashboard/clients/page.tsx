@@ -34,6 +34,7 @@ import { getAllInvoices } from "@/lib/invoiceService";
 import { splitVatId } from "@/lib/validation";
 import { getCompanyInfo } from "@/lib/companyService";
 import { runInvoiceAssistant } from "@/lib/aiService";
+import { useAiEnabled } from "@/lib/useAiEnabled";
 import type {
     Client,
     ClientFormData,
@@ -45,6 +46,7 @@ const { Title } = Typography;
 
 export default function ClientsPage() {
     const { t } = useLanguage();
+    const aiEnabled = useAiEnabled();
     const [vatCheck, setVatCheck] = useState<{
         status: "idle" | "checking" | "valid" | "invalid" | "error";
         name?: string;
@@ -312,6 +314,7 @@ export default function ClientsPage() {
             width: 180,
             render: (_, record) => (
                 <Space>
+                    {aiEnabled && (
                     <Button
                         type="text"
                         icon={<RobotOutlined />}
@@ -324,6 +327,7 @@ export default function ClientsPage() {
                             void handleDraftOverdueReply(record);
                         }}
                     />
+                    )}
                     <Button
                         type="text"
                         icon={<EditOutlined />}

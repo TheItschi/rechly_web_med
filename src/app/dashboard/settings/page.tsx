@@ -43,6 +43,7 @@ import {
     validateNumberPattern,
 } from "@/lib/invoiceNumbering";
 import { getAISettings, saveAISettings, testAI } from "@/lib/aiService";
+import { setAiEnabled } from "@/lib/useAiEnabled";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EditOutlined, MedicineBoxOutlined, OrderedListOutlined } from "@ant-design/icons";
@@ -157,6 +158,7 @@ export default function SettingsPage() {
     const [deleting, setDeleting] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
+    const [introConfigured, setIntroConfigured] = useState(false);
     const [numberingConfigured, setNumberingConfigured] = useState(false);
     const [aiLoading, setAiLoading] = useState(true);
     const [aiSaving, setAiSaving] = useState(false);
@@ -182,6 +184,7 @@ export default function SettingsPage() {
     const selectedProvider = (
         typeof watchedProvider === "string" ? watchedProvider : "openai"
     ) as AIProvider;
+    const aiOff = watchedProvider === "none";
 
     useEffect(() => {
         loadCompanyInfo();
@@ -197,6 +200,7 @@ export default function SettingsPage() {
                 form.setFieldsValue(data);
                 setLogoPreview(data.logo_base64 || null);
                 setSignaturePreview(data.signature_base64 || null);
+                setIntroConfigured(!!data.invoice_intro_text);
                 setNumberingConfigured(!!(data.invoice_number_prefix || data.invoice_number_pattern || data.next_invoice_number));
             }
         } catch (error) {
@@ -212,7 +216,7 @@ export default function SettingsPage() {
             const data = await getAISettings();
             if (data) {
                 aiForm.setFieldsValue({
-                    provider: data.provider,
+                    provider: data.disabled ? "none" : data.provider,
                     model: data.model,
                     base_url: data.base_url || "http://localhost:11434/v1",
                     system_prompt: data.system_prompt,
@@ -241,6 +245,10 @@ export default function SettingsPage() {
                 logo_base64: logoPreview || undefined,
                 signature_base64: signaturePreview || "",
                 professional_title: values.professional_title || "",
+                // Only sent once used, so unmigrated Appwrite schemas keep saving.
+                ...(values.invoice_intro_text?.trim() || introConfigured
+                    ? { invoice_intro_text: values.invoice_intro_text?.trim() || "" }
+                    : {}),
                 // Numbering fields are only sent once configured, so unmigrated
                 // Appwrite schemas keep saving the rest of the company data.
                 ...(values.invoice_number_prefix || values.invoice_number_pattern || values.next_invoice_number || numberingConfigured
@@ -324,7 +332,7 @@ export default function SettingsPage() {
     };
 
     const handleSaveAISettings = async (values: {
-        provider: AIProvider;
+        provider: AIProvider | "none";
         model: string;
         base_url?: string;
         api_key?: string;
@@ -333,6 +341,7 @@ export default function SettingsPage() {
         setAiSaving(true);
         try {
             const saved = await saveAISettings(values);
+            setAiEnabled(!saved.disabled);
             aiForm.setFieldValue("api_key", "");
             setAiKeyConfigured(saved.api_key_configured);
             setAiDailyUsage(saved.daily_usage || null);
@@ -382,6 +391,7 @@ export default function SettingsPage() {
     };
 
     const providerOptions = [
+        { value: "none", label: "Keine KI nutzen" },
         { value: "ollama", label: t("settings.aiProviderOllama") },
         { value: "openai", label: t("settings.aiProviderOpenAI") },
         { value: "anthropic", label: t("settings.aiProviderAnthropic") },
@@ -453,6 +463,14 @@ export default function SettingsPage() {
                         label="Berufsbezeichnung (Briefkopf)"
                     >
                         <Input placeholder="z. B. Ärztin, Facharzt für Allgemeinmedizin" />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="invoice_intro_text"
+                        label="Einleitungstext auf Rechnungen"
+                        extra="Steht zwischen Diagnose und Rechnungspositionen und wird bei neuen Rechnungen vorbelegt; pro Rechnung änderbar. Leer lassen, wenn kein Text erscheinen soll."
+                    >
+                        <Input.TextArea rows={2} maxLength={1000} showCount placeholder="z. B. Privatärztliche Liquidation gemäß GOÄ" />
                     </Form.Item>
 
                     <Form.Item
@@ -676,7 +694,7 @@ export default function SettingsPage() {
 
                         <Divider />
 
-                        {aiDailyUsage ? (
+                        {!aiOff && aiDailyUsage ? (
                             <Card size="small" style={{ marginBottom: 16 }}>
                                 <Space
                                     direction="vertical"
@@ -735,7 +753,8 @@ export default function SettingsPage() {
                         >
                             <Select
                                 options={providerOptions}
-                                onChange={(value: AIProvider) => {
+                                onChange={(value: AIProvider | "none") => {
+                                    if (value === "none") return;
                                     const presets = aiModelPresets[value] || [];
                                     const currentModel =
                                         aiForm.getFieldValue("model");
@@ -761,6 +780,16 @@ export default function SettingsPage() {
                             />
                         </Form.Item>
 
+                        {aiOff ? (
+                            <Alert
+                                type="info"
+                                showIcon
+                                style={{ marginBottom: 16 }}
+                                message="KI-Funktionen sind ausgeschaltet"
+                                description="Nach dem Speichern werden alle KI-Schaltflächen und -Dialoge ausgeblendet; es werden keine Daten an KI-Dienste übertragen. Die bisherigen Anbieter-Einstellungen bleiben für ein späteres Einschalten erhalten."
+                            />
+                        ) : (
+                        <>
                         {selectedProvider === "ollama" && (
                             <>
                                 <Alert
@@ -878,6 +907,8 @@ export default function SettingsPage() {
                                 )}
                             />
                         </Form.Item>
+                        </>
+                        )}
 
                         <Form.Item style={{ marginBottom: 0 }}>
                             <Button
@@ -891,6 +922,7 @@ export default function SettingsPage() {
                         </Form.Item>
                     </Card>
 
+                    {!aiOff && (
                     <Card style={{ marginTop: 16 }}>
                         <Title level={5}>{t("settings.aiTestRun")}</Title>
 
@@ -938,6 +970,7 @@ export default function SettingsPage() {
                             ) : null}
                         </Space>
                     </Card>
+                    )}
                 </Form>
             ),
         },

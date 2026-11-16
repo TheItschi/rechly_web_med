@@ -18,6 +18,7 @@ for (const [collection, attribute, size, encrypt = true] of [
     ["invoices", "medicalData", 16000],
     ["invoice_items", "goaeData", 4000],
     ["user_company", "professionalTitle", 255, false],
+    ["user_company", "invoiceIntroText", 1000, false],
     ["user_company", "signatureBase64", 5000000, false],
     ["user_company", "invoiceNumberPrefix", 32, false],
     ["user_company", "invoiceNumberPattern", 64, false],

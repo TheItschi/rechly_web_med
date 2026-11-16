@@ -38,6 +38,7 @@ import {
 import { getCompanyInfo } from "@/lib/companyService";
 import DunningCard from "@/components/DunningCard";
 import { runInvoiceAssistant } from "@/lib/aiService";
+import { useAiEnabled } from "@/lib/useAiEnabled";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -53,6 +54,7 @@ export default function InvoiceDetailPage() {
     const params = useParams();
     const invoiceId = params.id as string;
     const { t } = useLanguage();
+    const aiEnabled = useAiEnabled();
 
     const statusConfig: Record<
         string,
@@ -462,6 +464,11 @@ export default function InvoiceDetailPage() {
                             <Descriptions.Item label={t("invoiceDetail.currency")}>
                                 EUR
                             </Descriptions.Item>
+                            {invoice.medical?.intro_text ? (
+                                <Descriptions.Item label="Einleitungstext">
+                                    <span style={{ whiteSpace: "pre-wrap" }}>{invoice.medical.intro_text}</span>
+                                </Descriptions.Item>
+                            ) : null}
                             {invoice.medical?.diagnoses.length ? (
                                 <Descriptions.Item label="Diagnosen">
                                     <div>
@@ -580,6 +587,7 @@ export default function InvoiceDetailPage() {
                     >
                         {t("invoiceDetail.cancelCorrection")}
                     </Button>
+                    {aiEnabled && (
                     <Button
                         icon={<RobotOutlined />}
                         loading={draftingReminder}
@@ -587,6 +595,7 @@ export default function InvoiceDetailPage() {
                     >
                         {t("invoiceDetail.aiReminder")}
                     </Button>
+                    )}
                     <Tooltip title="Erzeugt einen E-Mail-Entwurf (.eml) mit Standardtext und der Rechnung als PDF-Anhang. Datei öffnen – Outlook zeigt die Mail sendebereit an.">
                         <Button
                             icon={<MailOutlined />}

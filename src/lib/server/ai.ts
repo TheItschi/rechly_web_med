@@ -131,6 +131,14 @@ function decryptValue(payload: {
     return decrypted.toString("utf8").trim();
 }
 
+/** "Keine KI nutzen" was chosen in the settings (provider settings stay stored for re-enabling). */
+export function isAIDisabled(prefs: Record<string, unknown>): boolean {
+    const stored = prefs[AI_PREFS_KEY];
+    return Boolean(stored && typeof stored === "object" && (stored as { disabled?: unknown }).disabled === true);
+}
+
+export const AI_DISABLED_MESSAGE = "KI-Funktionen sind in den Einstellungen deaktiviert.";
+
 export function isValidAIProvider(value: unknown): value is AIProvider {
     return (
         typeof value === "string" &&

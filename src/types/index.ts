@@ -30,6 +30,8 @@ export interface UserCompany {
     professional_title?: string;
     /** Faksimile-Unterschrift (data:image/png|jpeg;base64,…) */
     signature_base64?: string;
+    /** Standard-Einleitungstext neuer Rechnungen (zwischen Diagnose und Positionen) */
+    invoice_intro_text?: string;
     invoice_number_prefix?: string;
     invoice_number_pattern?: string;
     next_invoice_number?: number;
@@ -262,10 +264,13 @@ export interface AISettings {
         remaining: number;
     };
     model_presets?: Record<AIProvider, string[]>;
+    /** "Keine KI nutzen": all AI features hidden and blocked */
+    disabled?: boolean;
 }
 
 export interface AISettingsUpdate {
-    provider: AIProvider;
+    /** "none" switches all AI features off */
+    provider: AIProvider | "none";
     model: string;
     base_url?: string;
     system_prompt?: string;

@@ -31,3 +31,9 @@ test("template validation rejects empty templates and invalid diagnoses", () => 
     const ok = sanitizeTemplatePayload({ items: [{ description: "x" }], diagnoses: [{ code: "r51", text: "Kopfschmerz" }], diagnosisDisplay: "code" });
     assert.ok(ok.ok && ok.value.diagnoses?.[0].code === "R51" && ok.value.diagnosisDisplay === "code");
 });
+
+test("templates keep the Einleitungstext", async () => {
+    const { sanitizeTemplatePayload } = await import("../src/lib/invoiceTemplates");
+    const r = sanitizeTemplatePayload({ introText: " Leichenschau ", items: [{ description: "x", quantity: 1, price: 1, taxRatePercent: 0 }] });
+    assert.ok(r.ok && r.value.introText === "Leichenschau" && !r.value.diagnoses);
+});

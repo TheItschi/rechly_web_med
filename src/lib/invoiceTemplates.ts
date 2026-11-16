@@ -4,7 +4,7 @@
  * Leistungsdatum – it is chosen when a template is applied.
  */
 import type { GoaeFeeType } from "@/lib/goae/fees";
-import { normalizeMedicalData, type DiagnosisDisplay, type InvoiceDiagnosis } from "@/lib/icd10";
+import { cleanIntroText, normalizeMedicalData, type DiagnosisDisplay, type InvoiceDiagnosis } from "@/lib/icd10";
 
 export interface InvoiceTemplateGoae {
     number: string;
@@ -34,6 +34,8 @@ export interface InvoiceTemplatePayload {
     paymentTerms?: string;
     diagnoses?: InvoiceDiagnosis[];
     diagnosisDisplay?: DiagnosisDisplay;
+    /** Einleitungstext, e.g. "Leichenschau gemäß …" */
+    introText?: string;
     items: InvoiceTemplateItem[];
 }
 
@@ -113,7 +115,8 @@ export function sanitizeTemplatePayload(raw: unknown): { ok: true; value: Invoic
             ...(typeof body.clientId === "string" && body.clientId ? { clientId: body.clientId.slice(0, 64) } : {}),
             ...(cleanString(body.notes, 1000) ? { notes: cleanString(body.notes, 1000) } : {}),
             ...(cleanString(body.paymentTerms, 1000) ? { paymentTerms: cleanString(body.paymentTerms, 1000) } : {}),
-            ...(medical ? { diagnoses: medical.diagnoses, diagnosisDisplay: medical.diagnosis_display } : {}),
+            ...(medical?.diagnoses.length ? { diagnoses: medical.diagnoses, diagnosisDisplay: medical.diagnosis_display } : {}),
+            ...(cleanIntroText(body.introText) ? { introText: cleanIntroText(body.introText) } : {}),
             items,
         },
     };
