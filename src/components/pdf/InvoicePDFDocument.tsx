@@ -273,6 +273,55 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
         ? `${invoice.client.address_line1}\n${invoice.client.postal_code} ${invoice.client.city}`
         : "";
 
+    const medicalRows = isMedical ? sortForMedicalInvoice(items) : [];
+    const renderMedicalRow = (item: InvoiceItem, index: number) => (
+        <View key={item.id || index} style={styles.tableRow} wrap={false}>
+            <Text style={styles.colDate}>
+                {item.goae ? formatDateGerman(item.goae.service_date) : ""}
+            </Text>
+            <Text style={styles.colGoae}>{item.goae?.number ?? ""}</Text>
+            <View style={styles.colDescription}>
+                <Text>{item.description}</Text>
+                {item.goae?.justification && (
+                    <Text style={styles.justification}>Begründung: {item.goae.justification}</Text>
+                )}
+                {item.goae?.fee_agreement && (
+                    <Text style={styles.justification}>Gemäß Vereinbarung nach § 2 GOÄ</Text>
+                )}
+            </View>
+            <Text style={styles.colFactor}>{item.goae ? formatFactor(item.goae.factor) : ""}</Text>
+            <Text style={styles.colQtySmall}>{item.quantity}</Text>
+            {showVat && <Text style={styles.colTax}>{item.tax_rate_percent}%</Text>}
+            <Text style={styles.colTotal}>{formatCurrency(item.total)}</Text>
+        </View>
+    );
+    const plainRows: InvoiceItem[] = invoice.items || [];
+    const renderPlainRow = (item: InvoiceItem, index: number) => (
+        <View
+            key={item.id || index}
+            style={styles.tableRow}
+        >
+            <Text style={styles.colDescription}>
+                {item.description}{item.gtin ? `\nGTIN: ${item.gtin}` : ""}
+            </Text>
+            <Text style={styles.colQuantity}>
+                {item.quantity}
+            </Text>
+            <Text style={styles.colUnit}>
+                {item.unit_of_measure}
+            </Text>
+            <Text style={styles.colPrice}>
+                {formatCurrency(item.price)}
+            </Text>
+            <Text style={styles.colTax}>
+                {item.tax_rate_percent}%
+            </Text>
+            <Text style={styles.colTotal}>
+                {formatCurrency(item.total)}
+            </Text>
+        </View>
+    );
+
     return (
         <Document>
             <Page size="A4" style={styles.page}>
@@ -372,27 +421,7 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                             {showVat && <Text style={[styles.colTax, styles.headerText]}>{t("invoicePdf.vat")}</Text>}
                             <Text style={[styles.colTotal, styles.headerText]}>Betrag</Text>
                         </View>
-                        {sortForMedicalInvoice(items).map((item, index) => (
-                            <View key={item.id || index} style={styles.tableRow} wrap={false}>
-                                <Text style={styles.colDate}>
-                                    {item.goae ? formatDateGerman(item.goae.service_date) : ""}
-                                </Text>
-                                <Text style={styles.colGoae}>{item.goae?.number ?? ""}</Text>
-                                <View style={styles.colDescription}>
-                                    <Text>{item.description}</Text>
-                                    {item.goae?.justification && (
-                                        <Text style={styles.justification}>Begründung: {item.goae.justification}</Text>
-                                    )}
-                                    {item.goae?.fee_agreement && (
-                                        <Text style={styles.justification}>Gemäß Vereinbarung nach § 2 GOÄ</Text>
-                                    )}
-                                </View>
-                                <Text style={styles.colFactor}>{item.goae ? formatFactor(item.goae.factor) : ""}</Text>
-                                <Text style={styles.colQtySmall}>{item.quantity}</Text>
-                                {showVat && <Text style={styles.colTax}>{item.tax_rate_percent}%</Text>}
-                                <Text style={styles.colTotal}>{formatCurrency(item.total)}</Text>
-                            </View>
-                        ))}
+                        {medicalRows.slice(0, -1).map(renderMedicalRow)}
                     </View>
                 )}
 
@@ -424,36 +453,16 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     </View>
 
                     {/* Rows */}
-                    {(invoice.items || []).map(
-                        (item: InvoiceItem, index: number) => (
-                            <View
-                                key={item.id || index}
-                                style={styles.tableRow}
-                            >
-                                <Text style={styles.colDescription}>
-                                    {item.description}{item.gtin ? `\nGTIN: ${item.gtin}` : ""}
-                                </Text>
-                                <Text style={styles.colQuantity}>
-                                    {item.quantity}
-                                </Text>
-                                <Text style={styles.colUnit}>
-                                    {item.unit_of_measure}
-                                </Text>
-                                <Text style={styles.colPrice}>
-                                    {formatCurrency(item.price)}
-                                </Text>
-                                <Text style={styles.colTax}>
-                                    {item.tax_rate_percent}%
-                                </Text>
-                                <Text style={styles.colTotal}>
-                                    {formatCurrency(item.total)}
-                                </Text>
-                            </View>
-                        )
-                    )}
+                    {plainRows.slice(0, -1).map(renderPlainRow)}
                 </View>
                 )}
 
+                {/* Last position + totals stay together: a page break never
+                    separates the totals from the positions or from each other. */}
+                <View wrap={false}>
+                {isMedical
+                    ? medicalRows.slice(-1).map((item) => renderMedicalRow(item, medicalRows.length - 1))
+                    : plainRows.slice(-1).map((item) => renderPlainRow(item, plainRows.length - 1))}
                 {/* Totals */}
                 <View style={styles.totals}>
                     <View style={styles.totalRow}>
@@ -476,6 +485,7 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                             {formatCurrency(invoice.total_gross)}
                         </Text>
                     </View>
+                </View>
                 </View>
 
                 {/* Notes */}
