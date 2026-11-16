@@ -75,6 +75,8 @@ interface LineItem {
     gtin?: string;
     /** Set for GOÄ lines; price is derived from Einfachsatz × Faktor */
     goae?: GoaeLineState;
+    /** Catalogue text last filled in automatically; while the description still equals it, a number change replaces it */
+    goaeAutoText?: string;
     key: string;
     description: string;
     service_summary?: string;
@@ -417,6 +419,7 @@ export default function InvoiceCreatePage() {
             {
                 key: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
                 description: entry?.title ?? "",
+                goaeAutoText: entry?.title ?? "",
                 service_summary: "",
                 quantity: 1,
                 unit_of_measure: t("invoiceCreate.unitPiece"),
@@ -433,11 +436,13 @@ export default function InvoiceCreatePage() {
         setLineItems((items) =>
             items.map((item) => {
                 if (item.key !== key) return item;
-                const previousTitle = item.goae ? findGoaeEntry(item.goae.number)?.title : undefined;
-                const description = catalogTitle && (!item.description.trim() || item.description === previousTitle)
-                    ? catalogTitle
-                    : item.description;
-                return { ...item, goae: next, description, price: goaePrice(next) };
+                // Replace the text only while it is untouched (empty or the last
+                // auto-filled catalogue text); manual wording is kept.
+                const previousAuto = item.goaeAutoText ?? (item.goae ? findGoaeEntry(item.goae.number)?.title : undefined) ?? "";
+                const untouched = !item.description.trim() || item.description === previousAuto;
+                if (!untouched || next.number === item.goae?.number) return { ...item, goae: next, price: goaePrice(next) };
+                const autoText = catalogTitle ?? findGoaeEntry(next.number)?.title ?? "";
+                return { ...item, goae: next, description: autoText, goaeAutoText: autoText, price: goaePrice(next) };
             }),
         );
     };

@@ -231,7 +231,7 @@ export default function ClientsPage() {
     const openCreateModal = () => {
         setEditingClient(null);
         form.resetFields();
-        form.setFieldsValue({ country: "Deutschland", client_type: "company" });
+        form.setFieldsValue({ country: "Deutschland", client_type: "person" });
         setModalOpen(true);
     };
 

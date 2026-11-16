@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     signature: { height: 46, marginTop: 6, marginBottom: 2, objectFit: "contain", alignSelf: "flex-start" },
     signatureName: { fontSize: 9, color: "#444" },
     colDate: { width: 56 },
-    colGoae: { width: 34 },
+    colGoae: { width: 46 },
     colFactor: { width: 34, textAlign: "right" },
     colQtySmall: { width: 26, textAlign: "right" },
     justification: { fontSize: 8, color: "#555", fontStyle: "italic", marginTop: 2 },
@@ -503,6 +503,14 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     </View>
                 )}
 
+                {/* Grußformel mit Faksimile */}
+                <View style={styles.closing} wrap={false}>
+                    <Text>Mit freundlichen Grüßen</Text>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    {signature ? <Image src={signature} style={styles.signature} /> : <View style={{ height: 36 }} />}
+                    <Text style={styles.signatureName}>{company?.name}</Text>
+                </View>
+
                 {/* Girocode: scan-to-pay QR (EPC069-12) */}
                 {girocodeUrl && (
                     <View
@@ -531,14 +539,6 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                         </View>
                     </View>
                 )}
-
-                {/* Grußformel mit Faksimile */}
-                <View style={styles.closing} wrap={false}>
-                    <Text>Mit freundlichen Grüßen</Text>
-                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                    {signature ? <Image src={signature} style={styles.signature} /> : <View style={{ height: 36 }} />}
-                    <Text style={styles.signatureName}>{company?.name}</Text>
-                </View>
 
                 {/* Footer */}
                 <View style={styles.footer} fixed>
