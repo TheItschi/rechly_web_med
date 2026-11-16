@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { Button, Space, message, Spin, Card } from "antd";
 import {
@@ -8,7 +8,7 @@ import {
     DownloadOutlined,
     PrinterOutlined,
 } from "@ant-design/icons";
-import { PDFViewer, PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFViewer, PDFDownloadLink, pdf } from "@react-pdf/renderer";
 import { buildGirocodeDataUrl, InvoicePDF, invoicePdfFileName } from "@/components/pdf/InvoicePDFDocument";
 import { getInvoiceById } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
@@ -27,6 +27,18 @@ export default function InvoicePDFPage() {
     const [invoice, setInvoice] = useState<InvoiceWithDetails | null>(null);
     const [company, setCompany] = useState<UserCompany | null>(null);
     const [girocodeUrl, setGirocodeUrl] = useState<string | null>(null);
+    const [printing, setPrinting] = useState(false);
+    const printFrameRef = useRef<HTMLIFrameElement | null>(null);
+    const autoPrintedRef = useRef(false);
+
+    // Remove the hidden print frame and its blob URL when leaving the page.
+    useEffect(() => () => {
+        const frame = printFrameRef.current;
+        if (frame) {
+            URL.revokeObjectURL(frame.src);
+            frame.remove();
+        }
+    }, []);
 
     useEffect(() => {
         if (invoiceId) {
@@ -55,14 +67,45 @@ export default function InvoicePDFPage() {
         }
     };
 
-    const handlePrint = useCallback(() => {
-        window.print();
-    }, []);
+    // Print the generated PDF itself, not the HTML page around the viewer:
+    // window.print() would only print the embedded viewer as a cropped image.
+    const handlePrint = useCallback(async () => {
+        if (!invoice) return;
+        setPrinting(true);
+        try {
+            const blob = await pdf(<InvoicePDF invoice={invoice} company={company} t={t} girocodeUrl={girocodeUrl} />).toBlob();
+            const url = URL.createObjectURL(blob);
+            const old = printFrameRef.current;
+            if (old) {
+                URL.revokeObjectURL(old.src);
+                old.remove();
+            }
+            const frame = document.createElement("iframe");
+            frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+            frame.onload = () => {
+                try {
+                    frame.contentWindow?.focus();
+                    frame.contentWindow?.print();
+                } catch {
+                    // Browser does not allow printing the embedded PDF: open it instead.
+                    window.open(url, "_blank");
+                }
+                setPrinting(false);
+            };
+            frame.src = url;
+            document.body.appendChild(frame);
+            printFrameRef.current = frame;
+        } catch (error) {
+            console.error("Error printing PDF:", error);
+            message.error(t("invoicePdf.loadError"));
+            setPrinting(false);
+        }
+    }, [invoice, company, t, girocodeUrl]);
 
     useEffect(() => {
-        if (!loading && invoice && shouldPrint) {
-            // Delay to ensure PDF is rendered
-            setTimeout(handlePrint, 1000);
+        if (!loading && invoice && shouldPrint && !autoPrintedRef.current) {
+            autoPrintedRef.current = true;
+            void handlePrint();
         }
     }, [loading, invoice, shouldPrint, handlePrint]);
 
@@ -106,7 +149,8 @@ export default function InvoicePDFPage() {
                     <Space>
                         <Button
                             icon={<PrinterOutlined />}
-                            onClick={handlePrint}
+                            loading={printing}
+                            onClick={() => void handlePrint()}
                         >
                             {t("invoicePdf.print")}
                         </Button>
