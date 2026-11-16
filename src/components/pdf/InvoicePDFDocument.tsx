@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     colQtySmall: { width: 26, textAlign: "right" },
     justification: { fontSize: 8, color: "#555", fontStyle: "italic", marginTop: 2 },
     diagnoses: { marginBottom: 12 },
-    introText: { fontSize: 10, color: "#333", lineHeight: 1.4, marginBottom: 12 },
+    introText: { fontSize: 11, fontWeight: "bold", lineHeight: 1.35, marginBottom: 16 },
     headerText: {
         fontWeight: "bold",
         fontSize: 9,
@@ -343,6 +343,11 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     </View>
                 </View>
 
+                {/* Einleitungstext, z. B. "Privatärztliche Liquidation gemäß GOÄ" */}
+                {invoice.medical?.intro_text ? (
+                    <Text style={styles.introText}>{invoice.medical.intro_text}</Text>
+                ) : null}
+
                 {/* Diagnosen (ICD-10-GM) */}
                 {diagnoses.length > 0 && (
                     <View style={styles.diagnoses}>
@@ -354,11 +359,6 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                         ))}
                     </View>
                 )}
-
-                {/* Einleitungstext, z. B. "Privatärztliche Liquidation gemäß GOÄ" */}
-                {invoice.medical?.intro_text ? (
-                    <Text style={styles.introText}>{invoice.medical.intro_text}</Text>
-                ) : null}
 
                 {/* Leistungsaufstellung nach § 12 GOÄ */}
                 {isMedical && (
