@@ -182,3 +182,13 @@ test("Basislabor M II: H1 alias, Höchstwert 3541.H, Laborrahmen", async () => {
     assert.equal(back.entries.find((e) => e.number === "3541.H")?.maxValueFor, "H1");
     assert.equal(GOAE_CATALOG.filter((e) => /\.H1$/.test(e.number)).length, 23);
 });
+
+test("Homöopathie Nr. 30/31: Ausschlüsse und Zeiträume", () => {
+    assert.ok(codes([line("a", "30"), line("b", "1")]).includes("exclusion"));
+    assert.ok(codes([line("a", "31"), line("b", "4")]).includes("exclusion"));
+    assert.ok(codes([line("a", "30")], { history: [{ number: "30", serviceDate: "2026-03-01", quantity: 1 }] }).includes("max-per-period"));
+    assert.ok(!codes([line("a", "30")], { history: [{ number: "30", serviceDate: "2025-10-01", quantity: 1 }] }).includes("max-per-period"));
+    const h = ["2026-06-10", "2026-08-10", "2026-10-10"].map((serviceDate) => ({ number: "31", serviceDate, quantity: 1 }));
+    assert.ok(codes([line("a", "31")], { history: h }).includes("max-per-period"));
+    assert.ok(!codes([line("a", "31")], { history: h.slice(1) }).includes("max-per-period"));
+});
