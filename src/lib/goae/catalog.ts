@@ -43,7 +43,16 @@ export interface GoaeCatalogEntry {
     allowedFactors?: number[];
     /** Fixed amount in EUR instead of Punktzahl (e.g. Wegegeld § 8) */
     fixedFee?: number;
+    /**
+     * Höchstwert entry (e.g. 3541.H) for the numbers marked with this
+     * group ("H1" → all numbers ending in ".H1"): per day, the sum of their
+     * Punktzahlen may not exceed this entry's Punktzahl.
+     */
+    maxValueFor?: string;
 }
+
+/** Höchstwert group of a number from its suffix ("3562.H1" → "H1"). */
+export const goaeMaxValueGroup = (number: string): string | undefined => /\.(H\d)$/.exec(normalizeGoaeNumber(number))?.[1];
 
 /** Einfachsatz (1,0-fach) in EUR of a catalogue entry. */
 export const catalogBaseFee = (entry: GoaeCatalogEntry): number =>
@@ -111,11 +120,63 @@ export const GOAE_CATALOG: GoaeCatalogEntry[] = [
     { number: "253", title: "Injektion, intravenös", points: 70, feeType: "personal", section: "C" },
     { number: "410", title: "Ultraschalluntersuchung eines Organs", points: 200, feeType: "personal", section: "C", maxPerDay: 1, invoiceHint: "Das untersuchte Organ ist in der Rechnung anzugeben." },
     { number: "420", title: "Ultraschalluntersuchung von bis zu drei weiteren Organen im Anschluss an eine der Leistungen nach den Nummern 410 bis 418, je Organ", points: 80, feeType: "personal", section: "C", maxPerDay: 3, requiresOneOf: ["410", "411", "412", "413", "414", "415", "416", "417", "418"], invoiceHint: "Die untersuchten Organe sind in der Rechnung anzugeben." },
+    // ── Abschnitt M II: Basislabor (Gebührenrahmen 1,0–1,3, Schwelle 1,15) ──
+    { number: "3541.H", title: "Höchstwert für die mit H1 gekennzeichneten Untersuchungen des Abschnitts M II", points: 480, feeType: "lab", section: "M", repeatSameDayNeedsReason: true, maxValueFor: "H1", invoiceHint: "Nur ansetzen, wenn die Summe der H1-Untersuchungen eines Tages 480 Punkte übersteigt; die erbrachten Einzeluntersuchungen in der Rechnung angeben." },
+    { number: "3550", title: "Blutbild und Blutbildbestandteile (Erythrozyten, Leukozyten, Thrombozyten, Hämoglobin, Hämatokrit, Erythrozytenindices)", points: 60, feeType: "lab", section: "M", repeatSameDayNeedsReason: true, invoiceHint: "Je Untersuchungsmaterial nur einmal berechnungsfähig, unabhängig von der Zahl der Parameter." },
+    { number: "3551", title: "Differenzierung der Leukozyten, elektronisch-zytometrisch, zytochemisch-zytometrisch oder mittels mechanisierter Mustererkennung (Bildanalyse), zusätzlich zu der Leistung nach Nummer 3550", points: 20, feeType: "lab", section: "M", requiresOneOf: ["3550"] },
+    { number: "3552", title: "Retikulozytenzahl", points: 70, feeType: "lab", section: "M" },
+    { number: "3555", title: "Calcium", points: 40, feeType: "lab", section: "M" },
+    { number: "3556", title: "Chlorid", points: 30, feeType: "lab", section: "M" },
+    { number: "3557", title: "Kalium", points: 30, feeType: "lab", section: "M" },
+    { number: "3558", title: "Natrium", points: 30, feeType: "lab", section: "M" },
+    { number: "3560", title: "Glukose", points: 40, feeType: "lab", section: "M" },
+    { number: "3561", title: "Glykierte Hämoglobine (HbA1, HbA1c)", points: 200, feeType: "lab", section: "M" },
+    { number: "3562.H1", title: "Cholesterin", points: 40, feeType: "lab", section: "M" },
+    { number: "3563.H1", title: "HDL-Cholesterin", points: 40, feeType: "lab", section: "M" },
+    { number: "3564.H1", title: "LDL-Cholesterin", points: 40, feeType: "lab", section: "M" },
+    { number: "3565.H1", title: "Triglyzeride", points: 40, feeType: "lab", section: "M" },
+    { number: "3570.H1", title: "Albumin, photometrisch", points: 30, feeType: "lab", section: "M" },
+    { number: "3571", title: "Immunglobuline (IgA, IgG, IgM), je Immunglobulin, mittels Ligandenassay, Immundiffusion oder ähnlicher Untersuchungsmethoden", points: 150, feeType: "lab", section: "M" },
+    { number: "3572", title: "Immunglobulin E (IgE)", points: 250, feeType: "lab", section: "M" },
+    { number: "3573.H1", title: "Gesamt-Protein im Serum oder Plasma", points: 30, feeType: "lab", section: "M" },
+    { number: "3574", title: "Proteinelektrophorese im Serum", points: 200, feeType: "lab", section: "M" },
+    { number: "3575", title: "Transferrin, Immundiffusion oder ähnliche Untersuchungsmethoden", points: 100, feeType: "lab", section: "M" },
+    { number: "3580.H1", title: "Anorganisches Phosphat", points: 40, feeType: "lab", section: "M" },
+    { number: "3581.H1", title: "Bilirubin, gesamt", points: 40, feeType: "lab", section: "M" },
+    { number: "3582", title: "Bilirubin, direkt", points: 70, feeType: "lab", section: "M" },
+    { number: "3583.H1", title: "Harnsäure", points: 40, feeType: "lab", section: "M" },
+    { number: "3584.H1", title: "Harnstoff (Harnstoff-N, BUN)", points: 40, feeType: "lab", section: "M" },
+    { number: "3585.H1", title: "Kreatinin", points: 40, feeType: "lab", section: "M" },
+    { number: "3587.H1", title: "Alkalische Phosphatase", points: 40, feeType: "lab", section: "M" },
+    { number: "3588.H1", title: "Alpha-Amylase (auch immuninhibitorische Bestimmung der Pankreas-Amylase)", points: 50, feeType: "lab", section: "M" },
+    { number: "3589.H1", title: "Cholinesterase (Pseudocholinesterase, CHE, PCHE)", points: 40, feeType: "lab", section: "M" },
+    { number: "3590.H1", title: "Creatinkinase (CK)", points: 40, feeType: "lab", section: "M" },
+    { number: "3591.H1", title: "Creatinkinase MB (CK-MB), Immuninhibitionsmethode", points: 50, feeType: "lab", section: "M" },
+    { number: "3592.H1", title: "Gamma-Glutamyltranspeptidase (Gamma-Glutamyltransferase, Gamma-GT)", points: 40, feeType: "lab", section: "M" },
+    { number: "3593.H1", title: "Glutamatdehydrogenase (GLDH)", points: 50, feeType: "lab", section: "M" },
+    { number: "3594.H1", title: "Glutamatoxalazetattransaminase (GOT, Aspartataminotransferase, ASAT, AST)", points: 40, feeType: "lab", section: "M" },
+    { number: "3595.H1", title: "Glutamatpyruvattransaminase (GPT, Alaninaminotransferase, ALAT, ALT)", points: 40, feeType: "lab", section: "M" },
+    { number: "3596.H1", title: "Hydroxybutyratdehydrogenase (HBDH)", points: 40, feeType: "lab", section: "M" },
+    { number: "3597.H1", title: "Laktatdehydrogenase (LDH)", points: 40, feeType: "lab", section: "M" },
+    { number: "3598.H1", title: "Lipase", points: 50, feeType: "lab", section: "M" },
+    { number: "3599", title: "Saure Phosphatase (sP), photometrisch", points: 70, feeType: "lab", section: "M" },
+    { number: "3605", title: "Partielle Thromboplastinzeit (PTT, aPTT), Einfachbestimmung", points: 50, feeType: "lab", section: "M" },
+    { number: "3606", title: "Plasmathrombinzeit (PTZ, TZ), Doppelbestimmung", points: 70, feeType: "lab", section: "M" },
+    { number: "3607", title: "Thromboplastinzeit (Prothrombinzeit, TPZ, Quickwert), Einfachbestimmung", points: 50, feeType: "lab", section: "M" },
+    { number: "3610", title: "Amylase-Clearance (Zweimalige Bestimmung von Amylase)", points: 100, feeType: "lab", section: "M", invoiceHint: "Bei weniger Bestimmungen als angegeben nur die tatsächlich durchgeführten berechnungsfähig; zusätzlich erforderliche Bestimmungen mit Begründung als Einzelleistungen." },
+    { number: "3611", title: "Blutzuckertagesprofil (Viermalige Bestimmung von Glukose)", points: 160, feeType: "lab", section: "M", invoiceHint: "Bei weniger Bestimmungen als angegeben nur die tatsächlich durchgeführten berechnungsfähig; zusätzlich erforderliche Bestimmungen mit Begründung als Einzelleistungen." },
+    { number: "3612", title: "Glukosetoleranztest, intravenös (Siebenmalige Bestimmung von Glukose)", points: 280, feeType: "lab", section: "M", invoiceHint: "Bei weniger Bestimmungen als angegeben nur die tatsächlich durchgeführten berechnungsfähig; zusätzlich erforderliche Bestimmungen mit Begründung als Einzelleistungen." },
+    { number: "3613", title: "Glukosetoleranztest, oral (Viermalige Bestimmung von Glukose)", points: 160, feeType: "lab", section: "M", invoiceHint: "Bei weniger Bestimmungen als angegeben nur die tatsächlich durchgeführten berechnungsfähig; zusätzlich erforderliche Bestimmungen mit Begründung als Einzelleistungen." },
+    { number: "3615", title: "Kreatinin-Clearance (Zweimalige Bestimmung von Kreatinin)", points: 60, feeType: "lab", section: "M", invoiceHint: "Bei weniger Bestimmungen als angegeben nur die tatsächlich durchgeführten berechnungsfähig; zusätzlich erforderliche Bestimmungen mit Begründung als Einzelleistungen." },
+    { number: "3620", title: "Eisen im Serum oder Plasma", points: 40, feeType: "lab", section: "M" },
+    { number: "3621", title: "Magnesium", points: 40, feeType: "lab", section: "M" },
 ];
 
 export type GoaeCatalogMode = "merge" | "replace";
 
 const catalogIndex = new Map<string, GoaeCatalogEntry>();
+/** "3562" → entry "3562.H1": the H marking belongs to the number (Allg. Best. M). */
+const aliasIndex = new Map<string, GoaeCatalogEntry>();
 type CustomCatalog = { mode: GoaeCatalogMode; entries: GoaeCatalogEntry[] } | null;
 let customCatalog: CustomCatalog = null;
 let builtFor: CustomCatalog | undefined;
@@ -127,6 +188,11 @@ function ensureIndex(): void {
         for (const entry of GOAE_CATALOG) catalogIndex.set(normalizeGoaeNumber(entry.number), entry);
     }
     for (const entry of customCatalog?.entries ?? []) catalogIndex.set(normalizeGoaeNumber(entry.number), entry);
+    aliasIndex.clear();
+    for (const [number, entry] of catalogIndex) {
+        const base = /^(\d+)\.H\d?$/.exec(number)?.[1];
+        if (base && !catalogIndex.has(base)) aliasIndex.set(base, entry);
+    }
     builtFor = customCatalog;
 }
 
@@ -150,7 +216,8 @@ export function registerGoaeCatalog(entries: GoaeCatalogEntry[]): void {
 
 export function findGoaeEntry(number: string): GoaeCatalogEntry | undefined {
     ensureIndex();
-    return catalogIndex.get(normalizeGoaeNumber(number));
+    const key = normalizeGoaeNumber(number);
+    return catalogIndex.get(key) ?? aliasIndex.get(key);
 }
 
 export function listGoaeCatalog(): GoaeCatalogEntry[] {

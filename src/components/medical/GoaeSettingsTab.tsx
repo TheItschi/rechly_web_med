@@ -121,7 +121,8 @@ export function GoaeSettingsTab() {
                     Optional: <Text code>Gebuehrenart</Text> (persönlich/technisch/labor/zuschlag), <Text code>Abschnitt</Text>, <Text code>NichtNeben</Text>,{" "}
                     <Text code>NurNeben</Text>, <Text code>Allein</Text>, <Text code>Erfordert</Text>, <Text code>MaxTag</Text>, <Text code>MaxFall</Text>,{" "}
                     <Text code>MaxAnzahl</Text> + <Text code>MaxMonate</Text> oder <Text code>Kalenderjahr</Text>, <Text code>NichtImFall</Text>, <Text code>MinMinuten</Text>,{" "}
-                    <Text code>MehrfachBegruendung</Text>, <Text code>Hinweis</Text>. Listen mit Komma trennen. Am einfachsten: aktuellen Katalog exportieren, in Excel ergänzen, wieder hochladen.
+                    <Text code>MehrfachBegruendung</Text>, <Text code>Hinweis</Text>, <Text code>Faktoren</Text>, <Text code>Festbetrag</Text>,{" "}
+                    <Text code>HoechstwertFuer</Text> (z. B. „H1“ bei 3541.H; Mitglieder tragen die Kennung in der Ziffer, etwa 3562.H1). Listen mit Komma trennen. Am einfachsten: aktuellen Katalog exportieren, in Excel ergänzen, wieder hochladen.
                 </Paragraph>
                 <Space style={{ marginBottom: 12 }}>
                     <Text>Hochgeladene Ziffern</Text>

@@ -152,3 +152,33 @@ test("Leichenschau: fixed factors, exclusions, surcharges and Wegegeld", async (
     assert.equal(back.errors.length, 0);
     for (const n of ["101", "W4", "G"]) assert.deepEqual(back.entries.find((e) => e.number === n), GOAE_CATALOG.find((e) => e.number === n));
 });
+
+test("Basislabor M II: H1 alias, Höchstwert 3541.H, Laborrahmen", async () => {
+    const { findGoaeEntry, goaeLinePrice, parseGoaeCsv, goaeCatalogToCsv, GOAE_CATALOG } = await import("../src/lib/goae");
+    const lab = (key: string, number: string, extra: Partial<GoaeCheckLine> = {}) => line(key, number, undefined, { factor: 1.15, feeType: "lab", ...extra });
+    // "3562" resolves to the H-marked catalogue number
+    assert.equal(findGoaeEntry("3562")?.number, "3562.H1");
+    assert.equal(normalizeGoaeLine({ number: "3585", factor: 1.15, service_date: "2026-11-02" }).data.number, "3585.H1");
+    assert.equal(goaeLinePrice("3550", 1.15), 4.02); // 60 P × 5,82873 Ct × 1,15
+    assert.equal(goaeLinePrice("3541.H", 1.15), 32.17);
+    // Lab threshold 1,15: above requires a reason
+    assert.ok(codes([lab("a", "3550", { factor: 1.3 })]).includes("justification-missing"));
+    // 3551 only in addition to 3550
+    assert.ok(codes([lab("a", "3551")]).includes("requires"));
+    assert.ok(!codes([lab("a", "3550"), lab("b", "3551")]).includes("requires"));
+    // 12 H1 analyses: 40×10 + 50×2 = 500 P > 480 → Höchstwert
+    const h1 = ["3562", "3563", "3564", "3565", "3581", "3583", "3584", "3585", "3587", "3592", "3588", "3598"];
+    assert.ok(codes(h1.map((n, i) => lab(String(i), n))).includes("max-value"));
+    assert.ok(!codes(h1.slice(0, 11).map((n, i) => lab(String(i), n))).includes("max-value")); // 450 P
+    assert.ok(!codes([...h1.map((n, i) => lab(String(i), n, i > 5 ? { serviceDate: "2026-11-03" } : {}))]).includes("max-value"));
+    // Non-H1 numbers do not count
+    assert.ok(!codes([...h1.slice(0, 11).map((n, i) => lab(String(i), n)), lab("x", "3561")]).includes("max-value"));
+    // 3541.H together with H1 single services
+    assert.ok(codes([lab("a", "3541.H"), lab("b", "3562")]).includes("max-value-double"));
+    assert.deepEqual(codes([lab("a", "3541.H"), lab("b", "3550")], { diagnosisCount: 1 }), []);
+    // CSV round-trip keeps the Höchstwert marker
+    const back = parseGoaeCsv(goaeCatalogToCsv(GOAE_CATALOG));
+    assert.equal(back.errors.length, 0);
+    assert.equal(back.entries.find((e) => e.number === "3541.H")?.maxValueFor, "H1");
+    assert.equal(GOAE_CATALOG.filter((e) => /\.H1$/.test(e.number)).length, 23);
+});

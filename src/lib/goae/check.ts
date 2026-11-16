@@ -8,7 +8,7 @@
  * Inanspruchnahmen on one day must be documented with times and can be
  * confirmed by the user.
  */
-import { findGoaeEntry, goaeSectionOf, guessGoaeFeeType, normalizeGoaeNumber } from "./catalog";
+import { findGoaeEntry, goaeMaxValueGroup, goaeSectionOf, guessGoaeFeeType, listGoaeCatalog, normalizeGoaeNumber } from "./catalog";
 import { exceedsMaximum, GOAE_FEE_FRAMES, needsJustification, formatFactor, type GoaeFeeType } from "./fees";
 
 export type GoaeSeverity = "error" | "warning" | "info";
@@ -203,6 +203,27 @@ export function checkGoaeLines(lines: GoaeCheckLine[], options: GoaeCheckOptions
                 push("error", "max-per-day", `${nr(n)} ist je Sitzung höchstens ${entry.maxPerDay}× berechnungsfähig (am ${de(date)}: ${count(n)}×).`, keysOf(mine));
             } else if (entry.repeatSameDayNeedsReason && count(n) > 1) {
                 push("warning", "repeat-same-day", `${nr(n)} mehrfach am ${de(date)} – nur bei getrennten Inanspruchnahmen mit Uhrzeitangabe${n === "3" ? " und Begründung" : ""}.`, keysOf(mine));
+            }
+        }
+    }
+
+    // Höchstwerte (Abschnitt M, e.g. 3541.H for the H1 numbers of M II):
+    // per day the H-marked analyses count at most with the Höchstwert.
+    const canonical = (n: string) => normalizeGoaeNumber(findGoaeEntry(n)?.number ?? n);
+    const caps = listGoaeCatalog().filter((e) => e.maxValueFor);
+    for (const [date, dayOcc] of byDate) {
+        if (!dayOcc.some((o) => o.key)) continue;
+        for (const cap of caps) {
+            const members = dayOcc.filter((o) => goaeMaxValueGroup(canonical(o.number)) === cap.maxValueFor);
+            const capOcc = dayOcc.filter((o) => canonical(o.number) === normalizeGoaeNumber(cap.number));
+            if (!members.length) continue;
+            if (capOcc.length) {
+                push("error", "max-value-double", `Nr. ${cap.number} (Höchstwert) ersetzt am ${de(date)} die ${cap.maxValueFor}-Einzelleistungen – nicht nebeneinander berechnungsfähig.`, keysOf([...capOcc, ...members]));
+                continue;
+            }
+            const sum = members.reduce((s, o) => s + (findGoaeEntry(o.number)?.points ?? 0) * o.quantity, 0);
+            if (sum > cap.points) {
+                push("error", "max-value", `${cap.maxValueFor}-Untersuchungen am ${de(date)}: ${sum} Punkte über dem Höchstwert von ${cap.points} Punkten – statt der Einzelleistungen Nr. ${cap.number} berechnen und die erbrachten Untersuchungen im Rechnungstext angeben.`, keysOf(members));
             }
         }
     }

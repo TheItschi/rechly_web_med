@@ -8,7 +8,7 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 |---|---|
 | GOÄ-Positionen | Schritt „Positionen“: *GOÄ-Ziffer hinzufügen* (Katalog) oder *Freie GOÄ-Ziffer*. Je Position Leistungsdatum, Steigerungssatz, ggf. Begründung. Betrag = Punktzahl × 5,82873 Ct × Faktor, wird serverseitig neu berechnet. |
 | Steigerungssatz | Vorgabe = Schwellenwert der Gebührenart: 2,3 (persönlich), 1,8 (technisch, Abschn. A/E/O), 1,15 (Labor, M), 1,0 (Zuschläge). Darüber Pflicht-Begründung (§ 12 Abs. 3), über Höchstsatz nur mit Haken „Vereinbarung nach § 2“. |
-| Prüfmodul | `src/lib/goae/check.ts`, läuft live im Browser inkl. früherer Rechnungen des Patienten (`/api/goae/history`): Ausschlüsse am selben Tag, „nur neben“, Höchstanzahl je Sitzung/Behandlungsfall/6 Monate/Kalenderjahr, Nr. 1/5 neben Sonderleistungen C–O, Zuschlagsregeln, fehlendes Leistungsdatum/Diagnose. Fehler erfordern eine Bestätigung. |
+| Prüfmodul | `src/lib/goae/check.ts`, läuft live im Browser inkl. früherer Rechnungen des Patienten (`/api/goae/history`): Ausschlüsse am selben Tag, „nur neben“, Höchstanzahl je Sitzung/Behandlungsfall/6 Monate/Kalenderjahr, Nr. 1/5 neben Sonderleistungen C–O, Zuschlagsregeln, Labor-Höchstwerte (3541.H für die H1-Ziffern aus M II je Tag), fehlendes Leistungsdatum/Diagnose. Fehler erfordern eine Bestätigung. |
 | Diagnosen | ICD-10-GM-Suche (nach Import) oder Freitext; Zusatzkennzeichen G/V/Z/A und Seite R/L/B; Ausgabe als Klartext, Schlüssel oder beides. |
 | Leichenschau | Nr. 100–102 (nur Faktor 1,0 bzw. 0,6 bei verkürzter Dauer), 106–109, Zuschläge F/G/H, Wegegeld § 8 als W1–W4 (Tag) und W1N–W4N (Nacht) mit Festbeträgen. |
 | Rechnungsnummern | Fortlaufend und eindeutig (aus dem Original-Rechly übernommen): Format, Prefix und nächste Nummer unter *Einstellungen → Unternehmen*; leeres Nummernfeld = automatische Vergabe beim Speichern, doppelte Nummern werden abgelehnt. |
@@ -27,6 +27,9 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
    (Spalten siehe Hinweis im Reiter), wieder hochladen – wahlweise *ergänzt* oder *ersetzt* er den
    mitgelieferten Auszug. Ablage: `<RECHLY_DATA_DIR|./data>/goae-katalog.json`. Nicht hinterlegte Ziffern
    sind abrechenbar, werden aber nur auf Gebührenrahmen/Begründung geprüft.
+   Der mitgelieferte Katalog (Abschnitt B-Auszug, Leichenschau, Zuschläge, Wegegeld, Auswahl C sowie
+   Abschnitt M II Basislabor 3541.H–3621) liegt als `docs/goae-katalog.csv` bei. Die H-Kennzeichnung
+   gehört zur Ziffer (Allg. Best. M): Eingabe „3562“ wird zu „3562.H1“.
 
 Hinweis: Beide Kataloge gelten instanzweit. Im Appwrite-Mehrbenutzerbetrieb kann jeder angemeldete Nutzer sie ersetzen.
 

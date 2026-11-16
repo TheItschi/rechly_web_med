@@ -12,7 +12,7 @@ export const GOAE_CSV_COLUMNS = [
     "Ziffer", "Bezeichnung", "Punkte", "Gebuehrenart", "Abschnitt",
     "NichtNeben", "NurNeben", "Allein", "Erfordert", "MaxTag", "MaxFall",
     "MaxAnzahl", "MaxMonate", "Kalenderjahr", "NichtImFall", "MinMinuten",
-    "MehrfachBegruendung", "Hinweis", "Faktoren", "Festbetrag",
+    "MehrfachBegruendung", "Hinweis", "Faktoren", "Festbetrag", "HoechstwertFuer",
 ] as const;
 
 const FEE_TYPE_IN: Record<string, GoaeFeeType> = {
@@ -102,6 +102,8 @@ export function parseGoaeCsv(text: string): GoaeCsvResult {
         if ((r.Hinweis ?? "").trim()) entry.invoiceHint = r.Hinweis.trim();
         if (factors.length) entry.allowedFactors = factors;
         if (fixedFee !== undefined) entry.fixedFee = fixedFee;
+        const maxValueFor = (r.HoechstwertFuer ?? "").trim().toUpperCase();
+        if (maxValueFor) entry.maxValueFor = maxValueFor;
         entries.push(entry);
     });
     return { entries, errors };
@@ -129,6 +131,7 @@ export function goaeCatalogToCsv(entries: GoaeCatalogEntry[]): string {
         Hinweis: e.invoiceHint ?? "",
         Faktoren: (e.allowedFactors ?? []).map((f) => String(f).replace(".", ",")).join("/"),
         Festbetrag: e.fixedFee !== undefined ? String(e.fixedFee).replace(".", ",") : "",
+        HoechstwertFuer: e.maxValueFor ?? "",
     }));
     // BOM so Excel opens UTF-8 correctly
     return "﻿" + Papa.unparse(rows, { delimiter: ";", columns: [...GOAE_CSV_COLUMNS] });

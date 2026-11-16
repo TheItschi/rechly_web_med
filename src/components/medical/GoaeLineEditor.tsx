@@ -87,6 +87,8 @@ export function GoaeLineEditor({ value, hasError, onChange }: Props) {
                         popupMatchSelectWidth={480}
                         filterOption={(input, option) => String(option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
                         onChange={(v) => setNumber(String(v))}
+                        // "3562" → "3562.H1": the H marking is part of the number
+                        onBlur={() => entry && entry.number !== value.number && setNumber(entry.number)}
                         placeholder="GOÄ-Nr."
                     />
                 </Tooltip>

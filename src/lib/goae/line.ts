@@ -29,10 +29,12 @@ const FEE_TYPES: GoaeFeeType[] = ["personal", "technical", "lab", "surcharge"];
 export function normalizeGoaeLine(raw: unknown): { data: GoaeLineData; unitPrice: number } {
     if (!raw || typeof raw !== "object") throw new GoaeValidationError("Ungültige GOÄ-Daten");
     const r = raw as Record<string, unknown>;
-    const number = normalizeGoaeNumber(String(r.number ?? ""));
-    if (!number || number.length > 12) throw new GoaeValidationError("GOÄ-Ziffer fehlt oder ist ungültig");
+    const typed = normalizeGoaeNumber(String(r.number ?? ""));
+    if (!typed || typed.length > 12) throw new GoaeValidationError("GOÄ-Ziffer fehlt oder ist ungültig");
 
-    const entry = findGoaeEntry(number);
+    const entry = findGoaeEntry(typed);
+    // Canonical catalogue number, e.g. "3562" → "3562.H1"
+    const number = entry ? normalizeGoaeNumber(entry.number) : typed;
     const feeType: GoaeFeeType = entry?.feeType
         ?? (FEE_TYPES.includes(r.fee_type as GoaeFeeType) ? (r.fee_type as GoaeFeeType) : guessGoaeFeeType(number));
     const factor = Number(r.factor);
