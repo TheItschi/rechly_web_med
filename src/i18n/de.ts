@@ -236,6 +236,18 @@ export const de = {
         "dashboard.guestModeSuffix": ", um deine Daten zu speichern.",
         "dashboard.feedbackCta": "Feedback? admin@rechly.de",
 
+        // Local updates (laptop installs only)
+        "update.availableTitle": "Rechly-Update verfügbar",
+        "update.releaseDesc": "Eine neue Version ist bereit. Deine Daten und .env.local bleiben unverändert; das Update lädt nur Code herunter und installiert Abhängigkeiten.",
+        "update.commitDesc": "Neue Änderungen sind auf dem main-Branch bereit. Deine Daten und .env.local bleiben unverändert; das Update lädt nur Code herunter und installiert Abhängigkeiten.",
+        "update.now": "Jetzt aktualisieren",
+        "update.whatsNew": "Was ist neu",
+        "update.starting": "Update gestartet…",
+        "update.startFailed": "Das Update konnte hier nicht gestartet werden. Führe stattdessen im Rechly-Ordner aus: npm run update",
+        "update.doneTitle": "Update installiert",
+        "update.failedTitle": "Update fehlgeschlagen",
+        "update.reload": "Seite neu laden",
+
         // Status
         "status.draft": "Entwurf",
         "status.sent": "Versendet",

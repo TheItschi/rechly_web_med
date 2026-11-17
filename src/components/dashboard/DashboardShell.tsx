@@ -46,6 +46,7 @@ import { isDesktopRuntime } from "@/lib/runtime";
 import { isTermineEnabled, isWorkspaceEnabled } from "@/lib/features";
 import WorkspaceActivity from "@/components/workspace/WorkspaceActivity";
 import CommandPalette from "@/components/dashboard/CommandPalette";
+import UpdateBanner from "@/components/dashboard/UpdateBanner";
 
 const { Header, Sider, Content } = Layout;
 
@@ -618,6 +619,7 @@ export default function DashboardShell({
                         />
                     )}
                     <div className="dashboard-content-inner">
+                        <UpdateBanner />
                         <WorkspaceActivity />
                         {children}
                     </div>

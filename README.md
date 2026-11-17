@@ -53,6 +53,10 @@ cp .env.example .env.local
 npm run dev
 ```
 
+4. Later, get the latest version: Rechly tells you in the dashboard when an
+update is available (local installs only). Click **Update now**, or run
+`npm run update` in this folder. See [updating a local installation](docs/LOCAL_UPDATES.md).
+
 The app expects the Appwrite database and collections defined in `src/lib/appwrite.ts` and `src/lib/appwrite-server.ts`. Rechly does not yet ship Appwrite provisioning automation, so self-hosters need to create those resources in their own Appwrite project.
 
 ## Optional workspace

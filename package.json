@@ -16,6 +16,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "update": "node scripts/update.mjs",
+    "update:check": "node scripts/update.mjs --check",
     "desktop:dev": "cross-env RECHLY_DESKTOP=1 NEXT_PUBLIC_RECHLY_DESKTOP=1 NEXT_PUBLIC_APPWRITE_ENDPOINT=http://127.0.0.1/desktop NEXT_PUBLIC_APPWRITE_PROJECT_ID=desktop-local RECHLY_DATA_DIR=.desktop-data concurrently -k -s first -n web,desktop \"npm run dev -- --hostname 127.0.0.1\" \"wait-on http://127.0.0.1:3000/api/desktop/health && electron . --dev\"",
     "desktop:build:web": "cross-env RECHLY_DESKTOP=1 NEXT_PUBLIC_RECHLY_DESKTOP=1 NEXT_PUBLIC_APPWRITE_ENDPOINT=http://127.0.0.1/desktop NEXT_PUBLIC_APPWRITE_PROJECT_ID=desktop-local npm run build",
     "desktop:pack": "npm run desktop:build:web && electron-builder --dir",

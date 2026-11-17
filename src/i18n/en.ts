@@ -233,6 +233,18 @@ export const en = {
         "dashboard.guestModeSuffix": " to save your data.",
         "dashboard.feedbackCta": "Feedback? admin@rechly.de",
 
+        // Local updates (laptop installs only)
+        "update.availableTitle": "Rechly update available",
+        "update.releaseDesc": "A new version is ready. Your data and .env.local stay untouched; the update only downloads code and installs dependencies.",
+        "update.commitDesc": "New changes are ready on the main branch. Your data and .env.local stay untouched; the update only downloads code and installs dependencies.",
+        "update.now": "Update now",
+        "update.whatsNew": "What's new",
+        "update.starting": "Update started…",
+        "update.startFailed": "Could not start the update here. Run this in the Rechly folder instead: npm run update",
+        "update.doneTitle": "Update installed",
+        "update.failedTitle": "Update failed",
+        "update.reload": "Reload page",
+
         // Status
         "status.draft": "Draft",
         "status.sent": "Sent",

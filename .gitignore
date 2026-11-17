@@ -20,6 +20,9 @@ deck/
 /.next/
 /out/
 
+# local update run status
+/.rechly/
+
 # production
 /build
 /dist
