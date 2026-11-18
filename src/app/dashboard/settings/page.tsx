@@ -1,4 +1,5 @@
 "use client";
+import HelpLink from "@/components/dashboard/HelpLink";
 import EInvoiceFields from "@/components/dashboard/EInvoiceFields";
 
 import { useEffect, useState } from "react";
@@ -1060,6 +1061,7 @@ export default function SettingsPage() {
     return (
         <div>
             <Title level={4}>{t("settings.title")}</Title>
+            <HelpLink href="/hilfe/erste-schritte#firma" label="Hilfe zur Einrichtung" />
             <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
         </div>
     );

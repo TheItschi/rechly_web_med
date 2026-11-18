@@ -22,6 +22,7 @@ import {
     ScheduleOutlined,
     CalculatorOutlined,
     SearchOutlined,
+    QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -49,6 +50,7 @@ export default function CommandPalette({
     const listRef = useRef<HTMLDivElement>(null);
 
     const commands: Command[] = [
+            { key: "help", label: l("Hilfe & Anleitungen", "Help (German)"), icon: <QuestionCircleOutlined />, path: "/hilfe" },
             { key: "new-invoice", label: l("Neue Rechnung erstellen", "Create new invoice"), hint: l("Aktion", "Action"), icon: <PlusOutlined />, path: "/dashboard/invoices/create" },
             { key: "new-offer", label: l("Neues Angebot erstellen", "Create new quote"), hint: l("Aktion", "Action"), icon: <PlusOutlined />, path: "/dashboard/offers/create" },
             { key: "home", label: l("Übersicht", "Overview"), icon: <DashboardOutlined />, path: "/dashboard" },

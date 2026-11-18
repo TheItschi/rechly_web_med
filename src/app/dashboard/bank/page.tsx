@@ -1,4 +1,5 @@
 "use client";
+import HelpLink from "@/components/dashboard/HelpLink";
 
 import { useEffect, useState } from "react";
 import {
@@ -277,6 +278,7 @@ export default function BankPage() {
     return (
         <div>
             <Title level={4}>{t("bank.title")}</Title>
+            <HelpLink href="/hilfe/ausgaben-und-bank#kontoauszug" label="Hilfe zum CSV-Import und Abgleich" />
 
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={12} sm={8}>

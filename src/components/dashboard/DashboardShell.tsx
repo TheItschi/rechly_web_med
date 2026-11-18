@@ -16,6 +16,7 @@ import {
     Tooltip,
 } from "antd";
 import {
+    QuestionCircleOutlined,
     CalculatorOutlined,
     DashboardOutlined,
     FileTextOutlined,
@@ -428,6 +429,9 @@ export default function DashboardShell({
                             <SettingOutlined />
                             {!collapsed && <span>{t("dashboard.settings")}</span>}
                         </button>
+                        <Link href="/hilfe" target="_blank" rel="noopener noreferrer" className="dashboard-sider-settings" aria-label={language === "de" ? "Hilfe & Anleitungen (neuer Tab)" : "Help in German (new tab)"}>
+                            <QuestionCircleOutlined />{!collapsed && <span>{language === "de" ? "Hilfe & Anleitungen" : "Help (German)"}</span>}
+                        </Link>
                         <a
                             href="mailto:admin@rechly.de"
                             className="dashboard-sider-feedback"
@@ -479,6 +483,9 @@ export default function DashboardShell({
                         onClick={() => handleMobileNavigation("/dashboard/settings")}
                     >
                         {t("dashboard.settings")}
+                    </Button>
+                    <Button block href="/hilfe" target="_blank" rel="noopener noreferrer" icon={<QuestionCircleOutlined />}>
+                        {language === "de" ? "Hilfe & Anleitungen ↗" : "Help (German) ↗"}
                     </Button>
                     <div className="dashboard-language-mobile">
                         <GlobalOutlined />

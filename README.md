@@ -156,3 +156,11 @@ installers still need platform signing before distribution.
 ## License
 
 This project is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only).
+
+## User documentation
+
+The German help centre is available at `/hilfe`: getting started, everyday tasks,
+web/desktop differences, backups and troubleshooting. `/hilfe/handbuch` combines
+all guides for printing or saving as an offline PDF. Content lives in
+`src/lib/help/guides.ts`; update its review date only after checking the relevant
+web and desktop workflows. Keep platform/version limits explicit.

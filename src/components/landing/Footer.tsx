@@ -27,6 +27,7 @@ export default function Footer() {
         {
             heading: l("Ressourcen", "Resources"),
             links: [
+                { href: "/hilfe", label: l("Hilfe & Anleitungen", "Help (German)") },
                 { href: "/tools", label: l("Kostenlose Tools", "Free tools") },
                 { href: "/vorlagen", label: l("Rechnungsvorlagen", "Invoice templates") },
                 { href: "/lexikon", label: l("Steuer-Lexikon", "Business glossary") },

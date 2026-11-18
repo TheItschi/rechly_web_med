@@ -1,4 +1,5 @@
 "use client";
+import HelpLink from "@/components/dashboard/HelpLink";
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -181,6 +182,7 @@ export default function OnlineBookingSettingsTab() {
     if (!loading && !settings) {
         return (
             <Card loading={loading}>
+            <HelpLink href="/hilfe/termine" label="Terminbuchung einrichten und testen" />
                 <Space orientation="vertical" size="middle" style={{ width: "100%", maxWidth: 640 }}>
                     <Typography.Title level={5} style={{ margin: 0 }}>
                         <CalendarOutlined /> {l("Online-Terminbuchung aktivieren", "Enable online appointment booking")}

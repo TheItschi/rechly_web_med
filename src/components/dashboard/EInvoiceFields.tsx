@@ -1,4 +1,5 @@
 "use client";
+import HelpLink from "./HelpLink";
 
 import { Button, Collapse, Form, Input, Select, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
@@ -41,6 +42,7 @@ export default function EInvoiceFields({ seller = false }: { seller?: boolean })
     const { t } = useLanguage();
     return <Collapse style={{ marginBottom: 24 }} items={[{ key: "identifiers", label: t("einvoice.advanced"), children: <>
         <Typography.Paragraph type="secondary">{t("einvoice.optionalHelp")}</Typography.Paragraph>
+        <HelpLink href="/hilfe/e-rechnung-und-aufbewahrung#kennungen" label="Kennungen und Lieferorte erklärt" />
         <IdentifierFields path={["e_invoice", seller ? "seller_identifier" : "buyer_identifier"]}
             label={t(seller ? "einvoice.sellerId" : "einvoice.buyerId")} />
         {!seller && <Form.List name={["e_invoice", "delivery_locations"]}>
@@ -62,6 +64,7 @@ export function InvoiceIdentifierEditor({ initial, value, onChange }: { initial?
         <Form form={form} layout="vertical" initialValues={value ?? { buyer_identifier: initial?.buyer_identifier }}
             onValuesChange={(_, values) => onChange(values)}>
             <Typography.Paragraph type="secondary">{t("einvoice.optionalHelp")}</Typography.Paragraph>
+        <HelpLink href="/hilfe/e-rechnung-und-aufbewahrung#kennungen" label="Kennungen und Lieferorte erklärt" />
             <IdentifierFields path={["buyer_identifier"]} label={t("einvoice.buyerId")} />
             <Form.Item label={t("einvoice.delivery")}>
                 <Select allowClear defaultValue={value?.delivery ? "custom" : undefined} placeholder={t("einvoice.noDelivery")} onChange={(value) => {

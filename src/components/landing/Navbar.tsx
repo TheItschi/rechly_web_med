@@ -34,6 +34,7 @@ export default function Navbar({ showAuth = true, reserveSpace = false }: Navbar
         { href: "/open-source", label: "Open Source" },
     ];
     const resourceLinks = [
+        { href: "/hilfe", label: l("Hilfe & Anleitungen", "Help (German)") },
         { href: "/tools", label: l("Tools & Rechner", "Tools & calculators") },
         { href: "/vorlagen", label: l("Rechnungsvorlagen", "Invoice templates") },
         { href: "/rechnung-schreiben", label: l("Ratgeber", "Invoicing guide") },

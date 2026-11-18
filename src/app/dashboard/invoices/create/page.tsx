@@ -1,4 +1,5 @@
 "use client";
+import HelpLink from "@/components/dashboard/HelpLink";
 
 import DecimalInput from "@/components/DecimalInput";
 import { InvoiceIdentifierEditor } from "@/components/dashboard/EInvoiceFields";
@@ -1461,6 +1462,7 @@ export default function InvoiceCreatePage() {
                 <Title level={4} style={{ margin: 0 }}>
                     {editId ? t("invoiceEdit.title") : t("invoiceCreate.newInvoiceTitle")}
                 </Title>
+                <HelpLink href="/hilfe/rechnungen-und-angebote" label="Hilfe zur Rechnungserstellung" />
             </Space>
 
             <Steps

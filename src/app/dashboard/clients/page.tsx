@@ -1,4 +1,5 @@
 "use client";
+import HelpLink from "@/components/dashboard/HelpLink";
 import EInvoiceFields from "@/components/dashboard/EInvoiceFields";
 
 
@@ -454,6 +455,7 @@ export default function ClientsPage() {
     return (
         <div>
             <Title level={4}>{t("clients.title")}</Title>
+            <HelpLink href="/hilfe/erste-schritte#kunde" label="Kunden und Lieferadressen anlegen" />
 
             {/* Toolbar */}
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>

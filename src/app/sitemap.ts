@@ -1,3 +1,4 @@
+import { HELP_GUIDES, HELP_REVIEWED } from "@/lib/help/guides";
 import { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/env";
 import { TOOLS_CATALOG } from "@/lib/tools/catalog";
@@ -187,6 +188,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     const allRoutes = [
         ...coreRoutes,
+        ...["/hilfe", ...HELP_GUIDES.map(guide => `/hilfe/${guide.slug}`)].map(url => ({ url, lastModified: HELP_REVIEWED, changeFrequency: "monthly" as const, priority: 0.7 })),
         ...toolRoutes,
         ...vorlagenRoutes,
         ...lexikonRoutes,

@@ -1,4 +1,5 @@
 "use client";
+import HelpLink from "@/components/dashboard/HelpLink";
 
 import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -43,6 +44,7 @@ function MigrationPageContent() {
                 </Text>
             </div>
 
+            <HelpLink href="/hilfe/datensicherung-und-umzug" label="Sicherung und Umzug Schritt für Schritt" />
             <MigrationWizard initialSource={initialSource} />
         </div>
     );
