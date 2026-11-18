@@ -8,6 +8,7 @@ import {
     resolveAISettings,
     sanitizeStoredAISettings,
 } from "@/lib/server/ai";
+import { isLocalProviderAllowed, LOCAL_AI_HOSTED_MESSAGE } from "@/lib/server/security";
 
 type AssistantAction =
     | "invoice_note"
@@ -378,7 +379,7 @@ export async function POST(request: NextRequest) {
                 defaultTaxRate,
             );
 
-            if (settings) {
+            if (settings && isLocalProviderAllowed(settings.provider)) {
                 try {
                     await assertAndRecordAIUsage({
                         account,
@@ -480,6 +481,13 @@ export async function POST(request: NextRequest) {
                 {
                     error: "AI settings are incomplete. Save provider, model, and API key first.",
                 },
+                { status: 400 },
+            );
+        }
+
+        if (!isLocalProviderAllowed(settings.provider)) {
+            return NextResponse.json(
+                { error: LOCAL_AI_HOSTED_MESSAGE },
                 { status: 400 },
             );
         }

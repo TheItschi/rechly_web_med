@@ -6,7 +6,13 @@ import {
     resolveAISettings,
     sanitizeStoredAISettings,
 } from "@/lib/server/ai";
-import { isOversizedBase64, MAX_UPLOAD_BYTES, validateOutboundAiUrl } from "@/lib/server/security";
+import {
+    isLocalProviderAllowed,
+    isOversizedBase64,
+    LOCAL_AI_HOSTED_MESSAGE,
+    MAX_UPLOAD_BYTES,
+    validateOutboundAiUrl,
+} from "@/lib/server/security";
 
 const ALLOWED_IMAGE_TYPES = new Set([
     "image/png",
@@ -58,6 +64,13 @@ export async function POST(request: NextRequest) {
         const userSettings = resolveAISettings(
             sanitizeStoredAISettings(prefs[AI_PREFS_KEY]),
         );
+
+        if (userSettings && !isLocalProviderAllowed(userSettings.provider)) {
+            return NextResponse.json(
+                { error: LOCAL_AI_HOSTED_MESSAGE },
+                { status: 400 },
+            );
+        }
 
         const apiKey =
             userSettings?.api_key ||

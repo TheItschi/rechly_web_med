@@ -264,6 +264,8 @@ export interface AISettings {
         remaining: number;
     };
     model_presets?: Record<AIProvider, string[]>;
+    /** False on hosted instances, where local Ollama cannot run server-side. */
+    local_ai_allowed?: boolean;
 }
 
 export interface AISettingsUpdate {

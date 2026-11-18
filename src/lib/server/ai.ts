@@ -6,7 +6,12 @@ import {
 } from "node:crypto";
 import type { Models } from "node-appwrite";
 import type { AIChatResponse, AIProvider, AISettings } from "@/types";
-import { validateOutboundAiUrl } from "@/lib/server/security";
+import {
+    isLocalProviderAllowed,
+    localAiEndpointsAllowed,
+    LOCAL_AI_HOSTED_MESSAGE,
+    validateOutboundAiUrl,
+} from "@/lib/server/security";
 
 export const AI_PREFS_KEY = "rechly_ai_settings";
 export const AI_USAGE_PREFS_KEY = "rechly_ai_usage";
@@ -211,6 +216,7 @@ export function toPublicAISettings(
         ),
         daily_usage: usage,
         model_presets: AI_MODEL_PRESETS,
+        local_ai_allowed: localAiEndpointsAllowed(),
     };
 }
 
@@ -302,7 +308,9 @@ async function runOpenAICompatibleChat(
     // SSRF guard: baseUrl can be user-configured (Ollama). Fixed provider URLs pass trivially.
     const verdict = validateOutboundAiUrl(baseUrl);
     if (!verdict.ok) throw new Error(verdict.error);
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    let response: Response;
+    try {
+        response = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${settings.api_key}`,
@@ -318,12 +326,19 @@ async function runOpenAICompatibleChat(
                 { role: "user", content: prompt },
             ],
         }),
-        signal: AbortSignal.timeout(60_000),
-    });
+            signal: AbortSignal.timeout(60_000),
+        });
+    } catch (error) {
+        console.error("AI provider unreachable:", error);
+        throw new Error(
+            "Could not reach the AI provider. Check that the service is running and the endpoint URL is correct.",
+        );
+    }
 
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "AI provider request failed");
+        const errorText = await response.text().catch(() => "");
+        console.error("AI provider error:", response.status, errorText.slice(0, 500));
+        throw new Error(`AI provider request failed (HTTP ${response.status}). Check model name and API key.`);
     }
 
     const payload = (await response.json()) as {
@@ -342,7 +357,9 @@ async function runAnthropicChat(
     settings: ResolvedAISettings,
     prompt: string,
 ): Promise<string> {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    let response: Response;
+    try {
+        response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
             "x-api-key": settings.api_key,
@@ -355,12 +372,19 @@ async function runAnthropicChat(
             system: settings.system_prompt,
             messages: [{ role: "user", content: prompt }],
         }),
-        signal: AbortSignal.timeout(60_000),
-    });
+            signal: AbortSignal.timeout(60_000),
+        });
+    } catch (error) {
+        console.error("AI provider unreachable:", error);
+        throw new Error(
+            "Could not reach the AI provider. Check that the service is running and the endpoint URL is correct.",
+        );
+    }
 
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "AI provider request failed");
+        const errorText = await response.text().catch(() => "");
+        console.error("AI provider error:", response.status, errorText.slice(0, 500));
+        throw new Error(`AI provider request failed (HTTP ${response.status}). Check model name and API key.`);
     }
 
     const payload = (await response.json()) as {
@@ -395,6 +419,9 @@ export async function generateAIText(
             "https://openrouter.ai/api/v1",
         );
     } else if (settings.provider === "ollama") {
+        if (!isLocalProviderAllowed(settings.provider)) {
+            throw new Error(LOCAL_AI_HOSTED_MESSAGE);
+        }
         content = await runOpenAICompatibleChat(
             settings,
             prompt,

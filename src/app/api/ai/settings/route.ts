@@ -10,7 +10,12 @@ import {
     sanitizeStoredAISettings,
     toPublicAISettings,
 } from "@/lib/server/ai";
-import { validateOutboundAiUrl } from "@/lib/server/security";
+import {
+    isLocalProviderAllowed,
+    localAiEndpointsAllowed,
+    LOCAL_AI_HOSTED_MESSAGE,
+    validateOutboundAiUrl,
+} from "@/lib/server/security";
 
 async function getCurrentUserAndPrefs() {
     const sessionClient = await createSessionClient();
@@ -37,6 +42,7 @@ export async function GET() {
                 api_key_configured: false,
                 daily_usage: usage,
                 model_presets: AI_MODEL_PRESETS,
+                local_ai_allowed: localAiEndpointsAllowed(),
             });
         }
 
@@ -82,6 +88,13 @@ export async function POST(request: NextRequest) {
                 {
                     error: "Please provide a new API key when changing provider",
                 },
+                { status: 400 },
+            );
+        }
+
+        if (!isLocalProviderAllowed(body.provider)) {
+            return NextResponse.json(
+                { error: LOCAL_AI_HOSTED_MESSAGE },
                 { status: 400 },
             );
         }

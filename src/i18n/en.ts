@@ -457,6 +457,9 @@ export const en = {
             "Default: http://localhost:11434/v1 — also works with LM Studio, vLLM, or custom local AI servers.",
         "settings.aiLocalPrivacyBadge":
             "100% Local & GDPR-compliant: With Ollama your invoice data stays on your own device/server. No API key required.",
+        "settings.aiOllamaHostedTitle": "Local AI is only available in Rechly Desktop",
+        "settings.aiOllamaHostedBody":
+            "This online instance cannot reach Ollama on your computer — “localhost” here would mean the server, not your device. For local AI please use Rechly Desktop or a local installation. Online, OpenAI, Anthropic, and OpenRouter are available.",
         "invoiceCreate.aiQuickTitle": "AI Quick Fill (Text-to-Invoice)",
         "invoiceCreate.aiQuickDesc":
             "Describe your invoice in one sentence — client, line items, prices, and due date are detected automatically.",

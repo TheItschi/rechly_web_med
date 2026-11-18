@@ -173,6 +173,7 @@ export default function SettingsPage() {
         limit: number;
         remaining: number;
     } | null>(null);
+    const [aiLocalAllowed, setAiLocalAllowed] = useState<boolean>(true);
     const [aiModelPresets, setAiModelPresets] = useState<
         Record<AIProvider, string[]>
     >({
@@ -228,6 +229,7 @@ export default function SettingsPage() {
                     system_prompt: data.system_prompt,
                 });
                 setAiKeyConfigured(data.api_key_configured);
+                setAiLocalAllowed(data.local_ai_allowed ?? true);
                 setAiDailyUsage(data.daily_usage || null);
                 if (data.model_presets) {
                     setAiModelPresets(data.model_presets);
@@ -335,6 +337,7 @@ export default function SettingsPage() {
             const saved = await saveAISettings(values);
             aiForm.setFieldValue("api_key", "");
             setAiKeyConfigured(saved.api_key_configured);
+            setAiLocalAllowed(saved.local_ai_allowed ?? true);
             setAiDailyUsage(saved.daily_usage || null);
             if (saved.model_presets) {
                 setAiModelPresets(saved.model_presets);
@@ -382,7 +385,7 @@ export default function SettingsPage() {
     };
 
     const providerOptions = [
-        { value: "ollama", label: t("settings.aiProviderOllama") },
+        { value: "ollama", label: t("settings.aiProviderOllama"), disabled: !aiLocalAllowed },
         { value: "openai", label: t("settings.aiProviderOpenAI") },
         { value: "anthropic", label: t("settings.aiProviderAnthropic") },
         { value: "openrouter", label: t("settings.aiProviderOpenRouter") },
@@ -800,7 +803,17 @@ export default function SettingsPage() {
                             />
                         </Form.Item>
 
-                        {selectedProvider === "ollama" && (
+                        {!aiLocalAllowed && (
+                            <Alert
+                                type="warning"
+                                showIcon
+                                style={{ marginBottom: 12 }}
+                                message={t("settings.aiOllamaHostedTitle")}
+                                description={t("settings.aiOllamaHostedBody")}
+                            />
+                        )}
+
+                        {selectedProvider === "ollama" && aiLocalAllowed && (
                             <>
                                 <Alert
                                     type="success"

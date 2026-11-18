@@ -464,6 +464,9 @@ export const de = {
             "Standard: http://localhost:11434/v1 — funktioniert auch mit LM Studio, vLLM oder eigenem KI-Server.",
         "settings.aiLocalPrivacyBadge":
             "100% Lokal & DSGVO-konform: Mit Ollama bleiben Ihre Rechnungsdaten auf Ihrem eigenen Gerät/Server. Kein API-Schlüssel erforderlich.",
+        "settings.aiOllamaHostedTitle": "Lokale KI ist nur in Rechly Desktop verfügbar",
+        "settings.aiOllamaHostedBody":
+            "Diese Online-Instanz kann Ollama auf Ihrem Computer nicht erreichen — „localhost“ wäre hier der Server, nicht Ihr Gerät. Für lokale KI nutzen Sie bitte Rechly Desktop oder eine lokale Installation. Online stehen OpenAI, Anthropic und OpenRouter zur Verfügung.",
         "invoiceCreate.aiQuickTitle": "KI-Schnellerfassung (Text-zu-Rechnung)",
         "invoiceCreate.aiQuickDesc":
             "Beschreiben Sie Ihre Rechnung in einem Satz — Kunde, Positionen, Preise und Zahlungsziel werden automatisch erkannt.",

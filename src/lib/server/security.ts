@@ -136,6 +136,22 @@ export function localAiEndpointsAllowed(): boolean {
     return false;
 }
 
+/** Shown when a hosted (non-local) instance is asked to use local Ollama. */
+export const LOCAL_AI_HOSTED_MESSAGE =
+    "Local Ollama is only available in Rechly Desktop and local installations — a hosted server cannot reach Ollama on your computer. On this instance, choose a cloud provider (OpenAI, Anthropic, or OpenRouter) instead.";
+
+/**
+ * Whether the given AI provider may run on this instance. "ollama" always
+ * means an endpoint on the server's own network, which only makes sense for
+ * desktop/local installs; cloud providers are fine everywhere.
+ */
+export function isLocalProviderAllowed(
+    provider: string,
+    allowLocal: boolean = localAiEndpointsAllowed(),
+): boolean {
+    return provider !== "ollama" || allowLocal;
+}
+
 export type OutboundUrlVerdict = { ok: true; url: URL } | { ok: false; error: string };
 
 /**

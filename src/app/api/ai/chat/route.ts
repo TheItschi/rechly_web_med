@@ -7,6 +7,7 @@ import {
     resolveAISettings,
     sanitizeStoredAISettings,
 } from "@/lib/server/ai";
+import { isLocalProviderAllowed, LOCAL_AI_HOSTED_MESSAGE } from "@/lib/server/security";
 
 export async function POST(request: NextRequest) {
     try {
@@ -34,6 +35,13 @@ export async function POST(request: NextRequest) {
                 {
                     error: "AI settings are incomplete. Save provider, model, and API key first.",
                 },
+                { status: 400 },
+            );
+        }
+
+        if (!isLocalProviderAllowed(settings.provider)) {
+            return NextResponse.json(
+                { error: LOCAL_AI_HOSTED_MESSAGE },
                 { status: 400 },
             );
         }

@@ -2,8 +2,10 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
     base64DecodedSize,
+    isLocalProviderAllowed,
     isOversizedBase64,
     isPrivateOrLoopbackHost,
+    LOCAL_AI_HOSTED_MESSAGE,
     rateLimit,
     validateOutboundAiUrl,
 } from "../src/lib/server/security";
@@ -71,6 +73,24 @@ describe("validateOutboundAiUrl", () => {
         assert.equal(validateOutboundAiUrl("http://127.0.0.1:11434/v1", { allowLocal: true }).ok, true);
         assert.equal(validateOutboundAiUrl("http://169.254.169.254/latest/meta-data", { allowLocal: true }).ok, false);
         assert.equal(validateOutboundAiUrl("https://api.example.com/v1").ok, true);
+    });
+});
+
+describe("isLocalProviderAllowed (hosted Ollama policy)", () => {
+    it("blocks only ollama when local endpoints are not allowed", () => {
+        assert.equal(isLocalProviderAllowed("ollama", false), false);
+        assert.equal(isLocalProviderAllowed("openai", false), true);
+        assert.equal(isLocalProviderAllowed("anthropic", false), true);
+        assert.equal(isLocalProviderAllowed("openrouter", false), true);
+    });
+
+    it("allows ollama on desktop/local installs", () => {
+        assert.equal(isLocalProviderAllowed("ollama", true), true);
+    });
+
+    it("ships an actionable hosted message naming the alternatives", () => {
+        assert.match(LOCAL_AI_HOSTED_MESSAGE, /Desktop/);
+        assert.match(LOCAL_AI_HOSTED_MESSAGE, /OpenAI/);
     });
 });
 
