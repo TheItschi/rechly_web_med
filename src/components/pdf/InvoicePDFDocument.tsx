@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     practiceTitle: { fontSize: 13 },
     letterheadContact: { width: 170, fontSize: 9, lineHeight: 1.35, paddingTop: 4 },
     senderLine: { fontSize: 7, color: "#666", textDecoration: "underline", marginBottom: 8 },
-    closing: { marginTop: 24, fontSize: 10 },
+    closing: { marginTop: 16, fontSize: 10 },
     signature: { height: 46, marginTop: 6, marginBottom: 2, objectFit: "contain", alignSelf: "flex-start" },
     signatureName: { fontSize: 9, color: "#444" },
     colDate: { width: 56 },
@@ -275,6 +275,14 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
         ? `${invoice.client.address_line1}\n${invoice.client.postal_code} ${invoice.client.city}`
         : "";
 
+    const closing = (
+        <View style={styles.closing} wrap={false}>
+            <Text>Mit freundlichen Grüßen</Text>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            {signature ? <Image src={signature} style={styles.signature} /> : <View style={{ height: 36 }} />}
+            <Text style={styles.signatureName}>{company?.name}</Text>
+        </View>
+    );
     const medicalRows = isMedical ? sortForMedicalInvoice(items) : [];
     const renderMedicalRow = (item: InvoiceItem, index: number) => (
         <View key={item.id || index} style={styles.tableRow} wrap={false}>
@@ -499,6 +507,8 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                             <Text style={styles.paymentInfoText}>Ärztliche Heilbehandlung – umsatzsteuerfrei gemäß § 4 Nr. 14 UStG.</Text>
                         )}
                         {paymentTerms && <Text style={styles.paymentInfoText}>{paymentTerms}</Text>}
+                        {/* Without notes the closing sits beside the Girocode (no extra page) */}
+                        {invoice.notes ? null : closing}
                     </View>
                     {girocodeUrl && (
                         <View style={styles.girocode}>
@@ -522,13 +532,8 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     </View>
                 )}
 
-                {/* Grußformel mit Faksimile */}
-                <View style={styles.closing} wrap={false}>
-                    <Text>Mit freundlichen Grüßen</Text>
-                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                    {signature ? <Image src={signature} style={styles.signature} /> : <View style={{ height: 36 }} />}
-                    <Text style={styles.signatureName}>{company?.name}</Text>
-                </View>
+                {/* Grußformel mit Faksimile – after the notes when there are any */}
+                {invoice.notes ? closing : null}
 
                 {/* Footer */}
                 <View style={styles.footer} fixed>
