@@ -16,6 +16,7 @@ Dieser Fork ergänzt Rechly um die Abrechnung ärztlicher Leistungen nach GOÄ (
 | E-Mail-Versand | „per E-Mail senden“ erzeugt einen Outlook-Entwurf (.eml) mit Standardtext und PDF. Optional PDF mit Passwort (AES-256, Passwort nicht in der Mail) und neutraler Betreff. S/MIME zusätzlich in Outlook (*Optionen → Verschlüsseln*). |
 | Briefkopf | *Einstellungen → Unternehmen*: Briefkopf-Grafik, Berufsbezeichnung und Faksimile-Unterschrift (PNG/JPEG). Bilder liegen in der Datenbank, nicht im Repo. |
 | PDF | Leistungstabelle nach § 12 Abs. 2 (Datum, Ziffer, Bezeichnung, Faktor, Betrag, Begründung), Diagnosen, Hinweis § 4 Nr. 14 UStG, Girocode (EPC-QR). |
+| Kontoabgleich | *Bank → Importieren*, Format „CAMT-XML (ISO 20022)“: camt.052/053/054 aller Versionen als .xml oder .zip (Sparkasse: „XML (CAMT V8 – gebuchte Umsätze)“). Nur gebuchte Umsätze, Sammelbuchungen werden aufgeteilt, erneuter Import erkennt Duplikate über die Bankreferenz. |
 
 ## Einrichtung
 

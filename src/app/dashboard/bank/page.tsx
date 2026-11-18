@@ -29,6 +29,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useBankStore } from "@/store/bankStore";
 import { useInvoiceStore } from "@/store/invoiceStore";
 import { importBankTransactions } from "@/lib/bankService";
+import { readCamtFile } from "@/lib/bank/readCamtFile";
 import { formatCurrency } from "@/lib/currencyUtils";
 import type { BankTransaction, InvoiceWithClient } from "@/types";
 
@@ -47,8 +48,11 @@ export default function BankPage() {
     const { invoices, fetchInvoices } = useInvoiceStore();
 
     const [importModalOpen, setImportModalOpen] = useState(false);
-    const [importFormat, setImportFormat] = useState("dkb");
+    const [importFormat, setImportFormat] = useState("camt");
     const [csvText, setCsvText] = useState("");
+    /** CAMT: XML documents of the selected .xml/.zip */
+    const [xmlFiles, setXmlFiles] = useState<string[]>([]);
+    const [fileName, setFileName] = useState("");
     const [importing, setImporting] = useState(false);
     const [matchModalOpen, setMatchModalOpen] = useState(false);
     const [selectedTx, setSelectedTx] = useState<BankTransaction | null>(null);
@@ -91,23 +95,28 @@ export default function BankPage() {
     };
 
     const handleImport = async () => {
-        if (!csvText.trim()) {
+        const isCamt = importFormat === "camt";
+        if (isCamt ? !xmlFiles.length : !csvText.trim()) {
             message.error(t("bank.importEmpty"));
             return;
         }
         setImporting(true);
         try {
-            const result = await importBankTransactions(csvText, importFormat);
+            const result = await importBankTransactions(csvText, importFormat, isCamt ? xmlFiles : undefined);
             message.success(
                 t("bank.importSuccess")
                     .replace("{0}", String(result.imported))
-                    .replace("{1}", String(result.duplicates)),
+                    .replace("{1}", String(result.duplicates)) +
+                    (result.skippedPending ? ` · ${result.skippedPending} vorgemerkte Umsätze übersprungen` : ""),
             );
             fetchTransactions(true);
             setImportModalOpen(false);
             setCsvText("");
-        } catch {
-            message.error(t("bank.importError"));
+            setXmlFiles([]);
+            setFileName("");
+        } catch (error) {
+            const detail = error instanceof Error && error.message !== "Failed to import bank transactions" ? `: ${error.message}` : "";
+            message.error(t("bank.importError") + detail);
         } finally {
             setImporting(false);
         }
@@ -353,9 +362,18 @@ export default function BankPage() {
                         </label>
                         <Select
                             value={importFormat}
-                            onChange={setImportFormat}
-                            style={{ width: 200 }}
+                            onChange={(value: string) => {
+                                setImportFormat(value);
+                                setCsvText("");
+                                setXmlFiles([]);
+                                setFileName("");
+                            }}
+                            style={{ width: 320 }}
                             options={[
+                                {
+                                    value: "camt",
+                                    label: "CAMT-XML (ISO 20022, z. B. Sparkasse)",
+                                },
                                 {
                                     value: "dkb",
                                     label: t("bank.format.dkb") || "DKB",
@@ -378,9 +396,19 @@ export default function BankPage() {
                             {t("bank.csvFile")}
                         </label>
                         <Upload.Dragger
-                            accept=".csv,.txt"
+                            accept={importFormat === "camt" ? ".xml,.zip" : ".csv,.txt"}
                             showUploadList={false}
                             beforeUpload={(file) => {
+                                setFileName(file.name);
+                                if (importFormat === "camt") {
+                                    readCamtFile(file)
+                                        .then((docs) => {
+                                            setXmlFiles(docs);
+                                            if (!docs.length) message.error("Keine XML-Datei im ZIP gefunden");
+                                        })
+                                        .catch(() => message.error("Datei konnte nicht gelesen werden"));
+                                    return false;
+                                }
                                 const reader = new FileReader();
                                 reader.onload = (e) =>
                                     setCsvText(
@@ -391,10 +419,17 @@ export default function BankPage() {
                             }}
                         >
                             <p className="ant-upload-text">
-                                {t("bank.uploadHint")}
+                                {importFormat === "camt"
+                                    ? "CAMT-Datei (.xml oder .zip) hierher ziehen oder klicken – im Online-Banking z. B. „XML (CAMT V8 – gebuchte Umsätze)“"
+                                    : t("bank.uploadHint")}
                             </p>
                         </Upload.Dragger>
-                        {csvText && (
+                        {importFormat === "camt" && xmlFiles.length > 0 && (
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                {fileName} · {xmlFiles.length} {xmlFiles.length === 1 ? "Kontoauszug" : "Kontoauszüge"}
+                            </Text>
+                        )}
+                        {importFormat !== "camt" && csvText && (
                             <Text type="secondary" style={{ fontSize: 12 }}>
                                 {csvText.split("\n").length} {t("bank.lines")}
                             </Text>

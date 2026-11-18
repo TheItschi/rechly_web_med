@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Query, ID, Permission, Role } from "node-appwrite";
 import Papa from "papaparse";
+import { CamtParseError, parseCamt } from "@/lib/bank/camt";
 import {
     createSessionClient,
     createAdminClient,
@@ -16,7 +17,20 @@ interface NormalizedTransaction {
     reference?: string;
     counterpartName?: string;
     counterpartIban?: string;
+    /** CAMT: bank's unique entry reference, stored in rawData for duplicate checks */
+    bankReference?: string;
+    rawData?: string;
 }
+
+const camtRef = (rawData: unknown): string | undefined => {
+    if (typeof rawData !== "string" || !rawData.startsWith("{")) return undefined;
+    try {
+        const ref = (JSON.parse(rawData) as { camtRef?: unknown }).camtRef;
+        return typeof ref === "string" ? ref : undefined;
+    } catch {
+        return undefined;
+    }
+};
 
 function parseDKB(rows: Record<string, string>[]): NormalizedTransaction[] {
     return rows
@@ -123,8 +137,41 @@ export async function POST(request: NextRequest) {
         const user = await account.get();
         const body = await request.json();
 
-        const { csvText, format } = body as { csvText: string; format: string };
-        if (!csvText) {
+        const { csvText, format, xmlFiles } = body as { csvText?: string; format: string; xmlFiles?: string[] };
+
+        // ISO 20022 CAMT (XML), one or more files (e.g. extracted from a ZIP)
+        let camtTransactions: NormalizedTransaction[] | null = null;
+        let skippedPending = 0;
+        if (format === "camt") {
+            if (!Array.isArray(xmlFiles) || !xmlFiles.length) {
+                return NextResponse.json({ error: "Keine XML-Datei übergeben" }, { status: 400 });
+            }
+            camtTransactions = [];
+            for (const xml of xmlFiles) {
+                try {
+                    const parsed = parseCamt(String(xml));
+                    skippedPending += parsed.skippedPending;
+                    for (const tx of parsed.transactions) {
+                        camtTransactions.push({
+                            ...tx,
+                            rawData: JSON.stringify({
+                                source: "camt",
+                                ...(tx.bankReference ? { camtRef: tx.bankReference } : {}),
+                                ...(tx.valueDate ? { valueDate: tx.valueDate } : {}),
+                                ...(tx.bookingText ? { bookingText: tx.bookingText.slice(0, 200) } : {}),
+                            }),
+                        });
+                    }
+                } catch (error) {
+                    if (error instanceof CamtParseError) {
+                        return NextResponse.json({ error: error.message }, { status: 400 });
+                    }
+                    throw error;
+                }
+            }
+        }
+
+        if (!camtTransactions && !csvText) {
             return NextResponse.json(
                 { error: "csvText required" },
                 { status: 400 },
@@ -132,9 +179,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Skip DKB header lines (they start with non-CSV metadata)
-        let csvToParse = csvText;
+        let csvToParse = csvText ?? "";
         if (format === "dkb") {
-            const lines = csvText.split("\n");
+            const lines = csvToParse.split("\n");
             const headerIndex = lines.findIndex(
                 (l) =>
                     l.startsWith('"Buchungsdatum"') ||
@@ -152,7 +199,8 @@ export async function POST(request: NextRequest) {
         });
 
         let normalized: NormalizedTransaction[] = [];
-        if (format === "dkb") normalized = parseDKB(rows);
+        if (camtTransactions) normalized = camtTransactions;
+        else if (format === "dkb") normalized = parseDKB(rows);
         else if (format === "ing") normalized = parseING(rows);
         else normalized = parseGeneric(rows);
 
@@ -162,11 +210,21 @@ export async function POST(request: NextRequest) {
             COLLECTIONS.BANK_TRANSACTIONS,
             [Query.equal("userId", user.$id), Query.limit(5000)],
         );
+        const legacyKey = (d: { transactionDate?: string; amount?: number; description?: string }) =>
+            `${String(d.transactionDate ?? "").slice(0, 10)}|${d.amount}|${d.description?.slice(0, 50)}`;
         const existingKeys = new Set(
             existing.documents.map(
                 (d) =>
                     `${d.transactionDate}|${d.amount}|${d.description?.slice(0, 50)}`,
             ),
+        );
+        // CAMT entries are recognised by the bank reference; against rows
+        // imported earlier from CSV, date + amount + text decide.
+        const existingCamtRefs = new Set(existing.documents.map((d) => camtRef(d.rawData)).filter(Boolean));
+        const existingCsvKeys = new Set(
+            existing.documents
+                .filter((d) => !camtRef(d.rawData))
+                .map((d) => legacyKey({ transactionDate: d.transactionDate, amount: d.amount, description: d.description })),
         );
 
         const permissions = [
@@ -180,7 +238,10 @@ export async function POST(request: NextRequest) {
 
         for (const tx of normalized) {
             const key = `${tx.transactionDate}|${tx.amount}|${tx.description?.slice(0, 50)}`;
-            if (existingKeys.has(key)) {
+            const isDuplicate = tx.bankReference
+                ? existingCamtRefs.has(tx.bankReference) || existingCsvKeys.has(legacyKey(tx))
+                : existingKeys.has(key);
+            if (isDuplicate) {
                 duplicates++;
                 continue;
             }
@@ -200,15 +261,16 @@ export async function POST(request: NextRequest) {
                     counterpartIban: tx.counterpartIban || null,
                     status: "unmatched",
                     matchedInvoiceId: null,
-                    rawData: null,
+                    rawData: tx.rawData ?? null,
                 },
                 permissions,
             );
             imported++;
             existingKeys.add(key);
+            if (tx.bankReference) existingCamtRefs.add(tx.bankReference);
         }
 
-        return NextResponse.json({ imported, duplicates });
+        return NextResponse.json({ imported, duplicates, ...(skippedPending ? { skippedPending } : {}) });
     } catch (error) {
         console.error("Bank import error:", error);
         return NextResponse.json(

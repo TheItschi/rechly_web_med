@@ -14,13 +14,17 @@ export async function getAllBankTransactions(
 export async function importBankTransactions(
     csvText: string,
     format: string,
-): Promise<{ imported: number; duplicates: number }> {
+    xmlFiles?: string[],
+): Promise<{ imported: number; duplicates: number; skippedPending?: number }> {
     const res = await fetch("/api/bank-transactions/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csvText, format }),
+        body: JSON.stringify(format === "camt" ? { format, xmlFiles } : { csvText, format }),
     });
-    if (!res.ok) throw new Error("Failed to import bank transactions");
+    if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Failed to import bank transactions");
+    }
     return res.json();
 }
 
