@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    // Standalone output for containerized deployments (Heroku, Docker, etc.)
+    // Standalone output for containerized / self-hosted deployments (Docker, bare Node)
     output: "standalone",
 
     // Keep pdfkit (ZUGFeRD) out of the bundle: it loads its standard fonts
