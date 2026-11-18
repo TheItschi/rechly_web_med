@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     },
     table: {
         marginTop: 20,
-        marginBottom: 20,
+        // no bottom margin: the last row follows in the totals block
     },
     tableHeader: {
         flexDirection: "row",
@@ -154,6 +154,13 @@ const styles = StyleSheet.create({
         marginTop: 20,
         alignItems: "flex-end",
     },
+    paymentRow: { flexDirection: "row", alignItems: "flex-start", gap: 24, marginTop: 20 },
+    paymentInfo: { flex: 1 },
+    paymentInfoText: { fontSize: 9, color: "#666", lineHeight: 1.4, marginBottom: 8 },
+    girocode: { width: 190, alignItems: "flex-end" },
+    girocodeImage: { width: 64, height: 64, marginBottom: 4 },
+    girocodeTitle: { width: "100%", fontSize: 8, fontWeight: 700, textAlign: "right" },
+    girocodeText: { width: "100%", fontSize: 7, color: "#555555", textAlign: "right", lineHeight: 1.3 },
     totalRow: {
         flexDirection: "row",
         justifyContent: "flex-end",
@@ -233,11 +240,6 @@ const styles = StyleSheet.create({
     notesText: {
         fontSize: 9,
         lineHeight: 1.4,
-    },
-    paymentTerms: {
-        marginTop: 20,
-        fontSize: 9,
-        color: "#666",
     },
 });
 
@@ -486,6 +488,30 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                         </Text>
                     </View>
                 </View>
+                {/* Tax note + payment terms (left) beside the Girocode (right); part of
+                    the unbreakable totals block, so the QR code never stands alone on a page */}
+                <View style={styles.paymentRow}>
+                    <View style={styles.paymentInfo}>
+                        {company?.is_small_business && (
+                            <Text style={styles.paymentInfoText}>Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</Text>
+                        )}
+                        {isMedical && !showVat && !company?.is_small_business && (
+                            <Text style={styles.paymentInfoText}>Ärztliche Heilbehandlung – umsatzsteuerfrei gemäß § 4 Nr. 14 UStG.</Text>
+                        )}
+                        {paymentTerms && <Text style={styles.paymentInfoText}>{paymentTerms}</Text>}
+                    </View>
+                    {girocodeUrl && (
+                        <View style={styles.girocode}>
+                            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                            <Image src={girocodeUrl} style={styles.girocodeImage} />
+                            <Text style={styles.girocodeTitle}>Bequem bezahlen mit Girocode</Text>
+                            <Text style={styles.girocodeText}>
+                                QR-Code mit Ihrer Banking-App scannen – Empfänger, Betrag und
+                                Verwendungszweck werden automatisch übernommen.
+                            </Text>
+                        </View>
+                    )}
+                </View>
                 </View>
 
                 {/* Notes */}
@@ -496,29 +522,6 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     </View>
                 )}
 
-                {/* Kleinunternehmer note (§19 UStG) */}
-                {company?.is_small_business && (
-                    <View style={styles.paymentTerms}>
-                        <Text>
-                            Gemäß §19 UStG wird keine Umsatzsteuer berechnet.
-                        </Text>
-                    </View>
-                )}
-
-                {/* Heilbehandlung: umsatzsteuerfrei */}
-                {isMedical && !showVat && !company?.is_small_business && (
-                    <View style={styles.paymentTerms}>
-                        <Text>Ärztliche Heilbehandlung – umsatzsteuerfrei gemäß § 4 Nr. 14 UStG.</Text>
-                    </View>
-                )}
-
-                {/* Payment Terms */}
-                {paymentTerms && (
-                    <View style={styles.paymentTerms}>
-                        <Text>{paymentTerms}</Text>
-                    </View>
-                )}
-
                 {/* Grußformel mit Faksimile */}
                 <View style={styles.closing} wrap={false}>
                     <Text>Mit freundlichen Grüßen</Text>
@@ -526,35 +529,6 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     {signature ? <Image src={signature} style={styles.signature} /> : <View style={{ height: 36 }} />}
                     <Text style={styles.signatureName}>{company?.name}</Text>
                 </View>
-
-                {/* Girocode: scan-to-pay QR (EPC069-12) */}
-                {girocodeUrl && (
-                    <View
-                        wrap={false}
-                        style={{
-                            flexDirection: "row",
-                            alignItems: "center",
-                            gap: 10,
-                            marginTop: 14,
-                        }}
-                    >
-                        {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                        <Image
-                            src={girocodeUrl}
-                            style={{ width: 64, height: 64 }}
-                        />
-                        <View style={{ maxWidth: 240 }}>
-                            <Text style={{ fontSize: 8, fontWeight: 700 }}>
-                                Bequem bezahlen mit Girocode
-                            </Text>
-                            <Text style={{ fontSize: 7, color: "#555555" }}>
-                                QR-Code mit Ihrer Banking-App scannen –
-                                Empfänger, Betrag und Verwendungszweck werden
-                                automatisch übernommen.
-                            </Text>
-                        </View>
-                    </View>
-                )}
 
                 {/* Footer */}
                 <View style={styles.footer} fixed>
