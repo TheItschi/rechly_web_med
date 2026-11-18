@@ -6,6 +6,7 @@ import {
 } from "node:crypto";
 import type { Models } from "node-appwrite";
 import type { AIChatResponse, AIProvider, AISettings } from "@/types";
+import { validateOutboundAiUrl } from "@/lib/server/security";
 
 export const AI_PREFS_KEY = "rechly_ai_settings";
 export const AI_USAGE_PREFS_KEY = "rechly_ai_usage";
@@ -298,6 +299,9 @@ async function runOpenAICompatibleChat(
     prompt: string,
     baseUrl: string,
 ): Promise<string> {
+    // SSRF guard: baseUrl can be user-configured (Ollama). Fixed provider URLs pass trivially.
+    const verdict = validateOutboundAiUrl(baseUrl);
+    if (!verdict.ok) throw new Error(verdict.error);
     const response = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
@@ -314,6 +318,7 @@ async function runOpenAICompatibleChat(
                 { role: "user", content: prompt },
             ],
         }),
+        signal: AbortSignal.timeout(60_000),
     });
 
     if (!response.ok) {
@@ -350,6 +355,7 @@ async function runAnthropicChat(
             system: settings.system_prompt,
             messages: [{ role: "user", content: prompt }],
         }),
+        signal: AbortSignal.timeout(60_000),
     });
 
     if (!response.ok) {

@@ -9,6 +9,7 @@ import {
     DATABASE_ID,
 } from "@/lib/appwrite-server";
 
+const MAX_CSV_BYTES = 10 * 1024 * 1024;
 const BATCH_SIZE = 50;
 const MAX_ERRORS = 100;
 const DEFAULT_UNIT = "Stück";
@@ -178,6 +179,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { error: "Only .csv files are supported" },
                 { status: 400 },
+            );
+        }
+
+        if (file.size > MAX_CSV_BYTES) {
+            return NextResponse.json(
+                { error: "CSV file too large (max 10 MB)" },
+                { status: 413 },
             );
         }
 

@@ -150,7 +150,7 @@ export default async function VorlageDetailPage({ params }: VorlagePageProps) {
         <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col">
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
             />
             <Navbar />
 

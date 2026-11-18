@@ -4,6 +4,7 @@ import {
     extractXmlFromPdf,
     parseEInvoiceXml,
 } from "@/lib/eInvoiceParser";
+import { isOversizedBase64, MAX_UPLOAD_BYTES } from "@/lib/server/security";
 
 /**
  * Parse an incoming e-invoice (XRechnung XML in UBL/CII syntax, or a
@@ -31,6 +32,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { error: "fileBase64 required" },
                 { status: 400 }
+            );
+        }
+        if (typeof fileBase64 !== "string" || isOversizedBase64(fileBase64, MAX_UPLOAD_BYTES)) {
+            return NextResponse.json(
+                { error: "file_too_large" },
+                { status: 413 }
             );
         }
 

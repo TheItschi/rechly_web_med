@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
     Client,
     Databases,
@@ -23,6 +23,14 @@ import {
  *   databases.write, collections.write, attributes.write, indexes.write, buckets.write
  *
  * Safe to run multiple times — skips already-existing resources.
+ *
+ * Security: operator-only. Requires `Authorization: Bearer <CLEANUP_API_SECRET>`
+ * (the same operator secret as /api/cleanup-guests and the cron route).
+ * Fails closed when the secret is not configured.
+ *
+ * Example:
+ * curl -X POST https://your-domain.com/api/admin/setup-collections \
+ *   -H "Authorization: Bearer [REDACTED]"
  */
 
 const DATABASE_ID = "rechly-db";
@@ -63,7 +71,17 @@ async function safeCreate<T>(
     }
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+    const expectedSecret = getOptionalEnv("CLEANUP_API_SECRET");
+    if (!expectedSecret) {
+        return NextResponse.json(
+            { error: "Server configuration error" },
+            { status: 500 },
+        );
+    }
+    if (request.headers.get("authorization") !== `Bearer ${expectedSecret}`) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     try {
         const { databases, storage } = await getAdminClient();
         const results: Array<{

@@ -6,6 +6,16 @@ import {
     resolveAISettings,
     sanitizeStoredAISettings,
 } from "@/lib/server/ai";
+import { isOversizedBase64, MAX_UPLOAD_BYTES, validateOutboundAiUrl } from "@/lib/server/security";
+
+const ALLOWED_IMAGE_TYPES = new Set([
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/gif",
+    "image/heic",
+    "image/heif",
+]);
 
 export async function POST(request: NextRequest) {
     try {
@@ -29,6 +39,18 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 { error: "imageBase64 and mimeType required" },
                 { status: 400 },
+            );
+        }
+        if (!ALLOWED_IMAGE_TYPES.has(String(mimeType).toLowerCase())) {
+            return NextResponse.json(
+                { error: "unsupported_image_type" },
+                { status: 400 },
+            );
+        }
+        if (isOversizedBase64(imageBase64, MAX_UPLOAD_BYTES)) {
+            return NextResponse.json(
+                { error: "file_too_large" },
+                { status: 413 },
             );
         }
 
@@ -100,6 +122,7 @@ If any field is unclear, use null. Return only valid JSON.`;
                         },
                     ],
                 }),
+                signal: AbortSignal.timeout(60_000),
             });
 
             if (!res.ok) {
@@ -136,6 +159,14 @@ If any field is unclear, use null. Return only valid JSON.`;
                 model = userSettings.model || "gpt-4o-mini";
             }
 
+            const verdict = validateOutboundAiUrl(baseUrl);
+            if (!verdict.ok) {
+                return NextResponse.json(
+                    { error: "invalid_ai_endpoint" },
+                    { status: 400 },
+                );
+            }
+
             const res = await fetch(`${baseUrl}/chat/completions`, {
                 method: "POST",
                 headers: {
@@ -160,6 +191,7 @@ If any field is unclear, use null. Return only valid JSON.`;
                     ],
                     max_tokens: 300,
                 }),
+                signal: AbortSignal.timeout(60_000),
             });
 
             if (!res.ok) {

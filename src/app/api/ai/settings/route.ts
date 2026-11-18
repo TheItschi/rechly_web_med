@@ -10,6 +10,7 @@ import {
     sanitizeStoredAISettings,
     toPublicAISettings,
 } from "@/lib/server/ai";
+import { validateOutboundAiUrl } from "@/lib/server/security";
 
 async function getCurrentUserAndPrefs() {
     const sessionClient = await createSessionClient();
@@ -83,6 +84,13 @@ export async function POST(request: NextRequest) {
                 },
                 { status: 400 },
             );
+        }
+
+        if (typeof body.base_url === "string" && body.base_url.trim()) {
+            const verdict = validateOutboundAiUrl(body.base_url.trim());
+            if (!verdict.ok) {
+                return NextResponse.json({ error: verdict.error }, { status: 400 });
+            }
         }
 
         const nextSettings = buildStoredAISettings({

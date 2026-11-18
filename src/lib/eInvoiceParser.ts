@@ -145,7 +145,8 @@ export const extractXmlFromPdf = (pdf: Buffer): string | null => {
         const raw = pdf.subarray(contentStart, streamEnd);
         let text: string | null = null;
         try {
-            text = inflateSync(raw).toString("utf8");
+            // Cap decompression so a crafted PDF stream cannot expand unbounded in memory.
+            text = inflateSync(raw, { maxOutputLength: 10 * 1024 * 1024 }).toString("utf8");
         } catch {
             // Stream isn't deflate-compressed — attachments may be stored raw
             text = raw.toString("utf8");

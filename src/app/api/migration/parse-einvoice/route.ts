@@ -5,6 +5,9 @@ import {
     parseEInvoiceXmlForMigration,
     type ParsedMigrationEInvoice,
 } from "@/lib/migration/importer";
+import { MAX_UPLOAD_BYTES } from "@/lib/server/security";
+
+const MAX_FILES = 20;
 
 export async function POST(request: NextRequest) {
     try {
@@ -33,12 +36,25 @@ export async function POST(request: NextRequest) {
                 { status: 400 },
             );
         }
+        if (files.length > MAX_FILES) {
+            return NextResponse.json(
+                { error: `Too many files (max ${MAX_FILES} per request)` },
+                { status: 413 },
+            );
+        }
 
         const parsedInvoices: ParsedMigrationEInvoice[] = [];
         const failedFiles: Array<{ fileName: string; reason: string }> = [];
 
         for (const file of files) {
             try {
+                if (file.size > MAX_UPLOAD_BYTES) {
+                    failedFiles.push({
+                        fileName: file.name,
+                        reason: "Datei zu groß (max. 10 MB).",
+                    });
+                    continue;
+                }
                 const buffer = Buffer.from(await file.arrayBuffer());
                 const lowerName = file.name.toLowerCase();
 

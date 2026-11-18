@@ -62,7 +62,7 @@ export default function OpenSourcePage() {
         <div style={{ minHeight: "100vh", background: "#fff" }}>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
             />
             <Navbar />
             <main style={{ padding: "128px 24px 80px" }}>

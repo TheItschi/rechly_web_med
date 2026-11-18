@@ -59,6 +59,15 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Backups are text-only; reject absurd payloads before parsing them into memory.
+        const contentLength = Number(request.headers.get("content-length") || 0);
+        if (contentLength > 50 * 1024 * 1024) {
+            return NextResponse.json(
+                { error: "Import payload too large (max 50 MB)" },
+                { status: 413 },
+            );
+        }
+
         const { databases } = await createAdminClient();
         const body = await request.json();
 
