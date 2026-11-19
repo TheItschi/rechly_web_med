@@ -8,6 +8,10 @@
     --dash-muted: #64748b;
     --dash-primary: #365fd6;
     --dash-primary-hover: #2b4eb8;
+    /* Button fill is separate from --dash-primary: white button text needs a
+       sufficiently deep background in both modes (see dark override). */
+    --dash-primary-button: #365fd6;
+    --dash-primary-button-hover: #2b4eb8;
     --dash-positive: #059669;
     --dash-warning: #d97706;
     --dash-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 20px rgba(15, 23, 42, 0.035);
@@ -25,6 +29,10 @@
     --dash-muted: #94a3b8;
     --dash-primary: #7c9bf5;
     --dash-primary-hover: #9bb4fa;
+    /* --dash-primary is brightened for text/icons on dark surfaces, but as a
+       button fill it gives white text only ~2.7:1 contrast — keep fills deep. */
+    --dash-primary-button: #3d68dd;
+    --dash-primary-button-hover: #2f56c4;
     --dash-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
@@ -967,12 +975,12 @@ li.is-done .dashboard-step-state {
 }
 
 .dashboard-appearance .ant-btn-primary {
-    background: var(--dash-primary);
+    background: var(--dash-primary-button);
     box-shadow: none;
 }
 
 .dashboard-appearance .ant-btn-primary:hover {
-    background: var(--dash-primary-hover) !important;
+    background: var(--dash-primary-button-hover) !important;
 }
 
 .dashboard-appearance .ant-table {
@@ -1363,11 +1371,11 @@ li.is-done .dashboard-step-state {
     font-weight: 550;
 }
 .dashboard-appearance .ant-btn-primary {
-    background: var(--dash-primary);
+    background: var(--dash-primary-button);
     box-shadow: 0 4px 12px rgba(54, 95, 214, 0.18);
 }
 .dashboard-appearance .ant-btn-primary:hover {
-    background: var(--dash-primary-hover) !important;
+    background: var(--dash-primary-button-hover) !important;
 }
 .dashboard-appearance .ant-input,
 .dashboard-appearance .ant-input-affix-wrapper,

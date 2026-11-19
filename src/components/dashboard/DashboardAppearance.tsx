@@ -45,8 +45,18 @@ export default function DashboardAppearance({ children }: { children: React.Reac
             <ConfigProvider theme={{ algorithm: dark ? theme.darkAlgorithm : theme.defaultAlgorithm,
                 token: {
                     colorPrimary: dark ? "#7c9bf5" : "#365fd6",
+                    // Text/link tokens must be set explicitly per mode: this provider is
+                    // nested inside PublicTheme (light), and AntD merges its tokens in —
+                    // without these, the inherited light colorText (#152438) wins over
+                    // darkAlgorithm and default buttons/selects render invisible in dark mode.
+                    colorText: dark ? "#e8edf5" : "#162033",
+                    colorTextSecondary: dark ? "#a9b6ca" : "#526174",
+                    colorTextTertiary: dark ? "#8191ab" : "#71809c",
+                    colorLink: dark ? "#7c9bf5" : "#2855d9",
+                    colorBorder: dark ? "#273449" : "#dbe3ee",
                     colorBgLayout: dark ? "#0d1420" : "#f4f6fa",
                     colorBgContainer: dark ? "#151e2d" : "#ffffff",
+                    colorBgElevated: dark ? "#1c2940" : "#ffffff",
                     colorBorderSecondary: dark ? "#273449" : "#e5eaf1",
                     borderRadius: 8,
                     fontFamily: 'Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
