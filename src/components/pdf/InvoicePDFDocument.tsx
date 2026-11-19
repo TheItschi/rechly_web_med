@@ -15,6 +15,8 @@ import type { InvoiceWithDetails, UserCompany, InvoiceItem } from "@/types";
 const styles = StyleSheet.create({
     page: {
         padding: 40,
+        // left margin 3 mm (≈ 8.5 pt) wider than the others
+        paddingLeft: 48.5,
         paddingBottom: 100,
         fontSize: 10,
         fontFamily: "Helvetica",
@@ -38,14 +40,11 @@ const styles = StyleSheet.create({
         color: "#1976d2",
         marginBottom: 4,
     },
-    invoiceNumber: {
-        fontSize: 12,
-        color: "#666",
-    },
     addresses: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 30,
+        // 30 pt + 5 mm (≈ 14.17 pt) to the date row
+        marginBottom: 44.17,
     },
     addressBlock: {
         width: "45%",
@@ -202,7 +201,7 @@ const styles = StyleSheet.create({
     footer: {
         position: "absolute",
         bottom: 30,
-        left: 40,
+        left: 48.5,
         right: 40,
     },
     footerDivider: {
@@ -376,7 +375,6 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                     </View>
                     <View style={{ alignItems: "flex-end" }}>
                         <Text style={styles.invoiceTitle}>{t("invoicePdf.invoiceTitle")}</Text>
-                        <Text style={styles.invoiceNumber}>{invoice.invoice_number}</Text>
                     </View>
                 </View>
 
@@ -397,8 +395,8 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                         </Text>
                     </View>
                     <View style={styles.infoItem}>
-                        <Text style={styles.infoLabel}>{t("invoicePdf.currency")}</Text>
-                        <Text style={styles.infoValue}>EUR</Text>
+                        <Text style={styles.infoLabel}>Rechnungsnummer</Text>
+                        <Text style={styles.infoValue}>{invoice.invoice_number}</Text>
                     </View>
                 </View>
 
