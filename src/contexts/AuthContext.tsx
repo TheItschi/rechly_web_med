@@ -22,6 +22,7 @@ interface AuthContextType {
     deleteAccount: () => Promise<"deleted">;
     loginAnonymously: () => Promise<void>;
     googleLogin: () => void;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -220,6 +221,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const refreshUser = async () => {
+        await checkAuth();
+    };
+
     const googleLogin = () => {
         if (isDesktopRuntime) return;
         loginWithGoogle();
@@ -237,6 +242,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 deleteAccount,
                 loginAnonymously,
                 googleLogin,
+                refreshUser,
             }}
         >
             {children}

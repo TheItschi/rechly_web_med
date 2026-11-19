@@ -24,6 +24,7 @@ import {
     Progress,
     Switch,
     InputNumber,
+    Tag,
 } from "antd";
 import {
     SaveOutlined,
@@ -174,6 +175,7 @@ export default function SettingsPage() {
         remaining: number;
     } | null>(null);
     const [aiLocalAllowed, setAiLocalAllowed] = useState<boolean>(true);
+    const [verifySending, setVerifySending] = useState(false);
     const [aiModelPresets, setAiModelPresets] = useState<
         Record<AIProvider, string[]>
     >({
@@ -381,6 +383,19 @@ export default function SettingsPage() {
             );
         } finally {
             setAiTesting(false);
+        }
+    };
+
+    const handleResendVerification = async () => {
+        setVerifySending(true);
+        try {
+            const res = await fetch("/api/auth/verification", { method: "POST" });
+            if (!res.ok) throw new Error("send failed");
+            message.success(t("verify.sent"));
+        } catch {
+            message.error(t("verify.sendFailed"));
+        } finally {
+            setVerifySending(false);
         }
     };
 
@@ -1012,6 +1027,24 @@ export default function SettingsPage() {
                                 <Text strong>
                                     {user?.email || t("settings.guest")}
                                 </Text>
+                                {user?.email && (
+                                    <div style={{ marginTop: 6 }}>
+                                        {user.emailVerification ? (
+                                            <Tag color="green">{t("verify.verifiedBadge")}</Tag>
+                                        ) : (
+                                            <Space wrap>
+                                                <Tag color="orange">{t("verify.unverifiedBadge")}</Tag>
+                                                <Button
+                                                    size="small"
+                                                    loading={verifySending}
+                                                    onClick={handleResendVerification}
+                                                >
+                                                    {t("verify.resend")}
+                                                </Button>
+                                            </Space>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <Text type="secondary">

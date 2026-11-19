@@ -152,6 +152,13 @@ export function isLocalProviderAllowed(
     return provider !== "ollama" || allowLocal;
 }
 
+/** True only for a signed-in account that proved ownership of its email. */
+export function isEmailVerifiedUser(
+    user: { email?: string | null; emailVerification?: boolean | null } | null | undefined,
+): boolean {
+    return Boolean(user?.email && user.emailVerification);
+}
+
 export type OutboundUrlVerdict = { ok: true; url: URL } | { ok: false; error: string };
 
 /**

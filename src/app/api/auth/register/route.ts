@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, SESSION_COOKIE_NAME } from "@/lib/appwrite-server";
 import { AUTH_LIMITS, clientIp, rateLimit } from "@/lib/server/security";
-import { ID } from "node-appwrite";
+import { getAppwriteEndpoint, getAppwriteProjectId, getSiteUrl } from "@/lib/env";
+import { isDesktopRuntime } from "@/lib/runtime";
+import { Account, Client, ID } from "node-appwrite";
 
 export async function POST(request: NextRequest) {
     try {
@@ -37,6 +39,21 @@ export async function POST(request: NextRequest) {
             email,
             password
         );
+
+        // Send the verification email (fail-open: SMTP trouble must not block signup).
+        if (!isDesktopRuntime) {
+            try {
+                const verifyClient = new Client()
+                    .setEndpoint(getAppwriteEndpoint())
+                    .setProject(getAppwriteProjectId())
+                    .setSession(session.secret);
+                await new Account(verifyClient).createEmailVerification({
+                    url: `${getSiteUrl()}/verify`,
+                });
+            } catch (verifyError) {
+                console.error("Verification email on register failed:", verifyError);
+            }
+        }
 
         // Cookie lifetime follows the Appwrite session, capped at 30 days.
         const THIRTY_DAYS = 60 * 60 * 24 * 30;

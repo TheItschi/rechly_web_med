@@ -48,6 +48,7 @@ import { isTermineEnabled, isWorkspaceEnabled } from "@/lib/features";
 import WorkspaceActivity from "@/components/workspace/WorkspaceActivity";
 import CommandPalette from "@/components/dashboard/CommandPalette";
 import UpdateBanner from "@/components/dashboard/UpdateBanner";
+import { VerifyEmailBanner } from "@/components/dashboard/VerifyEmail";
 
 const { Header, Sider, Content } = Layout;
 
@@ -627,6 +628,7 @@ export default function DashboardShell({
                     )}
                     <div className="dashboard-content-inner">
                         <UpdateBanner />
+                        <VerifyEmailBanner />
                         <WorkspaceActivity />
                         {children}
                     </div>

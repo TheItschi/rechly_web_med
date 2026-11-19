@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
     base64DecodedSize,
+    isEmailVerifiedUser,
     isLocalProviderAllowed,
     isOversizedBase64,
     isPrivateOrLoopbackHost,
@@ -91,6 +92,20 @@ describe("isLocalProviderAllowed (hosted Ollama policy)", () => {
     it("ships an actionable hosted message naming the alternatives", () => {
         assert.match(LOCAL_AI_HOSTED_MESSAGE, /Desktop/);
         assert.match(LOCAL_AI_HOSTED_MESSAGE, /OpenAI/);
+    });
+});
+
+describe("isEmailVerifiedUser (verified-only features)", () => {
+    it("accepts users with a verified email", () => {
+        assert.equal(isEmailVerifiedUser({ email: "a@example.de", emailVerification: true }), true);
+    });
+
+    it("rejects unverified, guest and missing users", () => {
+        assert.equal(isEmailVerifiedUser({ email: "a@example.de", emailVerification: false }), false);
+        assert.equal(isEmailVerifiedUser({ email: "" }), false);
+        assert.equal(isEmailVerifiedUser({ emailVerification: true }), false);
+        assert.equal(isEmailVerifiedUser(null), false);
+        assert.equal(isEmailVerifiedUser(undefined), false);
     });
 });
 

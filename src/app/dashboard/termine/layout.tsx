@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VerifiedOnly } from "@/components/dashboard/VerifyEmail";
 
 export const metadata: Metadata = {
     title: "Termine",
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function TermineLayout({ children }: { children: React.ReactNode }) {
-    return <>{children}</>;
+    return <VerifiedOnly>{children}</VerifiedOnly>;
 }
