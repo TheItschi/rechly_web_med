@@ -41,13 +41,17 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     addresses: {
+        // 5 mm (≈ 14.17 pt) more space below the letterhead (first page only;
+        // the letterhead repeats on follow-up pages)
+        marginTop: 14.17,
         flexDirection: "row",
         justifyContent: "space-between",
         // 30 pt + 5 mm (≈ 14.17 pt) to the date row
         marginBottom: 44.17,
     },
+    // Wide enough for a long sender line (7 pt) on one line
     addressBlock: {
-        width: "45%",
+        width: "60%",
     },
     addressLabel: {
         fontSize: 8,
