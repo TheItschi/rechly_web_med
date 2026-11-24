@@ -1520,6 +1520,15 @@
                     "max": 1.7976931348623157e+308
                 },
                 {
+                    "key": "discountPercent",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "default": 0,
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
+                },
+                {
                     "key": "subtotal",
                     "type": "double",
                     "required": true,
@@ -1760,6 +1769,58 @@
                     "required": true,
                     "array": false,
                     "size": 36,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "userId_idx",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "userId"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
+                }
+            ]
+        },
+        {
+            "$id": "invoice_templates",
+            "$permissions": [
+                "create(\"users\")"
+            ],
+            "databaseId": "rechly-db",
+            "name": "invoice_templates",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "userId",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "name",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 120,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "payload",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 1000000,
                     "default": null,
                     "encrypt": false
                 }

@@ -683,11 +683,12 @@ export async function POST(request: NextRequest) {
             [
                 "ri_items.discountPercent",
                 () =>
+                    // Optional with default 0 — Appwrite rejects defaults on required attributes.
                     databases.createFloatAttribute(
                         DATABASE_ID,
                         "recurring_invoice_items",
                         "discountPercent",
-                        true,
+                        false,
                         undefined,
                         undefined,
                         0,
@@ -1365,11 +1366,14 @@ export async function POST(request: NextRequest) {
         results.push(
             await safeCreate(
                 () =>
+                    // Oversized on purpose: forces off-row TEXT storage. A 16k inline
+                    // varchar exceeds MariaDB's row-size limit on this collection
+                    // (same pattern as scripts/migrate-einvoice.mjs).
                     databases.createStringAttribute(
                         DATABASE_ID,
                         "invoice_templates",
                         "payload",
-                        16000,
+                        1_000_000,
                         true,
                     ),
                 "attr:invoice_templates.payload",
