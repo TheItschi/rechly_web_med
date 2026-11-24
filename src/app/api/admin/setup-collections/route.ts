@@ -1206,6 +1206,21 @@ export async function POST(request: NextRequest) {
             ),
         );
 
+        // ── Durchschnittssatzbesteuerung flag (§24 UStG) on user_company ───
+        results.push(
+            await safeCreate(
+                () =>
+                    databases.createBooleanAttribute(
+                        DATABASE_ID,
+                        "user_company",
+                        "isFlatRateFarming",
+                        false,
+                        false,
+                    ),
+                "attr:user_company.isFlatRateFarming",
+            ),
+        );
+
         // ── Add DATEV fields to user_company collection ────────────────────
         results.push(
             await safeCreate(

@@ -98,7 +98,7 @@ async function bill(store: WorkspaceStore, raw: Record<string, unknown>) {
     const issue = date(raw.issue_date), due = date(raw.due_date);
     if (due < issue) throw new WorkspaceError("Das Zahlungsziel liegt vor dem Rechnungsdatum.");
     const companies = await store.list("user_company"), company = companies[0];
-    const tax = company?.isSmallBusiness ? 0 : amount(raw.tax_rate ?? 19, 100);
+    const tax = company?.isSmallBusiness ? 0 : amount(raw.tax_rate ?? (company?.isFlatRateFarming ? 7.8 : 19), 100);
     const items = entries.map(e => ({ description: `${e.description} · ${e.date} · ${e.minutes} Min. à ${e.rate.toFixed(2)} €/Std.`, quantity: 1, price: roundMoney(e.minutes * e.rate / 60), tax_rate_percent: tax, discount_percent: 0 }));
     const totals = calculateInvoiceTotals(items), invoiceId = newId();
     const counterId = recordId(store.userId, "time-invoice-counter:" + issue.slice(0, 4));

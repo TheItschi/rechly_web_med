@@ -152,6 +152,30 @@ test("entered invoice numbering is never silently discarded if its schema migrat
     assert.equal(fixture.writes.length, 0);
 });
 
+test("flat-rate farming (§ 24 UStG) persists and excludes the small-business regime", async () => {
+    const fixture = backend();
+    const saved = await saveCompanySettings(fixture.db, "owner", { ...input, is_flat_rate_farming: true });
+    assert.equal(saved.is_flat_rate_farming, true);
+    assert.equal(saved.is_small_business, false);
+    assert.equal(fixture.rows.find((r) => r.userId === "owner")!.isFlatRateFarming, true);
+    await assert.rejects(
+        saveCompanySettings(fixture.db, "owner", { is_flat_rate_farming: true, is_small_business: true }),
+        (error) => {
+            assert.equal(companyFailure(error).status, 400);
+            return true;
+        },
+    );
+    const off = await saveCompanySettings(fixture.db, "owner", { is_flat_rate_farming: false });
+    assert.equal(off.is_flat_rate_farming, false);
+});
+
+test("flat-rate farming off does not require the newer schema attribute", async () => {
+    const fixture = backend(["isFlatRateFarming"]);
+    const saved = await saveCompanySettings(fixture.db, "owner", { ...input, is_flat_rate_farming: false });
+    assert.equal(saved.name, input.name);
+    assert.equal(fixture.writes[0].isFlatRateFarming, undefined);
+});
+
 test("upstream errors are useful without leaking raw values or secrets", () => {
     const failure = companyFailure({ code: 400, message: 'Invalid document structure: Attribute "bankBic" has invalid type. secret-value' });
     assert.equal(failure.field, "bank_bic"); assert.equal(failure.status, 400); assert.ok(!failure.message.includes("secret-value"));

@@ -170,6 +170,9 @@ export async function POST(request: NextRequest) {
                             isSmallBusiness: Boolean(
                                 incomingCompany.is_small_business,
                             ),
+                            isFlatRateFarming: Boolean(
+                                incomingCompany.is_flat_rate_farming,
+                            ),
                             paymentTermsDefault:
                                 incomingCompany.payment_terms_default || null,
                         },

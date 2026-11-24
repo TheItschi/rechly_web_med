@@ -269,7 +269,10 @@ export function generateXRechnungXML(
     <ram:TypeCode>${invoice.correction_type === "credit_note" ? "381" : invoice.correction_type === "correction" ? "384" : "380"}</ram:TypeCode>
     <ram:IssueDateTime>
       <udt:DateTimeString format="102">${issueDate}</udt:DateTimeString>
-    </ram:IssueDateTime>
+    </ram:IssueDateTime>${company.is_flat_rate_farming ? `
+    <ram:IncludedNote>
+      <ram:Content>Durchschnittssatzbesteuerung für land- und forstwirtschaftliche Betriebe gemäß § 24 UStG</ram:Content>
+    </ram:IncludedNote>` : ""}
   </rsm:ExchangedDocument>
 
   <rsm:SupplyChainTradeTransaction>

@@ -76,6 +76,9 @@ export async function createDraftFromAppointment(
     const isSmallBusiness = Boolean(
         companyDoc?.isSmallBusiness ?? companyDoc?.is_small_business,
     );
+    const isFlatRateFarming = Boolean(
+        companyDoc?.isFlatRateFarming ?? companyDoc?.is_flat_rate_farming,
+    );
     const paymentTerms =
         typeof companyDoc?.paymentTermsDefault === "string" &&
         companyDoc.paymentTermsDefault.trim()
@@ -114,7 +117,9 @@ export async function createDraftFromAppointment(
           ? service.taxRatePercent
           : typeof productTaxRate === "number"
             ? productTaxRate
-            : 19;
+            : isFlatRateFarming
+              ? 7.8
+              : 19;
 
     const due = new Date(Date.parse(appt.startUtc) + 14 * 24 * 3600 * 1000).toISOString().slice(0, 10);
     const issue = new Date().toISOString().slice(0, 10);

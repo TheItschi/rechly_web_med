@@ -28,6 +28,7 @@ type InvoiceAssistantPayload = {
     serviceSummary?: string;
     promptText?: string;
     isSmallBusiness?: boolean;
+    isFlatRateFarming?: boolean;
     availableClients?: Array<{ id: string; name: string }>;
     lineItems?: Array<{
         description: string;
@@ -111,6 +112,7 @@ export async function runInvoiceAssistant(
 export async function parseInvoiceDraftWithAI(payload: {
     promptText: string;
     isSmallBusiness?: boolean;
+    isFlatRateFarming?: boolean;
     availableClients?: Array<{ id: string; name: string }>;
 }): Promise<{
     parsed: AIInvoiceDraftParseResult;

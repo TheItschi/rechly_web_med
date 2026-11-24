@@ -5,6 +5,7 @@ import { Button, Collapse, Form, Input, Select, Space, Typography } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { parseIdentifier, type EInvoiceData } from "@/lib/eRechnung/identifiers";
+import { euCountryCodeOptions } from "@/lib/euCountries";
 
 export function IdentifierFields({ path, label, prefix = [] }: { path: (string | number)[]; label: string; prefix?: (string | number)[] }) {
     const { t } = useLanguage();
@@ -24,14 +25,18 @@ export function IdentifierFields({ path, label, prefix = [] }: { path: (string |
 }
 
 export function DeliveryFields({ path, prefix = [] }: { path: (string | number)[]; prefix?: (string | number)[] }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     return <>
         <Space wrap align="start">
-            {(["name", "street", "postal_code", "city", "country"] as const).map(field =>
+            {(["name", "street", "postal_code", "city"] as const).map(field =>
                 <Form.Item key={field} name={[...path, field]} label={t(`einvoice.${field}`)}
-                    rules={[{ required: true, whitespace: true }, ...(field === "country" ? [{ pattern: /^[A-Za-z]{2}$/, message: t("einvoice.countryHelp") }] : [])]}>
-                    <Input maxLength={field === "country" ? 2 : 200} placeholder={field === "country" ? "DE" : undefined} />
+                    rules={[{ required: true, whitespace: true }]}>
+                    <Input maxLength={200} />
                 </Form.Item>)}
+            <Form.Item name={[...path, "country"]} label={t("einvoice.country")} initialValue="DE"
+                rules={[{ required: true }]}>
+                <Select showSearch style={{ width: 190 }} options={euCountryCodeOptions(language)} />
+            </Form.Item>
         </Space>
         <IdentifierFields path={[...path, "identifier"]} prefix={prefix} label={t("einvoice.deliveryId")} />
     </>;

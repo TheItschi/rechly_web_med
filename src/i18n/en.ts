@@ -358,6 +358,8 @@ export const en = {
         "products.vat.standard": "19% (Standard)",
         "products.vat.reduced": "7% (Reduced)",
         "products.vat.exempt": "0% (Tax-free)",
+        "products.vat.flatRate": "7.8% (Flat rate § 24 UStG)",
+        "products.vat.flatRateForestry": "5.5% (Forestry § 24 UStG)",
 
         // Settings page
         "settings.title": "Settings",
@@ -397,6 +399,9 @@ export const en = {
         "settings.smallBusiness": "Small business (§19 UStG)",
         "settings.smallBusinessHint":
             "Enable if you use the German small business scheme. Invoices then show no VAT and include the §19 note.",
+        "settings.flatRateFarming": "Flat-rate farming scheme (§ 24 UStG)",
+        "settings.flatRateFarmingHint":
+            "For agricultural and forestry businesses: new line items default to 7.8% VAT (5.5% forestry selectable) and invoices include the §24 note. Mutually exclusive with the small business scheme.",
         "settings.paymentTermsPlaceholder":
             "Payable within 14 days without deduction.",
         "settings.numberingTitle": "Sequential invoice numbers",

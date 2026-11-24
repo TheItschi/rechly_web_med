@@ -9,6 +9,7 @@ import {
     Button,
     Typography,
     Steps,
+    Select,
     message,
     Spin,
 } from "antd";
@@ -20,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
+import { euCountryOptions } from "@/lib/euCountries";
 import { ApiError } from "@/lib/apiClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -337,8 +339,8 @@ export default function OnboardingPage() {
                                 </Form.Item>
                             </div>
 
-                            <Form.Item name="country" label={t.country}>
-                                <Input placeholder={t.countryPlaceholder} />
+                            <Form.Item name="country" label={t.country} initialValue="Deutschland">
+                                <Select showSearch options={euCountryOptions(language)} placeholder={t.countryPlaceholder} />
                             </Form.Item>
                         </div>
                     )}

@@ -467,6 +467,17 @@ const InvoicePDF = ({
                     </View>
                 )}
 
+                {/* Durchschnittssatzbesteuerung note (§24 UStG) */}
+                {company?.is_flat_rate_farming && (
+                    <View style={styles.paymentTerms}>
+                        <Text>
+                            {language === "en"
+                                ? "Flat-rate taxation for agricultural and forestry businesses pursuant to § 24 UStG (German VAT Act). The VAT shown is not remitted to the tax office."
+                                : "Durchschnittssatzbesteuerung für land- und forstwirtschaftliche Betriebe gemäß § 24 UStG. Die ausgewiesene Umsatzsteuer wird nicht an das Finanzamt abgeführt."}
+                        </Text>
+                    </View>
+                )}
+
                 {/* Payment Terms */}
                 {company?.payment_terms_default && (
                     <View style={styles.paymentTerms}>

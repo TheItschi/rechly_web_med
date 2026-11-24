@@ -111,6 +111,22 @@ export default function ReportsPage() {
                   label: "Umsatzsteuer 7 %",
                   value: ustva.kz86Tax,
               },
+              ...(ustva.flatRate24Net !== 0
+                  ? [
+                        {
+                            key: "24",
+                            kz: "–",
+                            label: "Umsätze Durchschnittssatz § 24 UStG (netto, nur Info)",
+                            value: ustva.flatRate24Net,
+                        },
+                        {
+                            key: "24t",
+                            kz: "",
+                            label: "Ausgewiesene Steuer § 24 UStG (verbleibt beim Betrieb)",
+                            value: ustva.flatRate24Tax,
+                        },
+                    ]
+                  : []),
               ...(ustva.taxFreeNet !== 0
                   ? [
                         {

@@ -90,6 +90,33 @@ test("small-business defaults and explicit zero-rated products", () => {
     assert.equal(defaultVatRate(false), 19);
 });
 
+test("flat-rate farming (§ 24 UStG) defaults new lines to 7.8 %", () => {
+    assert.equal(defaultVatRate(false, undefined, true), 7.8);
+    assert.equal(defaultVatRate(false, null, true), 7.8);
+    // An explicit product rate (e.g. 19 % drinks exception) still wins.
+    assert.equal(defaultVatRate(false, 19, true), 19);
+    assert.equal(defaultVatRate(false, 5.5, true), 5.5);
+    // § 19 wins over § 24 if both flags are somehow set.
+    assert.equal(defaultVatRate(true, undefined, true), 0);
+});
+
+test("§ 24 flat-rate invoice carries the § 24 UStG note at category S / 7.8 %", () => {
+    const farmCompany = { ...company, is_flat_rate_farming: true };
+    const farmInvoice = {
+        ...invoice,
+        subtotal: 100,
+        total_vat: 7.8,
+        total_gross: 107.8,
+        items: [{ ...invoice.items[0], description: "Weizen", tax_rate_percent: 7.8, tax_amount: 7.8, total: 107.8, gtin: undefined }],
+    };
+    const xml = generateXRechnungXML(farmInvoice, farmCompany);
+    assert.match(xml, /§ ?24 UStG/);
+    assert.match(xml, /<ram:CategoryCode>S<\/ram:CategoryCode>/);
+    assert.match(xml, /<ram:RateApplicablePercent>7\.8<\/ram:RateApplicablePercent>/);
+    // Without the flag, the note must not appear.
+    assert.doesNotMatch(generateXRechnungXML(farmInvoice, company), /§ ?24 UStG/);
+});
+
 test("discounted XML net unit price reconciles with the unchanged line total", () => {
     const { invoice, company } = complianceCases().discount;
     const xml = generateXRechnungXML(invoice, company);

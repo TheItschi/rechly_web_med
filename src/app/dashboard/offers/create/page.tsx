@@ -2,7 +2,7 @@
 
 import DecimalInput from "@/components/DecimalInput";
 import { getCompanyInfo } from "@/lib/companyService";
-import { defaultVatRate } from "@/lib/vatDefaults";
+import { defaultVatRate, VAT_RATE_OPTIONS } from "@/lib/vatDefaults";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -53,11 +53,7 @@ interface LineItem {
     discount_percent: number;
 }
 
-const vatOptions = [
-    { value: 19, label: "19%" },
-    { value: 7, label: "7%" },
-    { value: 0, label: "0%" },
-];
+const vatOptions = VAT_RATE_OPTIONS;
 
 export default function OfferCreatePage() {
     const router = useRouter();
@@ -68,6 +64,7 @@ export default function OfferCreatePage() {
     const [saving, setSaving] = useState(false);
 
     const [smallBusiness, setSmallBusiness] = useState(false);
+    const [flatRateFarming, setFlatRateFarming] = useState(false);
     const [clients, setClients] = useState<Client[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -98,6 +95,7 @@ export default function OfferCreatePage() {
             ]);
             setClients(clientsData);
             setSmallBusiness(!!companyData?.is_small_business);
+            setFlatRateFarming(!!companyData?.is_flat_rate_farming);
             setProducts(productsData);
         } catch {
             message.error(t("offerCreate.saveError"));
@@ -115,7 +113,7 @@ export default function OfferCreatePage() {
                 quantity: 1,
                 unit_of_measure: "Stück",
                 price: 0,
-                tax_rate_percent: defaultVatRate(smallBusiness),
+                tax_rate_percent: defaultVatRate(smallBusiness, null, flatRateFarming),
                 discount_percent: 0,
             },
         ]);
@@ -132,7 +130,7 @@ export default function OfferCreatePage() {
                 quantity: 1,
                 unit_of_measure: product.unit_of_measure,
                 price: product.price,
-                tax_rate_percent: defaultVatRate(smallBusiness, product.tax_rate_percent),
+                tax_rate_percent: defaultVatRate(smallBusiness, product.tax_rate_percent, flatRateFarming),
                 discount_percent: 0,
             },
         ]);

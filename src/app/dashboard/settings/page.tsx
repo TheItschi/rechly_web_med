@@ -42,6 +42,7 @@ import OnlineBookingSettingsTab from "@/components/termine/OnlineBookingSettings
 import { isTermineEnabled } from "@/lib/features";
 import type { UploadProps } from "antd";
 import { getCompanyInfo, saveCompanyInfo } from "@/lib/companyService";
+import { euCountryOptions } from "@/lib/euCountries";
 import { LogoError, normalizeLogoFile } from "@/lib/companyLogo";
 import { getNextInvoiceNumber } from "@/lib/invoiceService";
 import {
@@ -557,7 +558,7 @@ export default function SettingsPage() {
                     </Row>
 
                     <Form.Item name="country" label={t("settings.country")}>
-                        <Input placeholder={t("settings.country")} />
+                        <Select showSearch options={euCountryOptions(language)} placeholder={t("settings.country")} />
                     </Form.Item>
 
                     <Divider>{t("settings.contact")}</Divider>
@@ -670,7 +671,16 @@ export default function SettingsPage() {
                         valuePropName="checked"
                         extra={t("settings.smallBusinessHint")}
                     >
-                        <Switch />
+                        <Switch onChange={(checked) => { if (checked) form.setFieldValue("is_flat_rate_farming", false); }} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="is_flat_rate_farming"
+                        label={t("settings.flatRateFarming")}
+                        valuePropName="checked"
+                        extra={t("settings.flatRateFarmingHint")}
+                    >
+                        <Switch onChange={(checked) => { if (checked) form.setFieldValue("is_small_business", false); }} />
                     </Form.Item>
 
                     <Divider>{t("settings.numberingTitle")}</Divider>

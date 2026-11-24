@@ -56,6 +56,11 @@ export interface UstvaReport {
     kz86Tax: number;
     /** Tax-free / 0 % revenue (informational) */
     taxFreeNet: number;
+    /** § 24 UStG flat-rate (Durchschnittssatz) revenue — informational:
+     *  the charged 7.8 %/5.5 % tax is kept by the farmer, never remitted,
+     *  so it is excluded from the Zahllast below. */
+    flatRate24Net: number;
+    flatRate24Tax: number;
     /** KZ 66: input tax (Vorsteuer) from expenses */
     kz66Vorsteuer: number;
     /** KZ 83: resulting payment (positive) or refund (negative) */
@@ -77,6 +82,8 @@ export const computeUstva = (
     let kz86Net = 0;
     let kz86Tax = 0;
     let taxFreeNet = 0;
+    let flatRate24Net = 0;
+    let flatRate24Tax = 0;
 
     for (const line of lines) {
         if (line.status === "draft" || line.status === "cancelled") continue;
@@ -87,6 +94,10 @@ export const computeUstva = (
         } else if (line.tax_rate_percent === 7) {
             kz86Net += line.net;
             kz86Tax += line.tax;
+        } else if (line.tax_rate_percent === 7.8 || line.tax_rate_percent === 5.5) {
+            // § 24 UStG Durchschnittssatz: shown for information only.
+            flatRate24Net += line.net;
+            flatRate24Tax += line.tax;
         } else {
             taxFreeNet += line.net;
         }
@@ -105,6 +116,8 @@ export const computeUstva = (
         kz86Net: round2(kz86Net),
         kz86Tax: round2(kz86Tax),
         taxFreeNet: round2(taxFreeNet),
+        flatRate24Net: round2(flatRate24Net),
+        flatRate24Tax: round2(flatRate24Tax),
         kz66Vorsteuer: round2(kz66Vorsteuer),
         kz83Zahllast: round2(kz81Tax + kz86Tax - kz66Vorsteuer),
     };

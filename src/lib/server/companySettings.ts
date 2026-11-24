@@ -82,6 +82,17 @@ export function companyWrite(body: unknown, userId: string, existing?: CompanyDo
         if (typeof input.is_small_business !== "boolean") throw new CompanySettingsError("Kleinunternehmer: Ungültige Auswahl.", 400, "is_small_business");
         if (input.is_small_business || existing?.isSmallBusiness === true) data.isSmallBusiness = input.is_small_business;
     }
+    if (input.is_flat_rate_farming !== undefined) {
+        if (typeof input.is_flat_rate_farming !== "boolean") throw new CompanySettingsError("Durchschnittssatzbesteuerung: Ungültige Auswahl.", 400, "is_flat_rate_farming");
+        if (input.is_flat_rate_farming || existing?.isFlatRateFarming === true) data.isFlatRateFarming = input.is_flat_rate_farming;
+    }
+    // § 19 (no VAT shown at all) and § 24 (flat-rate VAT shown, not remitted)
+    // are alternative regimes — never let both end up active together.
+    const smallBusinessAfter = data.isSmallBusiness ?? existing?.isSmallBusiness ?? false;
+    const flatRateAfter = data.isFlatRateFarming ?? existing?.isFlatRateFarming ?? false;
+    if (smallBusinessAfter && flatRateAfter) {
+        throw new CompanySettingsError("Kleinunternehmer (§ 19 UStG) und Durchschnittssatzbesteuerung (§ 24 UStG) schließen sich gegenseitig aus. Bitte nur eine Regelung aktivieren.", 400, "is_flat_rate_farming");
+    }
     const identifiers = eInvoiceWrite(input.e_invoice);
     if (identifiers.eInvoiceData !== undefined && (identifiers.eInvoiceData !== "{}" || Object.keys(readEInvoiceData(existing?.eInvoiceData)).length > 0)) {
         data.eInvoiceData = identifiers.eInvoiceData;
@@ -94,6 +105,7 @@ export function companyRead(doc: CompanyDocument) {
         id: doc.$id,
         e_invoice: readEInvoiceData(doc.eInvoiceData),
         is_small_business: doc.isSmallBusiness ?? false,
+        is_flat_rate_farming: doc.isFlatRateFarming ?? false,
         next_invoice_number: doc.nextInvoiceNumber ?? undefined,
         created_at: new Date(doc.$createdAt).getTime(),
         updated_at: new Date(doc.$updatedAt).getTime(),

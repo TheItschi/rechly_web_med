@@ -86,6 +86,8 @@ export default function ProductsPage() {
     const taxRateOptions = [
         { value: 19, label: t("products.vat.standard") },
         { value: 7, label: t("products.vat.reduced") },
+        { value: 7.8, label: t("products.vat.flatRate") },
+        { value: 5.5, label: t("products.vat.flatRateForestry") },
         { value: 0, label: t("products.vat.exempt") },
     ];
 

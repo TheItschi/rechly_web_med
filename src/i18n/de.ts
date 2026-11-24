@@ -365,6 +365,8 @@ export const de = {
         "products.vat.standard": "19% (Standard)",
         "products.vat.reduced": "7% (Ermäßigt)",
         "products.vat.exempt": "0% (Steuerfrei)",
+        "products.vat.flatRate": "7,8% (Durchschnittssatz § 24 UStG)",
+        "products.vat.flatRateForestry": "5,5% (Forstwirtschaft § 24 UStG)",
 
         // Settings page
         "settings.title": "Einstellungen",
@@ -404,6 +406,9 @@ export const de = {
         "settings.smallBusiness": "Kleinunternehmer (§19 UStG)",
         "settings.smallBusinessHint":
             "Aktivieren, wenn Sie die Kleinunternehmerregelung nutzen. Rechnungen weisen dann keine Umsatzsteuer aus und enthalten den §19-Hinweis.",
+        "settings.flatRateFarming": "Durchschnittssatzbesteuerung (§ 24 UStG)",
+        "settings.flatRateFarmingHint":
+            "Für land- und forstwirtschaftliche Betriebe: Neue Positionen erhalten automatisch 7,8 % USt (Forstwirtschaft 5,5 % wählbar), Rechnungen enthalten den §24-Hinweis. Schließt sich mit der Kleinunternehmerregelung aus.",
         "settings.paymentTermsPlaceholder":
             "Zahlbar innerhalb von 14 Tagen ohne Abzug.",
         "settings.numberingTitle": "Fortlaufende Rechnungsnummer",

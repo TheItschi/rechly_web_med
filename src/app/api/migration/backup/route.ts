@@ -98,6 +98,7 @@ export async function GET() {
                   bank_bic: companyDoc.bankBic ?? undefined,
                   logo_base64: companyDoc.logoBase64 ?? undefined,
                   is_small_business: companyDoc.isSmallBusiness ?? false,
+                  is_flat_rate_farming: companyDoc.isFlatRateFarming ?? false,
                   payment_terms_default: companyDoc.paymentTermsDefault,
               }
             : null;

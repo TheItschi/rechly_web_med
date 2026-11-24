@@ -16,7 +16,7 @@ import {
     getAllInvoiceTemplates,
     type InvoiceTemplate,
 } from "@/lib/invoiceTemplateService";
-import { defaultVatRate } from "@/lib/vatDefaults";
+import { defaultVatRate, VAT_RATE_OPTIONS } from "@/lib/vatDefaults";
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -54,6 +54,7 @@ import { getAllClients, createClient } from "@/lib/clientService";
 import { getAllProducts, createProduct } from "@/lib/productService";
 import { createInvoice, getInvoiceById, getNextInvoiceNumber, updateDraftInvoice } from "@/lib/invoiceService";
 import { getCompanyInfo } from "@/lib/companyService";
+import { euCountryOptions } from "@/lib/euCountries";
 import { runInvoiceAssistant, parseInvoiceDraftWithAI } from "@/lib/aiService";
 import {
     formatCurrency,
@@ -163,7 +164,7 @@ export default function InvoiceCreatePage() {
             tax_rate_percent:
                 typeof item.tax_rate_percent === "number"
                     ? item.tax_rate_percent
-                    : defaultVatRate(company?.is_small_business),
+                    : defaultVatRate(company?.is_small_business, null, company?.is_flat_rate_farming),
             discount_percent: item.discount_percent ?? 0,
             ...(item.product_id ? { product_id: item.product_id } : {}),
             ...(item.gtin ? { gtin: item.gtin } : {}),
@@ -369,7 +370,7 @@ export default function InvoiceCreatePage() {
             quantity: 1,
             unit_of_measure: t("invoiceCreate.unitPiece"),
             price: 0,
-            tax_rate_percent: defaultVatRate(company?.is_small_business),
+            tax_rate_percent: defaultVatRate(company?.is_small_business, null, company?.is_flat_rate_farming),
             discount_percent: 0,
         };
         setLineItems([...lineItems, newItem]);
@@ -452,7 +453,7 @@ export default function InvoiceCreatePage() {
             quantity: 1,
             unit_of_measure: product.unit_of_measure || t("invoiceCreate.unitPiece"),
             price: product.price,
-            tax_rate_percent: defaultVatRate(company?.is_small_business, product.tax_rate_percent),
+            tax_rate_percent: defaultVatRate(company?.is_small_business, product.tax_rate_percent, company?.is_flat_rate_farming),
             discount_percent: 0,
         };
         setLineItems([...lineItems, newItem]);
@@ -494,7 +495,7 @@ export default function InvoiceCreatePage() {
                 name: values.name.trim(),
                 description: values.description?.trim() || undefined,
                 price: Number(values.price) || 0,
-                tax_rate_percent: Number(values.tax_rate_percent ?? defaultVatRate(company?.is_small_business)),
+                tax_rate_percent: Number(values.tax_rate_percent ?? defaultVatRate(company?.is_small_business, null, company?.is_flat_rate_farming)),
                 unit_of_measure: values.unit_of_measure?.trim() || t("invoiceCreate.unitPiece"),
             });
             setProducts((prev) => [...prev, newProduct]);
@@ -772,6 +773,7 @@ export default function InvoiceCreatePage() {
             const result = await parseInvoiceDraftWithAI({
                 promptText: aiPrompt,
                 isSmallBusiness: company?.is_small_business,
+                isFlatRateFarming: company?.is_flat_rate_farming,
                 availableClients: clients.map((c) => ({
                     id: c.id || "",
                     name: c.name,
@@ -962,11 +964,7 @@ export default function InvoiceCreatePage() {
                         updateLineItem(record.key, "tax_rate_percent", val)
                     }
                     style={{ width: "100%" }}
-                    options={[
-                        { value: 0, label: "0%" },
-                        { value: 7, label: "7%" },
-                        { value: 19, label: "19%" },
-                    ]}
+                    options={VAT_RATE_OPTIONS}
                 />
             ),
         },
@@ -1593,8 +1591,8 @@ export default function InvoiceCreatePage() {
                             <Input />
                         </Form.Item>
                     </div>
-                    <Form.Item label={t("clients.country")} name="country">
-                        <Input placeholder="Deutschland" />
+                    <Form.Item label={t("clients.country")} name="country" initialValue="Deutschland">
+                        <Select showSearch options={euCountryOptions(language)} placeholder="Deutschland" />
                     </Form.Item>
                 </Form>
             </Modal>
@@ -1645,11 +1643,7 @@ export default function InvoiceCreatePage() {
                     </div>
                     <Form.Item label={t("products.vat")} name="tax_rate_percent">
                         <Select
-                            options={[
-                                { value: 0, label: "0%" },
-                                { value: 7, label: "7%" },
-                                { value: 19, label: "19%" },
-                            ]}
+                            options={VAT_RATE_OPTIONS}
                         />
                     </Form.Item>
                 </Form>

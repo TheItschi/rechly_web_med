@@ -1,6 +1,7 @@
 "use client";
 
 import DecimalInput from "@/components/DecimalInput";
+import { VAT_RATE_OPTIONS } from "@/lib/vatDefaults";
 
 import { useEffect, useState, useCallback } from "react";
 import dayjs from "dayjs";
@@ -344,11 +345,7 @@ export default function ExpensesPage() {
         },
     ];
 
-    const vatOptions = [
-        { value: 19, label: "19%" },
-        { value: 7, label: "7%" },
-        { value: 0, label: "0%" },
-    ];
+    const vatOptions = VAT_RATE_OPTIONS;
 
     const categoryOptions = (
         [

@@ -78,6 +78,7 @@ export async function GET(
             phone: companyDoc.phone ?? undefined,
             managing_directors: companyDoc.managingDirectors ?? undefined,
             is_small_business: companyDoc.isSmallBusiness ?? false,
+            is_flat_rate_farming: companyDoc.isFlatRateFarming ?? false,
             website: companyDoc.website ?? undefined,
             vat_id: companyDoc.vatId || undefined,
             tax_number: companyDoc.taxNumber || undefined,

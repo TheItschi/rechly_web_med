@@ -19,6 +19,7 @@ import {
     Card,
     Radio,
     Drawer,
+    Select,
     Tag,
     Divider,
     Tooltip,
@@ -43,6 +44,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getAllInvoices } from "@/lib/invoiceService";
 import { splitVatId } from "@/lib/validation";
 import { getCompanyInfo } from "@/lib/companyService";
+import { euCountryOptions } from "@/lib/euCountries";
 import { runInvoiceAssistant } from "@/lib/aiService";
 import { formatCurrency } from "@/lib/currencyUtils";
 import { BOOKING_STATUS_COLOR, bookingStatusLabel } from "@/components/termine/BookingDrawerAndModals";
@@ -624,7 +626,7 @@ export default function ClientsPage() {
                     </Row>
 
                     <Form.Item name="country" label={t("clients.country")}>
-                        <Input placeholder={t("clients.country")} />
+                        <Select showSearch options={euCountryOptions(language)} placeholder={t("clients.country")} />
                     </Form.Item>
 
                     <Row gutter={[12, 0]}>

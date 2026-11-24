@@ -9,6 +9,7 @@ import {
     sanitizeStoredAISettings,
 } from "@/lib/server/ai";
 import { isLocalProviderAllowed, LOCAL_AI_HOSTED_MESSAGE } from "@/lib/server/security";
+import { KNOWN_VAT_RATES } from "@/lib/vatDefaults";
 
 type AssistantAction =
     | "invoice_note"
@@ -40,6 +41,7 @@ type InvoiceAssistantBody = {
     serviceSummary?: string;
     promptText?: string;
     isSmallBusiness?: boolean;
+    isFlatRateFarming?: boolean;
     availableClients?: Array<{ id: string; name: string }>;
     lineItems?: InvoiceLineItemInput[];
     invoices?: Array<{
@@ -288,7 +290,7 @@ function buildPrompt(
             .slice(0, 50)
             .map((c) => `- ID: "${c.id}", Name: "${c.name}"`)
             .join("\n");
-        const defaultVat = body.isSmallBusiness ? 0 : 19;
+        const defaultVat = body.isSmallBusiness ? 0 : body.isFlatRateFarming ? 7.8 : 19;
 
         return [
             "Du bist ein präziser deutscher Buchhaltungs-KI-Assistent. Extrahiere aus dem folgenden Freitext einen strukturierten Rechnungsentwurf.",
@@ -372,7 +374,7 @@ export async function POST(request: NextRequest) {
                 );
             }
 
-            const defaultTaxRate = body.isSmallBusiness ? 0 : 19;
+            const defaultTaxRate = body.isSmallBusiness ? 0 : body.isFlatRateFarming ? 7.8 : 19;
             const heuristic = parseInvoiceDraftHeuristic(
                 promptText,
                 body.availableClients || [],
@@ -440,7 +442,7 @@ export async function POST(request: NextRequest) {
                                           tax_rate_percent:
                                               body.isSmallBusiness
                                                   ? 0
-                                                  : [0, 7, 19].includes(
+                                                  : KNOWN_VAT_RATES.includes(
                                                           Number(
                                                               item.tax_rate_percent,
                                                           ),

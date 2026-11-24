@@ -263,6 +263,13 @@
                     "default": false
                 },
                 {
+                    "key": "isFlatRateFarming",
+                    "type": "boolean",
+                    "required": false,
+                    "array": false,
+                    "default": false
+                },
+                {
                     "key": "datevChartOfAccounts",
                     "type": "string",
                     "required": false,
