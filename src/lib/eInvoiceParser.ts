@@ -135,6 +135,20 @@ export const extractXmlFromPdf = (pdf: Buffer): string | null => {
     while (true) {
         const streamStart = pdf.indexOf(marker, offset);
         if (streamStart === -1) break;
+
+        // Per PDF spec, the `stream` keyword must be followed immediately by \n or \r\n
+        // (and not be part of `endstream` or e.g. `octet-stream` in XMP metadata).
+        const prevByte = streamStart > 0 ? pdf[streamStart - 1] : 0;
+        const nextByte = pdf[streamStart + marker.length];
+        const isEndstream =
+            prevByte === 0x64 &&
+            streamStart >= 3 &&
+            pdf.subarray(streamStart - 3, streamStart).equals(Buffer.from("end"));
+        if (isEndstream || (nextByte !== 0x0a && nextByte !== 0x0d)) {
+            offset = streamStart + marker.length;
+            continue;
+        }
+
         // Content starts after "stream" + EOL
         let contentStart = streamStart + marker.length;
         if (pdf[contentStart] === 0x0d) contentStart++;
@@ -142,7 +156,12 @@ export const extractXmlFromPdf = (pdf: Buffer): string | null => {
         const streamEnd = pdf.indexOf(Buffer.from("endstream"), contentStart);
         if (streamEnd === -1) break;
 
-        const raw = pdf.subarray(contentStart, streamEnd);
+        // Trim optional trailing EOL right before `endstream` so zlib doesn't trip
+        let dataEnd = streamEnd;
+        if (dataEnd > contentStart && pdf[dataEnd - 1] === 0x0a) dataEnd--;
+        if (dataEnd > contentStart && pdf[dataEnd - 1] === 0x0d) dataEnd--;
+
+        const raw = pdf.subarray(contentStart, dataEnd);
         let text: string | null = null;
         try {
             // Cap decompression so a crafted PDF stream cannot expand unbounded in memory.
@@ -154,10 +173,11 @@ export const extractXmlFromPdf = (pdf: Buffer): string | null => {
         if (
             text &&
             (text.includes("CrossIndustryInvoice") ||
-                (text.includes("<Invoice") && text.includes("urn:oasis")))
+                (text.includes("Invoice") && text.includes("urn:oasis")) ||
+                (text.includes("CreditNote") && text.includes("urn:oasis")))
         ) {
             const xmlStart = text.indexOf("<?xml");
-            return xmlStart >= 0 ? text.slice(xmlStart) : text;
+            return xmlStart >= 0 ? text.slice(xmlStart).trim() : text.trim();
         }
         offset = streamEnd + 9;
     }

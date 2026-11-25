@@ -10,6 +10,7 @@ import {
     PrinterOutlined,
     GlobalOutlined,
     FileTextOutlined,
+    FilePdfOutlined,
 } from "@ant-design/icons";
 import {
     Document,
@@ -30,6 +31,8 @@ import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
 import { formatServicePeriod } from "@/lib/invoiceForm";
 import { isPdfSafeLogo } from "@/lib/companyLogo";
+import { downloadInvoiceWithFeedback } from "@/components/dashboard/eInvoiceDownloadModal";
+import type { EInvoiceFormat } from "@/lib/eRechnung/downloadClient";
 import { useLanguage, getTranslation, Language } from "@/contexts/LanguageContext";
 import type { InvoiceWithDetails, UserCompany, InvoiceItem } from "@/types";
 
@@ -576,7 +579,24 @@ export default function InvoicePDFPage() {
     const [company, setCompany] = useState<UserCompany | null>(null);
     const [girocodeUrl, setGirocodeUrl] = useState<string | null>(null);
     const [printing, setPrinting] = useState(false);
+    const [downloadingFormat, setDownloadingFormat] =
+        useState<EInvoiceFormat | null>(null);
     const printFrameRef = useRef<HTMLIFrameElement>(null);
+
+    const handleDownloadEInvoice = async (format: EInvoiceFormat) => {
+        setDownloadingFormat(format);
+        try {
+            await downloadInvoiceWithFeedback({
+                invoiceId,
+                invoiceNumber: invoice?.invoice_number,
+                format,
+                t,
+                onNavigate: (path) => router.push(path),
+            });
+        } finally {
+            setDownloadingFormat(null);
+        }
+    };
 
     useEffect(() => {
         if (invoiceId) {
@@ -795,16 +815,20 @@ export default function InvoicePDFPage() {
                             {t("invoicePdf.print")}
                         </Button>
                         <Button
-                            icon={<FileTextOutlined />}
-                            onClick={() =>
-                                window.open(
-                                    `/api/invoices/${invoiceId}/xrechnung`,
-                                    "_blank",
-                                )
-                            }
-                            title="XRechnung 3.0 XML herunterladen"
+                            icon={<FilePdfOutlined />}
+                            loading={downloadingFormat === "zugferd"}
+                            onClick={() => void handleDownloadEInvoice("zugferd")}
+                            title={t("erechnung.zugferdTooltip")}
                         >
-                            XRechnung (XML)
+                            {t("erechnung.downloadZUGFeRDBtn")}
+                        </Button>
+                        <Button
+                            icon={<FileTextOutlined />}
+                            loading={downloadingFormat === "xrechnung"}
+                            onClick={() => void handleDownloadEInvoice("xrechnung")}
+                            title={t("erechnung.xrechnungTooltip")}
+                        >
+                            {t("erechnung.downloadXRechnungBtn")}
                         </Button>
                         <PDFDownloadLink
                             document={

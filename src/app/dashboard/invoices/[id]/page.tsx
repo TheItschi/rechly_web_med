@@ -50,6 +50,8 @@ import { formatServicePeriod } from "@/lib/invoiceForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import QRCode from "qrcode";
 import { buildGirocodePayload } from "@/lib/girocode";
+import { downloadInvoiceWithFeedback } from "@/components/dashboard/eInvoiceDownloadModal";
+import type { EInvoiceFormat } from "@/lib/eRechnung/downloadClient";
 import type { InvoiceWithDetails, UserCompany } from "@/types";
 
 const { Title, Text } = Typography;
@@ -85,6 +87,24 @@ export default function InvoiceDetailPage() {
     const [templateModalOpen, setTemplateModalOpen] = useState(false);
     const [templateName, setTemplateName] = useState("");
     const [templateSaving, setTemplateSaving] = useState(false);
+    const [downloadingFormat, setDownloadingFormat] =
+        useState<EInvoiceFormat | null>(null);
+
+    const handleDownloadEInvoice = async (format: EInvoiceFormat) => {
+        if (!invoice?.id) return;
+        setDownloadingFormat(format);
+        try {
+            await downloadInvoiceWithFeedback({
+                invoiceId: invoice.id,
+                invoiceNumber: invoice.invoice_number,
+                format,
+                t,
+                onNavigate: (path) => router.push(path),
+            });
+        } finally {
+            setDownloadingFormat(null);
+        }
+    };
 
     const handleSaveAsTemplate = async () => {
         if (!invoice) return;
@@ -503,16 +523,20 @@ export default function InvoiceDetailPage() {
                         PDF
                     </Button>
                     <Button
-                        icon={<FileTextOutlined />}
-                        onClick={() =>
-                            window.open(
-                                `/api/invoices/${invoice.id}/xrechnung`,
-                                "_blank",
-                            )
-                        }
-                        title="XRechnung 3.0 (XML nach EN 16931) herunterladen"
+                        icon={<FilePdfOutlined />}
+                        loading={downloadingFormat === "zugferd"}
+                        onClick={() => void handleDownloadEInvoice("zugferd")}
+                        title={t("erechnung.zugferdTooltip")}
                     >
-                        XRechnung (XML)
+                        {t("erechnung.downloadZUGFeRDBtn")}
+                    </Button>
+                    <Button
+                        icon={<FileTextOutlined />}
+                        loading={downloadingFormat === "xrechnung"}
+                        onClick={() => void handleDownloadEInvoice("xrechnung")}
+                        title={t("erechnung.xrechnungTooltip")}
+                    >
+                        {t("erechnung.downloadXRechnungBtn")}
                     </Button>
                     <Button
                         icon={<CopyOutlined />}
@@ -846,6 +870,22 @@ export default function InvoiceDetailPage() {
                         }}
                     >
                         {t("invoiceDetail.print")}
+                    </Button>
+                    <Button
+                        icon={<FilePdfOutlined />}
+                        loading={downloadingFormat === "zugferd"}
+                        onClick={() => void handleDownloadEInvoice("zugferd")}
+                        title={t("erechnung.zugferdTooltip")}
+                    >
+                        {t("erechnung.downloadZUGFeRDBtn")}
+                    </Button>
+                    <Button
+                        icon={<FileTextOutlined />}
+                        loading={downloadingFormat === "xrechnung"}
+                        onClick={() => void handleDownloadEInvoice("xrechnung")}
+                        title={t("erechnung.xrechnungTooltip")}
+                    >
+                        {t("erechnung.downloadXRechnungBtn")}
                     </Button>
                     <Button
                         icon={<RollbackOutlined />}

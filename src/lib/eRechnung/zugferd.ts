@@ -9,6 +9,7 @@ import PDFDocument from "pdfkit";
 import path from "node:path";
 import type { InvoiceWithDetails, UserCompany } from "@/types";
 import { isPdfSafeLogo } from "@/lib/companyLogo";
+import { formatServicePeriod } from "@/lib/invoiceForm";
 
 /** Decode a PDF-safe logo data URL to a Buffer for pdfkit. Returns null when unusable. */
 function logoToBuffer(dataUrl: unknown): Buffer | null {
@@ -142,6 +143,12 @@ export async function generateZUGFeRDPDF(
         addDetail("Datum:", formatDate(invoice.issue_date));
         if (invoice.due_date)
             addDetail("Fällig:", formatDate(invoice.due_date));
+        const servicePeriod = formatServicePeriod(
+            invoice.delivery_date_start,
+            invoice.delivery_date_end,
+            invoice.delivery_date,
+        );
+        if (servicePeriod) addDetail("Leistungszeitraum:", servicePeriod);
         if (client.leitweg_id) addDetail("Leitweg-ID:", client.leitweg_id);
 
         // Line items table
@@ -182,8 +189,14 @@ export async function generateZUGFeRDPDF(
 
         for (const item of invoice.items) {
             const netUnitPrice = item.price * (1 - (item.discount_percent || 0) / 100);
-            const description = [item.description,
+            const itemPeriod = formatServicePeriod(
+                item.service_date_start,
+                item.service_date_end,
+            );
+            const description = [
+                item.description,
                 item.gtin ? `GTIN: ${item.gtin}` : "",
+                itemPeriod ? `Leistungszeitraum: ${itemPeriod}` : "",
                 item.discount_percent ? `Rabatt: ${item.discount_percent}% (im Einzelpreis enthalten)` : "",
             ].filter(Boolean).join("\n");
             const lineNet =
@@ -240,6 +253,10 @@ export async function generateZUGFeRDPDF(
         // Totals
         const totalsX = 380;
         let totalsY = itemY + 15;
+        if (totalsY > 700) {
+            doc.addPage();
+            totalsY = 60;
+        }
 
         doc.fillColor("#000000").font("Invoice-Regular").fontSize(9);
         doc.text("Nettobetrag:", totalsX, totalsY);
@@ -268,16 +285,55 @@ export async function generateZUGFeRDPDF(
             totalsY,
             { align: "right", width: 65 },
         );
+        totalsY += 28;
 
-        // Notes
-        if (invoice.notes) {
-            totalsY += 40;
-            doc.font("Invoice-Bold")
-                .fontSize(9)
-                .text("Notizen:", 60, totalsY);
-            doc.font("Invoice-Regular").text(invoice.notes, 60, totalsY + 15, {
+        const appendSection = (heading: string | null, body: string) => {
+            doc.font("Invoice-Regular").fontSize(9);
+            const needed = (heading ? 15 : 0) + doc.heightOfString(body, { width: pageWidth }) + 12;
+            if (totalsY + needed > 760) {
+                doc.addPage();
+                totalsY = 60;
+            }
+            if (heading) {
+                doc.fillColor("#000000").font("Invoice-Bold").fontSize(9).text(heading, 60, totalsY);
+                totalsY += 14;
+            }
+            doc.fillColor("#333333").font("Invoice-Regular").fontSize(9).text(body, 60, totalsY, {
                 width: pageWidth,
             });
+            totalsY += doc.heightOfString(body, { width: pageWidth }) + 12;
+        };
+
+        if (company.is_small_business) {
+            appendSection(
+                null,
+                "Kein Ausweis von Umsatzsteuer, da Kleinunternehmer gemäß § 19 UStG.",
+            );
+        } else if (company.is_flat_rate_farming) {
+            appendSection(
+                null,
+                "Durchschnittssatzbesteuerung für land- und forstwirtschaftliche Betriebe gemäß § 24 UStG. Die ausgewiesene Umsatzsteuer wird nicht an das Finanzamt abgeführt.",
+            );
+        }
+
+        if (invoice.payment_terms) {
+            appendSection("Zahlungsbedingungen:", invoice.payment_terms);
+        }
+
+        if (invoice.notes) {
+            appendSection("Notizen:", invoice.notes);
+        }
+
+        if (company.bank_iban) {
+            const bankLines = [
+                company.bank_name ? `Bank: ${company.bank_name}` : "",
+                `IBAN: ${company.bank_iban}`,
+                company.bank_bic ? `BIC: ${company.bank_bic}` : "",
+                `Verwendungszweck: ${invoice.invoice_number}`,
+            ]
+                .filter(Boolean)
+                .join("  |  ");
+            appendSection("Bankverbindung:", bankLines);
         }
 
         // Print the same immutable identifiers and delivery address as the XML.

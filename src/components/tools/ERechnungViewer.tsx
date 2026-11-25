@@ -8,7 +8,10 @@ import {
     QrcodeOutlined,
     DownloadOutlined,
     CheckCircleOutlined } from "@ant-design/icons";
-import { parseEInvoiceXml, extractZugferdXmlFromPdfBytes } from "@/lib/eInvoiceParserClient";
+import {
+    parseEInvoiceXml,
+    extractZugferdXmlFromPdfBytesAsync,
+} from "@/lib/eInvoiceParserClient";
 import type { ParsedEInvoice } from "@/lib/eInvoiceParser";
 import Link from "next/link";
 
@@ -37,10 +40,10 @@ export default function ERechnungViewer() {
             if (isPdf) {
                 const arrayBuffer = await file.arrayBuffer();
                 const bytes = new Uint8Array(arrayBuffer);
-                const extractedXml = extractZugferdXmlFromPdfBytes(bytes);
+                const extractedXml = await extractZugferdXmlFromPdfBytesAsync(bytes);
                 if (!extractedXml) {
                     throw new Error(
-                        "Die Rechnungs-XML konnte aus dieser PDF nicht gelesen werden. Komprimierte oder anders eingebettete Anhänge werden hier nicht unterstützt. Extrahiere die XML mit einem geeigneten PDF-Programm und öffne sie separat."
+                        "In dieser PDF-Datei wurde keine eingebettete ZUGFeRD- oder Factur-X-XML gefunden. Eine gewöhnliche PDF-Rechnung ohne eingebetteten XML-Datensatz ist keine ZUGFeRD-Datei."
                     );
                 }
                 xmlContent = extractedXml;

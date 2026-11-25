@@ -910,6 +910,15 @@ export const en = {
         "erechnung.invalid": "Missing required fields",
         "erechnung.downloadXRechnung": "XRechnung XML",
         "erechnung.downloadZUGFeRD": "ZUGFeRD PDF",
+        "erechnung.downloadXRechnungBtn": "XRechnung (XML)",
+        "erechnung.downloadZUGFeRDBtn": "ZUGFeRD (PDF)",
+        "erechnung.xrechnungTooltip":
+            "Download XRechnung 3.0 XML (EN 16931)",
+        "erechnung.zugferdTooltip":
+            "Download ZUGFeRD 2.3 / Factur-X hybrid PDF/A-3 (EN 16931)",
+        "erechnung.validationModalTitle": "Missing required fields for e-invoice",
+        "erechnung.validationModalHint":
+            "Please complete the following EN 16931 required details in your company settings or client record:",
         "erechnung.missingLeitwegId": "Leitweg-ID missing on client",
         "erechnung.missingVatId": "VAT ID or tax number missing on company",
         "erechnung.missingCompanyAddress": "Company address incomplete",

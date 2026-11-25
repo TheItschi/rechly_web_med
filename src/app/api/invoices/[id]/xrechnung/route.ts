@@ -1,4 +1,5 @@
 import { readEInvoiceData } from "@/lib/eRechnung/identifiers";
+import { buildAttachmentDisposition } from "@/lib/eRechnung/disposition";
 import { NextRequest, NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 import {
@@ -124,6 +125,8 @@ export async function GET(
             price: item.price,
             tax_rate_percent: item.taxRatePercent ?? 19,
             discount_percent: item.discountPercent ?? 0,
+            service_date_start: item.serviceDateStart ?? undefined,
+            service_date_end: item.serviceDateEnd ?? undefined,
             subtotal: item.subtotal ?? 0,
             tax_amount: item.taxAmount ?? 0,
             total: item.total ?? 0,
@@ -146,6 +149,8 @@ export async function GET(
             payment_terms: doc.paymentTerms ?? undefined,
             purchase_order_ref: doc.purchaseOrderRef ?? undefined,
             delivery_date: doc.deliveryDate ?? undefined,
+            delivery_date_start: doc.deliveryDateStart ?? undefined,
+            delivery_date_end: doc.deliveryDateEnd ?? undefined,
             created_at: 0,
             updated_at: 0,
             client,
@@ -165,7 +170,11 @@ export async function GET(
         return new Response(xml, {
             headers: {
                 "Content-Type": "application/xml; charset=utf-8",
-                "Content-Disposition": `attachment; filename="xrechnung-${doc.invoiceNumber}.xml"`,
+                "Content-Disposition": buildAttachmentDisposition(
+                    "xrechnung",
+                    doc.invoiceNumber,
+                    "xml",
+                ),
             },
         });
     } catch (error) {

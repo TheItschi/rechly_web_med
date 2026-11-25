@@ -3,6 +3,13 @@ import assert from "node:assert/strict";
 import { XMLParser } from "fast-xml-parser";
 import { validGTIN, parseGTIN, parseEInvoiceData, parseIdentifier, readEInvoiceData, snapshotIdentifiers, eInvoiceWrite } from "../src/lib/eRechnung/identifiers";
 import { generateXRechnungXML, validateXRechnung } from "../src/lib/eRechnung/xrechnung";
+import { generateZUGFeRDPDF } from "../src/lib/eRechnung/zugferd";
+import { buildAttachmentDisposition } from "../src/lib/eRechnung/disposition";
+import { extractXmlFromPdf } from "../src/lib/eInvoiceParser";
+import {
+    extractZugferdXmlFromPdfBytesAsync,
+    parseEInvoiceXml,
+} from "../src/lib/eInvoiceParserClient";
 import { allDocuments } from "../src/lib/server/pagination";
 import { defaultVatRate } from "../src/lib/vatDefaults";
 import { invoice, company } from "./fixtures/identifier-invoice";
@@ -136,4 +143,64 @@ test("PEPPOL-EN16931-R020: Seller electronic address BT-34 and Buyer BT-49 are p
         xml,
         /<ram:BuyerTradeParty>[\s\S]*?<ram:URIUniversalCommunication><ram:URIID schemeID="EM">buyer@example\.invalid<\/ram:URIID><\/ram:URIUniversalCommunication>[\s\S]*?<\/ram:BuyerTradeParty>/
     );
+});
+
+test("generateZUGFeRDPDF embeds Factur-X EN 16931 XML extractable by both server and browser parsers", async () => {
+    const cases = complianceCases();
+    for (const [name, { invoice: caseInv, company: caseComp }] of Object.entries(cases)) {
+        const pdfBuffer = await generateZUGFeRDPDF(caseInv, caseComp);
+        assert.equal(pdfBuffer.subarray(0, 8).toString("ascii"), "%PDF-1.7", name);
+        const rawPdfLatin1 = pdfBuffer.toString("latin1");
+        assert.match(rawPdfLatin1, /<fx:DocumentFileName>factur-x\.xml<\/fx:DocumentFileName>/, name);
+        assert.match(rawPdfLatin1, /<fx:ConformanceLevel>EN 16931<\/fx:ConformanceLevel>/, name);
+
+        const expectedXml = generateXRechnungXML(caseInv, caseComp, "en16931").trim();
+
+        const serverXml = extractXmlFromPdf(pdfBuffer);
+        assert.equal(serverXml, expectedXml, `server extractXmlFromPdf: ${name}`);
+
+        const clientXml = await extractZugferdXmlFromPdfBytesAsync(new Uint8Array(pdfBuffer));
+        assert.equal(clientXml, expectedXml, `client extractZugferdXmlFromPdfBytesAsync: ${name}`);
+
+        const parsed = parseEInvoiceXml(clientXml!);
+        assert.equal(parsed.invoice_number, caseInv.invoice_number, name);
+        assert.equal(parsed.vendor_name, caseComp.name, name);
+        assert.equal(parsed.amount_gross, caseInv.total_gross, name);
+    }
+});
+
+test("ZUGFeRD PDF propagates company-level seller identifier when invoice snapshot omits it", async () => {
+    const invWithoutSeller = {
+        ...invoice,
+        e_invoice: { buyer_identifier: invoice.e_invoice!.buyer_identifier },
+        delivery_date_start: "2026-11-01",
+        delivery_date_end: "2026-11-15",
+    };
+    const compWithSeller = {
+        ...company,
+        e_invoice: { seller_identifier: invoice.e_invoice!.seller_identifier },
+    };
+    const pdfBuffer = await generateZUGFeRDPDF(invWithoutSeller, compWithSeller);
+    const extracted = await extractZugferdXmlFromPdfBytesAsync(new Uint8Array(pdfBuffer));
+    assert.ok(extracted);
+    assert.match(extracted, /<ram:GlobalID schemeID="0088">9501101530003<\/ram:GlobalID>/);
+});
+
+test("plain PDF bytes without embedded XML return null in ZUGFeRD parsers", async () => {
+    const plainBytes = Buffer.from("%PDF-1.4\n1 0 obj\n<< /Length 12 >>\nstream\nHello World!\nendstream\nendobj\n%%EOF", "utf8");
+    assert.equal(extractXmlFromPdf(plainBytes), null);
+    assert.equal(await extractZugferdXmlFromPdfBytesAsync(new Uint8Array(plainBytes)), null);
+});
+
+test("buildAttachmentDisposition produces ByteString-safe headers for special invoice numbers", () => {
+    const std = buildAttachmentDisposition("zugferd", "RE-2026-08", "pdf");
+    assert.equal(
+        std,
+        `attachment; filename="zugferd-RE-2026-08.pdf"; filename*=UTF-8''zugferd-RE-2026-08.pdf`,
+    );
+
+    const tricky = buildAttachmentDisposition("zugferd", 'RE-2026/08 "Muster ÄÖÜ"', "pdf");
+    const response = new Response("ok", { headers: { "Content-Disposition": tricky } });
+    assert.match(response.headers.get("Content-Disposition") || "", /filename="zugferd-RE-2026_08_Muster_AOU\.pdf"/);
+    assert.match(response.headers.get("Content-Disposition") || "", /filename\*=UTF-8''zugferd-RE-2026_08%20_Muster%20%C3%84%C3%96%C3%9C_\.pdf/);
 });

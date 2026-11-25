@@ -24,6 +24,7 @@ import {
     EditOutlined,
     DeleteOutlined,
     FilePdfOutlined,
+    FileTextOutlined,
     CheckCircleOutlined,
     SendOutlined,
     RobotOutlined,
@@ -36,6 +37,7 @@ import { formatCurrency } from "@/lib/currencyUtils";
 import { formatDateGerman } from "@/lib/dateUtils";
 import { runInvoiceAssistant } from "@/lib/aiService";
 import { getCompanyInfo } from "@/lib/companyService";
+import { downloadInvoiceWithFeedback } from "@/components/dashboard/eInvoiceDownloadModal";
 import type { InvoiceWithClient, Invoice } from "@/types";
 
 const statusColors: Record<string, string> = {
@@ -221,6 +223,36 @@ export default function InvoicesPage() {
             icon: <FilePdfOutlined />,
             label: t("invoices.downloadPdf"),
             onClick: () => router.push(`/dashboard/invoices/${record.id}/pdf`),
+        },
+        {
+            key: "zugferd",
+            icon: <FilePdfOutlined />,
+            label: t("erechnung.downloadZUGFeRDBtn"),
+            onClick: () => {
+                if (!record.id) return;
+                void downloadInvoiceWithFeedback({
+                    invoiceId: record.id,
+                    invoiceNumber: record.invoice_number,
+                    format: "zugferd",
+                    t,
+                    onNavigate: (path) => router.push(path),
+                });
+            },
+        },
+        {
+            key: "xrechnung",
+            icon: <FileTextOutlined />,
+            label: t("erechnung.downloadXRechnungBtn"),
+            onClick: () => {
+                if (!record.id) return;
+                void downloadInvoiceWithFeedback({
+                    invoiceId: record.id,
+                    invoiceNumber: record.invoice_number,
+                    format: "xrechnung",
+                    t,
+                    onNavigate: (path) => router.push(path),
+                });
+            },
         },
         {
             key: "ai-reminder",

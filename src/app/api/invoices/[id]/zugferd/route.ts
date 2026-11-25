@@ -1,4 +1,6 @@
 import { readEInvoiceData } from "@/lib/eRechnung/identifiers";
+import { buildAttachmentDisposition } from "@/lib/eRechnung/disposition";
+import { validateXRechnung } from "@/lib/eRechnung/xrechnung";
 import { NextRequest, NextResponse } from "next/server";
 import { Query } from "node-appwrite";
 import {
@@ -64,6 +66,7 @@ export async function GET(
         const company = {
             id: companyDoc.$id,
             user_id: companyDoc.userId || "",
+            e_invoice: readEInvoiceData(companyDoc.eInvoiceData),
             name: companyDoc.name || "",
             address_line1: companyDoc.addressLine1 || companyDoc.address || "",
             address_line2: companyDoc.addressLine2 ?? undefined,
@@ -81,7 +84,7 @@ export async function GET(
             bank_iban: companyDoc.bankIban || undefined,
             bank_bic: companyDoc.bankBic ?? undefined,
             bank_name: companyDoc.bankName ?? undefined,
-        logo_base64: companyDoc.logoBase64 ?? undefined,
+            logo_base64: companyDoc.logoBase64 ?? undefined,
             payment_terms_default: companyDoc.paymentTermsDefault ?? 14,
             invoice_number_prefix: companyDoc.invoiceNumberPrefix ?? "RE",
             next_invoice_number: companyDoc.nextInvoiceNumber ?? 1,
@@ -121,6 +124,8 @@ export async function GET(
             price: item.price,
             tax_rate_percent: item.taxRatePercent ?? 19,
             discount_percent: item.discountPercent ?? 0,
+            service_date_start: item.serviceDateStart ?? undefined,
+            service_date_end: item.serviceDateEnd ?? undefined,
             subtotal: item.subtotal ?? 0,
             tax_amount: item.taxAmount ?? 0,
             total: item.total ?? 0,
@@ -143,18 +148,32 @@ export async function GET(
             payment_terms: doc.paymentTerms ?? undefined,
             purchase_order_ref: doc.purchaseOrderRef ?? undefined,
             delivery_date: doc.deliveryDate ?? undefined,
+            delivery_date_start: doc.deliveryDateStart ?? undefined,
+            delivery_date_end: doc.deliveryDateEnd ?? undefined,
             created_at: 0,
             updated_at: 0,
             client,
             items,
         };
 
+        const errors = validateXRechnung(invoice, company);
+        if (errors.length > 0) {
+            return NextResponse.json(
+                { error: "Validation failed", errors },
+                { status: 422 },
+            );
+        }
+
         const pdfBuffer = await generateZUGFeRDPDF(invoice, company);
 
         return new Response(new Uint8Array(pdfBuffer), {
             headers: {
                 "Content-Type": "application/pdf",
-                "Content-Disposition": `attachment; filename="zugferd-${doc.invoiceNumber}.pdf"`,
+                "Content-Disposition": buildAttachmentDisposition(
+                    "zugferd",
+                    doc.invoiceNumber,
+                    "pdf",
+                ),
             },
         });
     } catch (error) {

@@ -924,6 +924,15 @@ export const de = {
         "erechnung.invalid": "Fehlende Pflichtfelder",
         "erechnung.downloadXRechnung": "XRechnung XML",
         "erechnung.downloadZUGFeRD": "ZUGFeRD PDF",
+        "erechnung.downloadXRechnungBtn": "XRechnung (XML)",
+        "erechnung.downloadZUGFeRDBtn": "ZUGFeRD (PDF)",
+        "erechnung.xrechnungTooltip":
+            "XRechnung 3.0 (XML nach EN 16931) herunterladen",
+        "erechnung.zugferdTooltip":
+            "ZUGFeRD 2.3 / Factur-X hybrides PDF/A-3 (EN 16931) herunterladen",
+        "erechnung.validationModalTitle": "Pflichtfelder für E-Rechnung fehlen",
+        "erechnung.validationModalHint":
+            "Bitte ergänzen Sie die folgenden Pflichtangaben nach EN 16931 in Ihren Unternehmenseinstellungen oder beim Kunden:",
         "erechnung.missingLeitwegId": "Leitweg-ID beim Kunden fehlt",
         "erechnung.missingVatId":
             "USt-IdNr. oder Steuernummer beim Unternehmen fehlt",
