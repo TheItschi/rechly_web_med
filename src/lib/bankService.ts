@@ -15,11 +15,12 @@ export async function getAllBankTransactions(status?: string): Promise<BankTrans
 export async function importBankTransactions(
     csvText: string,
     format: string,
-): Promise<{ imported: number; duplicates: number }> {
+    xmlFiles?: string[],
+): Promise<{ imported: number; duplicates: number; skippedPending?: number }> {
     try {
         return await apiPost(
             "/api/bank-transactions/import",
-            { csvText, format },
+            format === "camt" ? { format, xmlFiles } : { csvText, format },
             "Failed to import bank transactions",
         );
     } catch (error) {

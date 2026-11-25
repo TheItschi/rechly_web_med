@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Anonymized camt.053.001.08 statement: status as <Cd>, parties below <Pty>, batch booking -->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.08">
+  <BkToCstmrStmt>
+    <GrpHdr><MsgId>STMT-20261116</MsgId><CreDtTm>2026-11-17T06:00:00+01:00</CreDtTm></GrpHdr>
+    <Stmt>
+      <Id>STMT-20261116-1</Id>
+      <Acct><Id><IBAN>DE89370400440532013000</IBAN></Id></Acct>
+      <Ntry>
+        <Amt Ccy="EUR">150.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Sts><Cd>BOOK</Cd></Sts>
+        <BookgDt><DtTm>2026-11-16T10:15:00+01:00</DtTm></BookgDt>
+        <ValDt><Dt>2026-11-16</Dt></ValDt>
+        <AcctSvcrRef>BATCH-20261116-77</AcctSvcrRef>
+        <NtryDtls>
+          <Btch><NbOfTxs>2</NbOfTxs></Btch>
+          <TxDtls>
+            <Refs><AcctSvcrRef>BATCH-20261116-77-A</AcctSvcrRef><EndToEndId>RE-2026-0001</EndToEndId></Refs>
+            <Amt Ccy="EUR">200.00</Amt>
+            <CdtDbtInd>CRDT</CdtDbtInd>
+            <RltdPties><Dbtr><Pty><Nm>Erika Musterfrau</Nm></Pty></Dbtr><DbtrAcct><Id><IBAN>DE02120300000000202051</IBAN></Id></DbtrAcct></RltdPties>
+            <RmtInf><Strd><CdtrRefInf><Ref>RF18RE20260001</Ref></CdtrRefInf></Strd></RmtInf>
+          </TxDtls>
+          <TxDtls>
+            <Refs><EndToEndId>NOTPROVIDED</EndToEndId></Refs>
+            <Amt Ccy="EUR">50.00</Amt>
+            <CdtDbtInd>DBIT</CdtDbtInd>
+            <RltdPties><Cdtr><Pty><Nm>Beispielbank AG</Nm></Pty></Cdtr></RltdPties>
+            <AddtlTxInf>Entgelt Sammelgutschrift</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+      </Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

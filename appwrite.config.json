@@ -1737,6 +1737,15 @@
                     "encrypt": false
                 },
                 {
+                    "key": "description",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 1000,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
                     "key": "amount",
                     "type": "double",
                     "required": true,
@@ -1755,6 +1764,19 @@
                     "encrypt": false
                 },
                 {
+                    "key": "status",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "default": "unmatched",
+                    "format": "enum",
+                    "elements": [
+                        "unmatched",
+                        "matched",
+                        "ignored"
+                    ]
+                },
+                {
                     "key": "matchedInvoiceId",
                     "type": "string",
                     "required": false,
@@ -1769,6 +1791,15 @@
                     "required": true,
                     "array": false,
                     "size": 36,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "bankReference",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 64,
                     "default": null,
                     "encrypt": false
                 }

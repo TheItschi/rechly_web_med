@@ -492,7 +492,9 @@ export type BankTransactionStatus = "unmatched" | "matched" | "ignored";
 
 export interface BankTransaction {
     id?: string;
+    /** Booking date (YYYY-MM-DD) */
     transaction_date: string;
+    value_date?: string;
     amount: number;
     currency: string;
     description: string;
@@ -501,7 +503,8 @@ export interface BankTransaction {
     counterpart_iban?: string;
     status: BankTransactionStatus;
     matched_invoice_id?: string | null;
-    raw_data?: string | null;
+    /** Bank's entry reference (CAMT AcctSvcrRef) */
+    bank_reference?: string;
     created_at: number;
     updated_at: number;
 }

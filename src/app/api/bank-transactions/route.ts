@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
         const filters = [
             Query.equal("userId", user.$id),
-            Query.orderDesc("transactionDate"),
+            Query.orderDesc("bookingDate"),
             Query.limit(1000),
         ];
         if (status) filters.push(Query.equal("status", status));
@@ -42,7 +42,9 @@ export async function GET(request: NextRequest) {
 
         const transactions = res.documents.map((doc) => ({
             id: doc.$id,
-            transaction_date: doc.transactionDate,
+            // bookingDate is canonical; transactionDate was written by older imports
+            transaction_date: doc.bookingDate ?? doc.transactionDate,
+            value_date: doc.valueDate ?? undefined,
             amount: doc.amount ?? 0,
             currency: doc.currency || "EUR",
             description: doc.description ?? "",
@@ -51,10 +53,17 @@ export async function GET(request: NextRequest) {
             counterpart_iban: doc.counterpartIban ?? undefined,
             status: doc.status || "unmatched",
             matched_invoice_id: doc.matchedInvoiceId ?? undefined,
-            raw_data: doc.rawData ?? undefined,
+            bank_reference: doc.bankReference ?? undefined,
             created_at: new Date(doc.$createdAt).getTime(),
             updated_at: new Date(doc.$updatedAt).getTime(),
         }));
+
+        // Rows from older imports have no bookingDate: order on the effective date.
+        transactions.sort((a, b) =>
+            String(b.transaction_date ?? "").localeCompare(
+                String(a.transaction_date ?? ""),
+            ),
+        );
 
         return NextResponse.json(transactions);
     } catch (error) {

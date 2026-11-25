@@ -1003,6 +1003,17 @@ export async function POST(request: NextRequest) {
                     ),
             ],
             [
+                "bank.description",
+                () =>
+                    databases.createStringAttribute(
+                        DATABASE_ID,
+                        "bank_transactions",
+                        "description",
+                        1000,
+                        false,
+                    ),
+            ],
+            [
                 "bank.amount",
                 () =>
                     databases.createFloatAttribute(
@@ -1055,6 +1066,18 @@ export async function POST(request: NextRequest) {
                         "importBatchId",
                         36,
                         true,
+                    ),
+            ],
+            [
+                // CAMT AcctSvcrRef: recognises re-imported entries
+                "bank.bankReference",
+                () =>
+                    databases.createStringAttribute(
+                        DATABASE_ID,
+                        "bank_transactions",
+                        "bankReference",
+                        64,
+                        false,
                     ),
             ],
         ];

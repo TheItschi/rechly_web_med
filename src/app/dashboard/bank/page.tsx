@@ -30,6 +30,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useBankStore } from "@/store/bankStore";
 import { useInvoiceStore } from "@/store/invoiceStore";
 import { importBankTransactions } from "@/lib/bankService";
+import { ApiError } from "@/lib/apiClient";
+import { CamtFileError, extractCamtDocuments } from "@/lib/bank/camtFile";
 import { formatCurrency } from "@/lib/currencyUtils";
 import type { BankTransaction, InvoiceWithClient } from "@/types";
 
@@ -50,6 +52,8 @@ export default function BankPage() {
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [importFormat, setImportFormat] = useState("dkb");
     const [csvText, setCsvText] = useState("");
+    /** CAMT: XML documents of the selected .xml/.zip */
+    const [xmlFiles, setXmlFiles] = useState<string[]>([]);
     const [importing, setImporting] = useState(false);
     const [matchModalOpen, setMatchModalOpen] = useState(false);
     const [selectedTx, setSelectedTx] = useState<BankTransaction | null>(null);
@@ -92,23 +96,37 @@ export default function BankPage() {
     };
 
     const handleImport = async () => {
-        if (!csvText.trim()) {
+        const isCamt = importFormat === "camt";
+        if (isCamt ? !xmlFiles.length : !csvText.trim()) {
             message.error(t("bank.importEmpty"));
             return;
         }
         setImporting(true);
         try {
-            const result = await importBankTransactions(csvText, importFormat);
+            const result = await importBankTransactions(
+                csvText,
+                importFormat,
+                isCamt ? xmlFiles : undefined,
+            );
+            const skipped = result.skippedPending
+                ? ` · ${t("bank.skippedPending").replace("{0}", String(result.skippedPending))}`
+                : "";
             message.success(
                 t("bank.importSuccess")
                     .replace("{0}", String(result.imported))
-                    .replace("{1}", String(result.duplicates)),
+                    .replace("{1}", String(result.duplicates)) + skipped,
             );
             fetchTransactions(true);
             setImportModalOpen(false);
             setCsvText("");
-        } catch {
-            message.error(t("bank.importError"));
+            setXmlFiles([]);
+        } catch (error) {
+            // Client errors (e.g. no CAMT document) carry a useful reason
+            const detail =
+                error instanceof ApiError && error.status < 500
+                    ? `: ${error.message}`
+                    : "";
+            message.error(t("bank.importError") + detail);
         } finally {
             setImporting(false);
         }
@@ -355,9 +373,17 @@ export default function BankPage() {
                         </label>
                         <Select
                             value={importFormat}
-                            onChange={setImportFormat}
-                            style={{ width: 200 }}
+                            onChange={(value: string) => {
+                                setImportFormat(value);
+                                setCsvText("");
+                                setXmlFiles([]);
+                            }}
+                            style={{ width: 320 }}
                             options={[
+                                {
+                                    value: "camt",
+                                    label: t("bank.format.camt"),
+                                },
                                 {
                                     value: "dkb",
                                     label: t("bank.format.dkb") || "DKB",
@@ -380,9 +406,32 @@ export default function BankPage() {
                             {t("bank.csvFile")}
                         </label>
                         <Upload.Dragger
-                            accept=".csv,.txt"
+                            accept={
+                                importFormat === "camt"
+                                    ? ".xml,.zip"
+                                    : ".csv,.txt"
+                            }
                             showUploadList={false}
                             beforeUpload={(file) => {
+                                if (importFormat === "camt") {
+                                    file.arrayBuffer()
+                                        .then((buffer) =>
+                                            setXmlFiles(
+                                                extractCamtDocuments(
+                                                    new Uint8Array(buffer),
+                                                ),
+                                            ),
+                                        )
+                                        .catch((error) => {
+                                            setXmlFiles([]);
+                                            message.error(
+                                                error instanceof CamtFileError
+                                                    ? error.message
+                                                    : t("bank.fileReadError"),
+                                            );
+                                        });
+                                    return false;
+                                }
                                 const reader = new FileReader();
                                 reader.onload = (e) =>
                                     setCsvText(
@@ -393,10 +442,20 @@ export default function BankPage() {
                             }}
                         >
                             <p className="ant-upload-text">
-                                {t("bank.uploadHint")}
+                                {importFormat === "camt"
+                                    ? t("bank.camtHint")
+                                    : t("bank.uploadHint")}
                             </p>
                         </Upload.Dragger>
-                        {csvText && (
+                        {importFormat === "camt" && xmlFiles.length > 0 && (
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                {t("bank.camtDocuments").replace(
+                                    "{0}",
+                                    String(xmlFiles.length),
+                                )}
+                            </Text>
+                        )}
+                        {importFormat !== "camt" && csvText && (
                             <Text type="secondary" style={{ fontSize: 12 }}>
                                 {csvText.split("\n").length} {t("bank.lines")}
                             </Text>

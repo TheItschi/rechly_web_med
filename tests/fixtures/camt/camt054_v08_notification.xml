@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Anonymized camt.054.001.08 debit notification -->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.08">
+  <BkToCstmrDbtCdtNtfctn>
+    <GrpHdr><MsgId>NTF-1</MsgId><CreDtTm>2026-11-20T12:00:00+01:00</CreDtTm></GrpHdr>
+    <Ntfctn>
+      <Id>NTF-1-1</Id>
+      <Acct><Id><IBAN>DE89370400440532013000</IBAN></Id></Acct>
+      <Ntry>
+        <Amt Ccy="EUR">1234.56</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <Sts><Cd>BOOK</Cd></Sts>
+        <BookgDt><DtTm>2026-11-20T11:59:00Z</DtTm></BookgDt>
+        <AcctSvcrRef>NTF-20261120-9</AcctSvcrRef>
+        <NtryDtls><TxDtls>
+          <Refs><EndToEndId>MIETE-2026-11</EndToEndId></Refs>
+          <RltdPties><Cdtr><Pty><Nm>Beispiel Immobilien KG</Nm></Pty></Cdtr><CdtrAcct><Id><IBAN>DE75512108001245126199</IBAN></Id></CdtrAcct></RltdPties>
+          <RmtInf><Ustrd>Miete November Praxisraeume</Ustrd></RmtInf>
+        </TxDtls></NtryDtls>
+      </Ntry>
+    </Ntfctn>
+  </BkToCstmrDbtCdtNtfctn>
+</Document>
