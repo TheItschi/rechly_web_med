@@ -280,7 +280,11 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
         ? `${invoice.client.address_line1}\n${invoice.client.postal_code} ${invoice.client.city}`
         : "";
 
-    const [introFirstLine, ...introMore] = (invoice.medical?.intro_text ?? "").split("\n");
+    // Einleitungstext: first line bold. A leading "-" switches that off: the
+    // dash is not printed and the whole text is set regular.
+    const introRaw = invoice.medical?.intro_text ?? "";
+    const introPlain = /^\s*-/.test(introRaw);
+    const [introFirstLine, ...introMore] = (introPlain ? introRaw.replace(/^\s*-\s*/, "") : introRaw).split("\n");
     const introRest = introMore.join("\n").trim();
     const closing = (
         <View style={styles.closing} wrap={false}>
@@ -416,7 +420,7 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                 {/* Only the first line bold, further lines regular */}
                 {introFirstLine ? (
                     <View style={styles.intro}>
-                        <Text style={styles.introText}>{introFirstLine}</Text>
+                        <Text style={introPlain ? styles.introRest : styles.introText}>{introFirstLine}</Text>
                         {introRest ? <Text style={styles.introRest}>{introRest}</Text> : null}
                     </View>
                 ) : null}
