@@ -147,7 +147,9 @@ const styles = StyleSheet.create({
     colQtySmall: { width: 26, textAlign: "right" },
     justification: { fontSize: 8, color: "#555", fontStyle: "italic", marginTop: 2 },
     diagnoses: { marginBottom: 12 },
-    introText: { fontSize: 11, fontWeight: "bold", lineHeight: 1.35, marginBottom: 16 },
+    intro: { marginBottom: 16 },
+    introText: { fontSize: 11, fontWeight: "bold", lineHeight: 1.35 },
+    introRest: { fontSize: 11, lineHeight: 1.35 },
     headerText: {
         fontWeight: "bold",
         fontSize: 9,
@@ -278,6 +280,8 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
         ? `${invoice.client.address_line1}\n${invoice.client.postal_code} ${invoice.client.city}`
         : "";
 
+    const [introFirstLine, ...introMore] = (invoice.medical?.intro_text ?? "").split("\n");
+    const introRest = introMore.join("\n").trim();
     const closing = (
         <View style={styles.closing} wrap={false}>
             <Text>Mit freundlichen Grüßen</Text>
@@ -375,6 +379,10 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                         <Text style={styles.addressName}>
                             {invoice.client?.name || t("invoicePdf.unknown")}
                         </Text>
+                        {/* Kontaktperson below the name, when entered for the patient */}
+                        {invoice.client?.contact_person?.trim() ? (
+                            <Text style={styles.addressText}>{invoice.client.contact_person.trim()}</Text>
+                        ) : null}
                         <Text style={styles.addressText}>{clientAddress}</Text>
                     </View>
                     <View style={{ alignItems: "flex-end" }}>
@@ -405,8 +413,12 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                 </View>
 
                 {/* Einleitungstext, z. B. "Privatärztliche Liquidation gemäß GOÄ" */}
-                {invoice.medical?.intro_text ? (
-                    <Text style={styles.introText}>{invoice.medical.intro_text}</Text>
+                {/* Only the first line bold, further lines regular */}
+                {introFirstLine ? (
+                    <View style={styles.intro}>
+                        <Text style={styles.introText}>{introFirstLine}</Text>
+                        {introRest ? <Text style={styles.introRest}>{introRest}</Text> : null}
+                    </View>
                 ) : null}
 
                 {/* Diagnosen (ICD-10-GM) */}

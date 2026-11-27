@@ -16,7 +16,8 @@ interface ClientStore {
     clearCache: () => void;
 }
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+/** Sequence number of list requests; only the latest result is applied. */
+let fetchSeq = 0;
 
 // API helper functions that use server-side routes
 const apiGetClients = async (): Promise<Client[]> => {
@@ -89,18 +90,15 @@ export const useClientStore = create<ClientStore>((set, get) => ({
         // Skip if already loading
         if (loading) return;
 
-        // Skip if cache is still valid (unless forced)
-        if (
-            !force &&
-            lastFetched &&
-            Date.now() - lastFetched < CACHE_DURATION
-        ) {
-            return;
-        }
-
-        set({ loading: true, error: null });
+        // Stale-while-revalidate: data already loaded stays visible and is
+        // refreshed in the background, so returning to a list (e.g. after
+        // creating an invoice) shows the current state without a reload.
+        const silent = !force && lastFetched !== null;
+        const request = ++fetchSeq;
+        set(silent ? { error: null } : { loading: true, error: null });
         try {
             const clients = await apiGetClients();
+            if (request !== fetchSeq) return; // a newer request is running
             set({ clients, loading: false, lastFetched: Date.now() });
         } catch (error) {
             set({

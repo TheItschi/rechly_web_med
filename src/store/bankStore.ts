@@ -6,7 +6,8 @@ import {
 } from "@/lib/bankService";
 import type { BankTransaction } from "@/types";
 
-const CACHE_DURATION = 5 * 60 * 1000;
+/** Sequence number of list requests; only the latest result is applied. */
+let fetchSeq = 0;
 
 interface BankStore {
     transactions: BankTransaction[];
@@ -28,12 +29,14 @@ export const useBankStore = create<BankStore>((set, get) => ({
     fetchTransactions: async (force = false) => {
         const { lastFetched, loading } = get();
         if (loading) return;
-        if (!force && lastFetched && Date.now() - lastFetched < CACHE_DURATION)
-            return;
-
-        set({ loading: true, error: null });
+        // Stale-while-revalidate: data already loaded stays visible and is
+        // refreshed in the background (current state after navigating back).
+        const silent = !force && lastFetched !== null;
+        const request = ++fetchSeq;
+        set(silent ? { error: null } : { loading: true, error: null });
         try {
             const transactions = await getAllBankTransactions();
+            if (request !== fetchSeq) return; // a newer request is running
             set({ transactions, lastFetched: Date.now() });
         } catch (err) {
             set({
