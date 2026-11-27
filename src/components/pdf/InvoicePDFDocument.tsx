@@ -446,14 +446,42 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                             <Text style={[styles.colTotal, styles.headerText]}>Betrag</Text>
                         </View>
                         {medicalRows.slice(0, -1).map(renderMedicalRow)}
+                        {/* Last position + totals stay together inside the table, so
+                            the header repeats when they move to the next page. */}
+                        <View wrap={false}>
+                            {medicalRows.slice(-1).map((item) => renderMedicalRow(item, medicalRows.length - 1))}
+                            {/* Totals */}
+                            <View style={styles.totals}>
+                                <View style={styles.totalRow}>
+                                    <Text style={styles.totalLabel}>{t("invoicePdf.subtotal")}</Text>
+                                    <Text style={styles.totalValue}>
+                                        {formatCurrency(invoice.subtotal)}
+                                    </Text>
+                                </View>
+                                {showVat && <View style={styles.totalRow}>
+                                    <Text style={styles.totalLabel}>{t("invoicePdf.vatTotal")}</Text>
+                                    <Text style={styles.totalValue}>
+                                        {formatCurrency(invoice.total_vat)}
+                                    </Text>
+                                </View>}
+                                <View style={styles.totalFinal}>
+                                    <Text style={styles.totalFinalLabel}>
+                                        {t("invoicePdf.grandTotal")}
+                                    </Text>
+                                    <Text style={styles.totalFinalValue}>
+                                        {formatCurrency(invoice.total_gross)}
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
                     </View>
                 )}
 
                 {/* Table */}
                 {!isMedical && (
                 <View style={styles.table}>
-                    {/* Header */}
-                    <View style={styles.tableHeader}>
+                    {/* Header (repeated on follow-up pages) */}
+                    <View style={styles.tableHeader} fixed>
                         <Text
                             style={[styles.colDescription, styles.headerText]}
                         >
@@ -478,41 +506,41 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
 
                     {/* Rows */}
                     {plainRows.slice(0, -1).map(renderPlainRow)}
+                    {/* Last position + totals stay together inside the table, so
+                        the header repeats when they move to the next page. */}
+                    <View wrap={false}>
+                        {plainRows.slice(-1).map((item) => renderPlainRow(item, plainRows.length - 1))}
+                        {/* Totals */}
+                        <View style={styles.totals}>
+                            <View style={styles.totalRow}>
+                                <Text style={styles.totalLabel}>{t("invoicePdf.subtotal")}</Text>
+                                <Text style={styles.totalValue}>
+                                    {formatCurrency(invoice.subtotal)}
+                                </Text>
+                            </View>
+                            {showVat && <View style={styles.totalRow}>
+                                <Text style={styles.totalLabel}>{t("invoicePdf.vatTotal")}</Text>
+                                <Text style={styles.totalValue}>
+                                    {formatCurrency(invoice.total_vat)}
+                                </Text>
+                            </View>}
+                            <View style={styles.totalFinal}>
+                                <Text style={styles.totalFinalLabel}>
+                                    {t("invoicePdf.grandTotal")}
+                                </Text>
+                                <Text style={styles.totalFinalValue}>
+                                    {formatCurrency(invoice.total_gross)}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
                 </View>
                 )}
 
-                {/* Last position + totals stay together: a page break never
-                    separates the totals from the positions or from each other. */}
-                <View wrap={false}>
-                {isMedical
-                    ? medicalRows.slice(-1).map((item) => renderMedicalRow(item, medicalRows.length - 1))
-                    : plainRows.slice(-1).map((item) => renderPlainRow(item, plainRows.length - 1))}
-                {/* Totals */}
-                <View style={styles.totals}>
-                    <View style={styles.totalRow}>
-                        <Text style={styles.totalLabel}>{t("invoicePdf.subtotal")}</Text>
-                        <Text style={styles.totalValue}>
-                            {formatCurrency(invoice.subtotal)}
-                        </Text>
-                    </View>
-                    {showVat && <View style={styles.totalRow}>
-                        <Text style={styles.totalLabel}>{t("invoicePdf.vatTotal")}</Text>
-                        <Text style={styles.totalValue}>
-                            {formatCurrency(invoice.total_vat)}
-                        </Text>
-                    </View>}
-                    <View style={styles.totalFinal}>
-                        <Text style={styles.totalFinalLabel}>
-                            {t("invoicePdf.grandTotal")}
-                        </Text>
-                        <Text style={styles.totalFinalValue}>
-                            {formatCurrency(invoice.total_gross)}
-                        </Text>
-                    </View>
-                </View>
-                {/* Tax note + payment terms (left) beside the Girocode (right); part of
-                    the unbreakable totals block, so the QR code never stands alone on a page */}
-                <View style={styles.paymentRow}>
+                {/* Closing block: tax note + payment terms + greeting (left) beside the
+                    Girocode (right). Kept together and moved as a whole when it does
+                    not fit, so the QR code never stands alone on a page. */}
+                <View style={styles.paymentRow} wrap={false}>
                     <View style={styles.paymentInfo}>
                         {company?.is_small_business && (
                             <Text style={styles.paymentInfoText}>Gemäß §19 UStG wird keine Umsatzsteuer berechnet.</Text>
@@ -535,7 +563,6 @@ export const InvoicePDF = ({ invoice, company, t, girocodeUrl }: InvoicePDFProps
                             </Text>
                         </View>
                     )}
-                </View>
                 </View>
 
                 {/* Notes */}
