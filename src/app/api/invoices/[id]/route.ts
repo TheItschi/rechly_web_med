@@ -81,6 +81,7 @@ export async function GET(
                 client = {
                     id: clientDoc.$id,
                     name: clientDoc.name,
+                    client_type: clientDoc.clientType || "company",
                     contact_person: clientDoc.contactPerson ?? undefined,
                     address_line1: clientDoc.addressLine1,
                     address_line2: clientDoc.addressLine2 ?? undefined,

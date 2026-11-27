@@ -4,13 +4,17 @@ import { buildEml, invoiceEmailBody, invoiceEmailSubject } from "../src/lib/invo
 
 const invoice = {
     invoice_number: "PL-2026-001", issue_date: "2026-05-21", due_date: "2026-06-04", total_gross: 269.94,
-    client: { name: "Bestattungen Brand", email: "info@example.org" },
+    client: { name: "Bestattungen Brand", client_type: "company", email: "info@example.org" },
 } as never;
 const company = { name: "Dr. med. Sabine Icsezer", professional_title: "Ärztin", bank_iban: "DE02120300000000202051", bank_bic: "BYLADEM1001", bank_name: "Testbank", email: "praxis@example.org" } as never;
 
 test("standard text asks for payment with amount, due date and bank details", () => {
     const body = invoiceEmailBody(invoice, company);
-    assert.match(body, /Guten Tag Bestattungen Brand,/);
+    // Business address: neutral salutation, no company name
+    assert.match(body, /^Sehr geehrte Damen und Herren,/);
+    assert.doesNotMatch(body, /Bestattungen Brand/);
+    const person = { ...(invoice as object), client: { name: "Max Muster", client_type: "person" } } as never;
+    assert.match(invoiceEmailBody(person, company), /^Guten Tag Max Muster,/);
     assert.match(body, /Rechnung PL-2026-001 vom 21\.05\.2026 über 269,94\s€/);
     assert.match(body, /bis zum 04\.06\.2026/);
     assert.match(body, /IBAN: DE02 1203 0000 0000 2020 51/);

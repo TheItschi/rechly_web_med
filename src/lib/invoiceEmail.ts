@@ -41,7 +41,8 @@ export function invoiceEmailSubject(invoice: InvoiceWithDetails, company: UserCo
 
 /** Standard text with a request for payment. */
 export function invoiceEmailBody(invoice: InvoiceWithDetails, company: UserCompany | null, options: InvoiceEmailOptions = {}): string {
-    const name = invoice.client?.name?.trim();
+    // Business addresses get the neutral salutation instead of the company name.
+    const name = invoice.client?.client_type === "company" ? undefined : invoice.client?.name?.trim();
     const lines: string[] = [
         name ? `Guten Tag ${name},` : "Sehr geehrte Damen und Herren,",
         "",
